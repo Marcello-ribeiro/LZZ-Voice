@@ -1082,3 +1082,514 @@ button:disabled {
         font-size: 30px;
     }
 }
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+.mobile-menu-btn,
+.mobile-overlay {
+    display: none;
+}
+
+
+/* TABLET */
+
+@media (max-width: 1000px) {
+
+    .app {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .sidebar {
+        width: 260px;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .side-panel {
+        display: none;
+    }
+
+    .hero-right {
+        min-width: 180px;
+    }
+
+}
+
+
+/* CELULAR */
+
+@media (max-width: 768px) {
+
+    body {
+        overflow: hidden;
+    }
+
+
+    .app {
+        padding: 0;
+        gap: 0;
+
+        width: 100%;
+        height: 100dvh;
+    }
+
+
+    /* ================================
+       SIDEBAR MOBILE
+    ================================ */
+
+    .sidebar {
+        position: fixed;
+
+        top: 0;
+        left: 0;
+
+        width: 285px;
+        height: 100dvh;
+
+        z-index: 1000;
+
+        border-radius: 0 24px 24px 0;
+
+        transform: translateX(-105%);
+
+        transition: transform 0.25s ease;
+
+        box-shadow:
+            20px 0 50px rgba(0, 0, 0, 0.45);
+    }
+
+
+    .sidebar.aberta {
+        transform: translateX(0);
+    }
+
+
+  .mobile-overlay {
+    display: block;
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.35);
+
+    z-index: 900;
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+
+        pointer-events: none;
+}
+
+
+    .mobile-overlay.ativo {
+        opacity: 1;
+        visibility: visible;
+    }
+
+
+    /* ================================
+       BOTÃO MENU
+    ================================ */
+
+    .mobile-menu-btn {
+        display: flex;
+
+        position: fixed;
+
+        top: 14px;
+        left: 14px;
+
+        width: 46px;
+        height: 46px;
+
+        align-items: center;
+        justify-content: center;
+
+        z-index: 500;
+
+        border: 1px solid var(--border);
+
+        border-radius: 15px;
+
+        background:
+            rgba(13, 20, 35, 0.88);
+
+        backdrop-filter: blur(12px);
+
+        color: white;
+
+        font-size: 20px;
+
+        cursor: pointer;
+    }
+
+
+    /* ================================
+       MAIN
+    ================================ */
+
+    .main {
+        width: 100%;
+        min-width: 0;
+
+        padding: 12px;
+
+        gap: 12px;
+
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+
+    /* ================================
+       HERO
+    ================================ */
+
+    .hero {
+        min-height: auto;
+
+        padding:
+            75px 20px
+            22px;
+
+        border-radius: 22px;
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 20px;
+    }
+
+
+    .hero-left {
+        width: 100%;
+    }
+
+
+    .hero-left h2 {
+        font-size: 28px;
+    }
+
+
+    .hero-left p {
+        font-size: 13px;
+    }
+
+
+    .hero-tags {
+        gap: 7px;
+
+        margin-top: 14px;
+    }
+
+
+    .tag {
+        padding: 7px 10px;
+
+        font-size: 10px;
+    }
+
+
+    .hero-right {
+        display: none;
+    }
+
+
+    /* ================================
+       PAINÉIS
+    ================================ */
+
+    .content-grid {
+        display: block;
+
+        width: 100%;
+    }
+
+
+    .panel {
+        width: 100%;
+
+        padding: 18px;
+
+        border-radius: 22px;
+    }
+
+
+    .participants-panel {
+        min-height: 400px;
+    }
+
+
+    .side-panel {
+        display: none;
+    }
+
+
+    .panel-header h3 {
+        font-size: 19px;
+    }
+
+
+    /* ================================
+       USUÁRIOS
+    ================================ */
+
+    .users-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 10px;
+    }
+
+
+    .user-card {
+        min-height: 145px;
+
+        border-radius: 18px;
+
+        padding: 12px;
+    }
+
+
+    .user-avatar {
+        width: 60px;
+        height: 60px;
+
+        border-radius: 18px;
+
+        font-size: 22px;
+    }
+
+
+    .user-name {
+        font-size: 13px;
+    }
+
+
+    .user-mic {
+        right: 8px;
+        bottom: 8px;
+
+        min-width: 30px;
+        height: 30px;
+    }
+
+
+    /* ================================
+       BARRA DE CALL
+    ================================ */
+
+    .callbar {
+        min-height: 78px;
+        height: auto;
+
+        border-radius: 20px;
+
+        gap: 8px;
+
+        padding: 10px;
+
+        position: sticky;
+
+        bottom: 0;
+
+        z-index: 100;
+    }
+
+
+    .circle-btn {
+        width: 46px;
+        height: 46px;
+
+        border-radius: 15px;
+
+        font-size: 17px;
+
+        flex-shrink: 0;
+    }
+
+
+    .join-btn {
+        height: 46px;
+
+        border-radius: 15px;
+
+        padding: 0 16px;
+
+        font-size: 13px;
+    }
+
+
+    /* ================================
+       CHAT
+    ================================ */
+
+    .text-view {
+        width: 100%;
+
+        height: calc(100dvh - 24px);
+
+        border-radius: 22px;
+    }
+
+
+    .chat-header {
+        height: 75px;
+
+        padding:
+            0 15px
+            0 65px;
+    }
+
+
+    .chat-icon {
+        width: 40px;
+        height: 40px;
+
+        border-radius: 12px;
+
+        font-size: 18px;
+    }
+
+
+    .chat-title h2 {
+        font-size: 16px;
+    }
+
+
+    .messages {
+        padding: 15px 10px;
+    }
+
+
+    .message {
+        gap: 10px;
+
+        padding: 9px 6px;
+    }
+
+
+    .message-avatar {
+        width: 36px;
+        height: 36px;
+
+        border-radius: 12px;
+
+        font-size: 13px;
+    }
+
+
+    .message-author {
+        font-size: 13px;
+    }
+
+
+    .message-text {
+        font-size: 14px;
+    }
+
+
+    .message-box {
+        margin:
+            10px
+            10px
+            12px;
+
+        min-height: 55px;
+
+        border-radius: 17px;
+    }
+
+
+    .message-box input {
+        min-width: 0;
+
+        font-size: 14px;
+    }
+
+
+    .message-box button {
+        width: 40px;
+        height: 40px;
+
+        flex-shrink: 0;
+
+        border-radius: 12px;
+    }
+
+}
+
+
+/* CELULAR PEQUENO */
+
+@media (max-width: 430px) {
+
+    .main {
+        padding: 8px;
+    }
+
+
+    .hero {
+        padding:
+            70px 16px
+            18px;
+
+        border-radius: 18px;
+    }
+
+
+    .hero-left h2 {
+        font-size: 25px;
+    }
+
+
+    .users-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .user-card {
+        min-height: 130px;
+    }
+
+
+    .user-avatar {
+        width: 52px;
+        height: 52px;
+
+        font-size: 19px;
+    }
+
+
+    .join-btn {
+        flex: 1;
+
+        padding: 0 10px;
+    }
+
+
+    .callbar {
+        gap: 6px;
+    }
+
+
+    .circle-btn {
+        width: 43px;
+        height: 43px;
+    }
+
+}

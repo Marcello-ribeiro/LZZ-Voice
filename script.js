@@ -2326,3 +2326,101 @@ function rolarChat() {
         messages.scrollHeight;
 
 }
+
+/* ==========================================
+   MENU MOBILE
+========================================== */
+
+const mobileMenuBtn =
+    document.getElementById(
+        "mobileMenuBtn"
+    );
+
+const mobileOverlay =
+    document.getElementById(
+        "mobileOverlay"
+    );
+
+const sidebar =
+    document.querySelector(
+        ".sidebar"
+    );
+
+
+function abrirMenuMobile() {
+
+    sidebar.classList.add(
+        "aberta"
+    );
+
+    mobileOverlay.classList.add(
+        "ativo"
+    );
+
+}
+
+
+function fecharMenuMobile() {
+
+    sidebar.classList.remove(
+        "aberta"
+    );
+
+    mobileOverlay.classList.remove(
+        "ativo"
+    );
+
+}
+
+
+mobileMenuBtn.addEventListener(
+    "click",
+    function () {
+
+        if (
+            sidebar.classList.contains("aberta")
+        ) {
+
+            fecharMenuMobile();
+
+        } else {
+
+            abrirMenuMobile();
+
+        }
+
+    }
+);
+
+
+mobileOverlay.addEventListener(
+    "click",
+    fecharMenuMobile
+);
+
+
+/*
+    Fecha automaticamente quando
+    escolher um canal no celular.
+*/
+
+document
+    .querySelectorAll(".channel")
+    .forEach(function (canal) {
+
+        canal.addEventListener(
+            "click",
+            function () {
+
+                if (
+                    window.innerWidth <= 768
+                ) {
+
+                    fecharMenuMobile();
+
+                }
+
+            }
+        );
+
+    });
