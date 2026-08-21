@@ -1,0 +1,749 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    background: #1e1f22;
+    color: #f2f3f5;
+
+    overflow: hidden;
+}
+
+button {
+    font-family: inherit;
+}
+
+
+/* =========================
+   APP
+========================= */
+
+.app {
+    display: flex;
+    height: 100vh;
+}
+
+
+/* =========================
+   SERVIDORES
+========================= */
+
+.servers {
+    width: 72px;
+
+    background: #1e1f22;
+
+    padding-top: 12px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.server {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: #313338;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+
+.server:hover {
+    border-radius: 16px;
+
+    background: #5865f2;
+}
+
+
+.server.ativo {
+    border-radius: 16px;
+
+    background: #5865f2;
+}
+
+
+.server-home {
+    font-size: 20px;
+}
+
+
+.adicionar {
+    color: #23a559;
+
+    font-size: 28px;
+}
+
+
+.adicionar:hover {
+    color: white;
+    background: #23a559;
+}
+
+
+.separator {
+    width: 32px;
+    height: 2px;
+
+    background: #35363c;
+
+    border-radius: 5px;
+
+    margin: 3px 0;
+}
+
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar {
+    width: 250px;
+
+    background: #2b2d31;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+.server-header {
+    height: 50px;
+
+    padding: 0 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 1px solid #1e1f22;
+
+    cursor: pointer;
+}
+
+
+.server-header:hover {
+    background: #35373c;
+}
+
+
+.server-header h3 {
+    font-size: 15px;
+}
+
+
+.channels {
+    flex: 1;
+
+    padding: 15px 8px;
+
+    overflow-y: auto;
+}
+
+
+.categoria {
+    display: flex;
+    justify-content: space-between;
+
+    color: #949ba4;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    padding: 5px 5px;
+}
+
+
+.categoria-voz {
+    margin-top: 18px;
+}
+
+
+.channel {
+    width: 100%;
+
+    height: 34px;
+
+    border: 0;
+    border-radius: 4px;
+
+    background: transparent;
+
+    color: #949ba4;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 0 8px;
+
+    font-size: 15px;
+
+    cursor: pointer;
+
+    margin-bottom: 2px;
+}
+
+
+.channel:hover {
+    background: #35373c;
+    color: #dbdee1;
+}
+
+
+.channel.ativo {
+    background: #404249;
+    color: white;
+}
+
+
+.icone-canal {
+    width: 18px;
+
+    font-size: 17px;
+}
+
+
+/* =========================
+   USUÁRIOS NA SIDEBAR
+========================= */
+
+.usuarios-canal {
+    padding-left: 26px;
+
+    margin-bottom: 5px;
+}
+
+
+.usuario-canal {
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    color: #b5bac1;
+
+    font-size: 13px;
+}
+
+
+.avatar-canal {
+    width: 24px;
+    height: 24px;
+
+    background: #5865f2;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: white;
+
+    font-size: 11px;
+    font-weight: bold;
+}
+
+
+/* =========================
+   PERFIL
+========================= */
+
+.profile-bar {
+    height: 54px;
+
+    background: #232428;
+
+    padding: 5px 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+.profile-info {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.avatar-small {
+    width: 32px;
+    height: 32px;
+
+    background: #5865f2;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 13px;
+    font-weight: bold;
+
+    position: relative;
+}
+
+
+.online-dot {
+    width: 10px;
+    height: 10px;
+
+    background: #23a559;
+
+    border-radius: 50%;
+
+    position: absolute;
+
+    bottom: 0;
+    right: 0;
+
+    border: 2px solid #232428;
+}
+
+
+.profile-text {
+    display: flex;
+    flex-direction: column;
+
+    width: 75px;
+
+    overflow: hidden;
+}
+
+
+.profile-text strong {
+    font-size: 13px;
+}
+
+
+.profile-text span {
+    font-size: 11px;
+
+    color: #b5bac1;
+}
+
+
+.profile-actions {
+    display: flex;
+}
+
+
+.profile-actions button {
+    width: 30px;
+    height: 30px;
+
+    border: 0;
+    border-radius: 4px;
+
+    background: transparent;
+
+    cursor: pointer;
+}
+
+
+.profile-actions button:hover {
+    background: #35373c;
+}
+
+
+/* =========================
+   MAIN
+========================= */
+
+.main {
+    flex: 1;
+
+    background: #313338;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* =========================
+   TOPBAR
+========================= */
+
+.topbar {
+    height: 50px;
+
+    padding: 0 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 1px solid #1e1f22;
+
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.topbar-left h3 {
+    font-size: 15px;
+}
+
+
+.voice-icon {
+    color: #b5bac1;
+}
+
+
+.divider {
+    width: 1px;
+    height: 22px;
+
+    background: #4e5058;
+
+    margin: 0 4px;
+}
+
+
+.descricao {
+    color: #949ba4;
+
+    font-size: 13px;
+}
+
+
+.topbar-right {
+    display: flex;
+
+    gap: 10px;
+}
+
+
+.topbar-right button {
+    border: 0;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    font-size: 18px;
+}
+
+
+/* =========================
+   SALA DE VOZ
+========================= */
+
+.voice-area {
+    flex: 1;
+
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+.voice-content {
+    flex: 1;
+
+    padding: 35px;
+
+    overflow-y: auto;
+}
+
+
+.voice-title {
+    text-align: center;
+
+    margin-bottom: 40px;
+}
+
+
+.voice-circle {
+    width: 72px;
+    height: 72px;
+
+    border-radius: 50%;
+
+    background: #2b2d31;
+
+    margin: 0 auto 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 32px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.25);
+}
+
+
+.voice-title h1 {
+    font-size: 24px;
+
+    margin-bottom: 5px;
+}
+
+
+.voice-title p {
+    color: #949ba4;
+
+    font-size: 14px;
+}
+
+
+/* =========================
+   GRID DOS USUÁRIOS
+========================= */
+
+.users-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(180px, 230px));
+
+    justify-content: center;
+
+    gap: 18px;
+
+    max-width: 900px;
+
+    margin: auto;
+}
+
+
+.user-card {
+    height: 180px;
+
+    background: #232428;
+
+    border-radius: 12px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+
+    position: relative;
+
+    transition: 0.2s;
+}
+
+
+.user-card:hover {
+    background: #292b2f;
+
+    transform: translateY(-2px);
+}
+
+
+.user-avatar {
+    width: 74px;
+    height: 74px;
+
+    border-radius: 50%;
+
+    background: #5865f2;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 26px;
+    font-weight: bold;
+}
+
+
+.user-name {
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+
+.user-mic {
+    position: absolute;
+
+    right: 10px;
+    bottom: 10px;
+
+    width: 28px;
+    height: 28px;
+
+    border-radius: 50%;
+
+    background: #313338;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 12px;
+}
+
+
+/* =========================
+   VAZIO
+========================= */
+
+.empty-state {
+    grid-column: 1 / -1;
+
+    text-align: center;
+
+    color: #949ba4;
+
+    margin-top: 40px;
+}
+
+
+.empty-icon {
+    font-size: 55px;
+
+    margin-bottom: 12px;
+}
+
+
+.empty-state h2 {
+    color: #dbdee1;
+
+    margin-bottom: 6px;
+
+    font-size: 18px;
+}
+
+
+.empty-state p {
+    font-size: 13px;
+}
+
+
+/* =========================
+   CONTROLES
+========================= */
+
+.call-controls {
+    height: 85px;
+
+    background:
+        rgba(35, 36, 40, 0.95);
+
+    border-top: 1px solid #1e1f22;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+
+    padding: 12px;
+}
+
+
+.control-button {
+    width: 48px;
+    height: 48px;
+
+    border: 0;
+
+    border-radius: 50%;
+
+    background: #4e5058;
+
+    color: white;
+
+    font-size: 19px;
+
+    cursor: pointer;
+
+    transition: 0.15s;
+}
+
+
+.control-button:hover {
+    background: #5c5e66;
+}
+
+
+.control-button.ativo {
+    background: #da373c;
+}
+
+
+.join-button {
+    height: 45px;
+
+    padding: 0 22px;
+
+    border: 0;
+
+    border-radius: 7px;
+
+    background: #23a559;
+
+    color: white;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.join-button:hover {
+    background: #1d8f4d;
+}
+
+
+.leave {
+    background: #da373c;
+}
+
+
+.leave:hover {
+    background: #b92d32;
+}
+
+
+button:disabled {
+    opacity: 0.35;
+
+    cursor: not-allowed;
+}

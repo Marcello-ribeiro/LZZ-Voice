@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LZZ Voice</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- BARRA DOS SERVIDORES -->
+        <aside class="servers">
+
+            <div class="server server-home">
+                L
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="server ativo">
+                LR
+            </div>
+
+            <div class="server adicionar">
+                +
+            </div>
+
+        </aside>
+
+
+        <!-- CANAIS -->
+        <aside class="sidebar">
+
+            <header class="server-header">
+                <h3>LZZ Server</h3>
+                <span>⌄</span>
+            </header>
+
+
+            <div class="channels">
+
+                <div class="categoria">
+                    <span>⌄ CANAIS DE TEXTO</span>
+                    <span>+</span>
+                </div>
+
+                <button class="channel">
+                    <span class="icone-canal">#</span>
+                    geral
+                </button>
+
+                <button class="channel">
+                    <span class="icone-canal">#</span>
+                    jogos
+                </button>
+
+
+                <div class="categoria categoria-voz">
+                    <span>⌄ CANAIS DE VOZ</span>
+                    <span>+</span>
+                </div>
+
+
+                <button class="channel voice-channel ativo" data-canal="Geral">
+                    <span class="icone-canal">🔊</span>
+                    Geral
+                </button>
+
+
+                <div id="usuariosCanal" class="usuarios-canal">
+                </div>
+
+
+                <button class="channel voice-channel" data-canal="Jogando">
+                    <span class="icone-canal">🔊</span>
+                    Jogando
+                </button>
+
+
+                <button class="channel voice-channel" data-canal="Ausente">
+                    <span class="icone-canal">🔊</span>
+                    Ausente
+                </button>
+
+            </div>
+
+
+            <!-- PERFIL -->
+            <div class="profile-bar">
+
+                <div class="profile-info">
+
+                    <div class="avatar-small">
+                        M
+
+                        <span class="online-dot"></span>
+                    </div>
+
+                    <div class="profile-text">
+                        <strong>Marcello</strong>
+                        <span>Online</span>
+                    </div>
+
+                </div>
+
+
+                <div class="profile-actions">
+
+                    <button id="profileMic" title="Microfone">
+                        🎙️
+                    </button>
+
+                    <button id="profileAudio" title="Áudio">
+                        🎧
+                    </button>
+
+                    <button title="Configurações">
+                        ⚙️
+                    </button>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+
+
+        <!-- ÁREA PRINCIPAL -->
+        <main class="main">
+
+            <header class="topbar">
+
+                <div class="topbar-left">
+
+                    <span class="voice-icon">
+                        🔊
+                    </span>
+
+                    <h3 id="nomeCanal">
+                        Geral
+                    </h3>
+
+                    <span class="divider"></span>
+
+                    <span class="descricao">
+                        Canal de voz
+                    </span>
+
+                </div>
+
+
+                <div class="topbar-right">
+
+                    <button>
+                        👥
+                    </button>
+
+                    <button>
+                        📌
+                    </button>
+
+                    <button>
+                        ?
+                    </button>
+
+                </div>
+
+            </header>
+
+
+
+            <section class="voice-area">
+
+                <div class="voice-content">
+
+
+                    <div class="voice-title">
+
+                        <div class="voice-circle">
+                            🔊
+                        </div>
+
+                        <h1 id="tituloSala">
+                            Geral
+                        </h1>
+
+                        <p id="status">
+                            Você não está conectado.
+                        </p>
+
+                    </div>
+
+
+
+                    <!-- USUÁRIOS -->
+                    <div class="users-grid" id="usersGrid">
+
+                        <div class="empty-state">
+
+                            <div class="empty-icon">
+                                🎧
+                            </div>
+
+                            <h2>Ninguém conectado</h2>
+
+                            <p>
+                                Entre na sala para começar a conversar.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- CONTROLES DA CALL -->
+                <div class="call-controls">
+
+                    <button
+                        id="btnMute"
+                        class="control-button"
+                        disabled
+                    >
+                        🎙️
+                    </button>
+
+
+                    <button
+                        id="btnAudio"
+                        class="control-button"
+                        disabled
+                    >
+                        🎧
+                    </button>
+
+
+                    <button
+                        id="btnEntrar"
+                        class="join-button"
+                    >
+                        Entrar na sala
+                    </button>
+
+
+                    <button
+                        id="btnSair"
+                        class="control-button leave"
+                        disabled
+                    >
+                        📞
+                    </button>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>
