@@ -1,277 +1,236 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>LZZ Voice</title>
-
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+
+    <div class="bg-orb orb1"></div>
+    <div class="bg-orb orb2"></div>
+    <div class="bg-orb orb3"></div>
 
     <div class="app">
 
-        <!-- BARRA DOS SERVIDORES -->
-        <aside class="servers">
-
-            <div class="server server-home">
-                L
-            </div>
-
-            <div class="separator"></div>
-
-            <div class="server ativo">
-                LR
-            </div>
-
-            <div class="server adicionar">
-                +
-            </div>
-
-        </aside>
-
-
-        <!-- CANAIS -->
+        <!-- SIDEBAR -->
         <aside class="sidebar">
-
-            <header class="server-header">
-                <h3>LZZ Server</h3>
-                <span>⌄</span>
-            </header>
-
-
-            <div class="channels">
-
-                <div class="categoria">
-                    <span>⌄ CANAIS DE TEXTO</span>
-                    <span>+</span>
+            <div class="brand">
+                <div class="brand-icon">L</div>
+                <div class="brand-text">
+                    <h1>LZZ Voice</h1>
+                    <p>Private squad room</p>
                 </div>
+            </div>
 
-                <button class="channel">
-                    <span class="icone-canal">#</span>
-                    geral
-                </button>
+            <div class="menu-block">
+                <span class="menu-label">Texto</span>
 
-                <button class="channel">
-                    <span class="icone-canal">#</span>
-                    jogos
-                </button>
+         <button class="channel text-channel" data-canal="geral">
+            <span>#</span>
+            geral
+        </button>
+            </div>
 
-
-                <div class="categoria categoria-voz">
-                    <span>⌄ CANAIS DE VOZ</span>
-                    <span>+</span>
-                </div>
-
+            <div class="menu-block">
+                <span class="menu-label">Salas de voz</span>
 
                 <button class="channel voice-channel ativo" data-canal="Geral">
-                    <span class="icone-canal">🔊</span>
+                    <span>🔊</span>
                     Geral
                 </button>
 
+                <div id="usuariosCanal" class="usuarios-canal"></div>
 
-                <div id="usuariosCanal" class="usuarios-canal">
-                </div>
-
-
-                <button class="channel voice-channel" data-canal="Jogando">
-                    <span class="icone-canal">🔊</span>
-                    Jogando
+                <button class="channel voice-channel" data-canal="Rankeada">
+                    <span>🎮</span>
+                    Rankeada
                 </button>
 
-
-                <button class="channel voice-channel" data-canal="Ausente">
-                    <span class="icone-canal">🔊</span>
-                    Ausente
+                <button class="channel voice-channel" data-canal="Chill">
+                    <span>🌙</span>
+                    Chill
                 </button>
-
             </div>
 
+            <div class="sidebar-bottom">
+                <div class="profile-card">
+                    <div class="profile-left">
+                        <div class="profile-avatar">
+                            M
+                            <span class="status-dot"></span>
+                        </div>
 
-            <!-- PERFIL -->
-            <div class="profile-bar">
-
-                <div class="profile-info">
-
-                    <div class="avatar-small">
-                        M
-
-                        <span class="online-dot"></span>
+                        <div class="profile-info">
+                            <strong>Marcello</strong>
+                            <span>Online</span>
+                        </div>
                     </div>
 
-                    <div class="profile-text">
-                        <strong>Marcello</strong>
-                        <span>Online</span>
+                    <div class="profile-actions">
+                        <button id="profileMic" title="Microfone">🎙️</button>
+                        <button id="profileAudio" title="Áudio">🎧</button>
                     </div>
-
                 </div>
-
-
-                <div class="profile-actions">
-
-                    <button id="profileMic" title="Microfone">
-                        🎙️
-                    </button>
-
-                    <button id="profileAudio" title="Áudio">
-                        🎧
-                    </button>
-
-                    <button title="Configurações">
-                        ⚙️
-                    </button>
-
-                </div>
-
             </div>
-
         </aside>
 
 
-
-        <!-- ÁREA PRINCIPAL -->
+        <!-- MAIN -->
         <main class="main">
 
-            <header class="topbar">
+            <section class="text-view hidden" id="textView">
 
-                <div class="topbar-left">
+    <header class="chat-header">
 
-                    <span class="voice-icon">
-                        🔊
-                    </span>
+        <div class="chat-title">
 
-                    <h3 id="nomeCanal">
-                        Geral
-                    </h3>
+            <div class="chat-icon">
+                #
+            </div>
 
-                    <span class="divider"></span>
+            <div>
+                <h2 id="chatCanalNome">geral</h2>
+                <p>Conversa do grupo</p>
+            </div>
 
-                    <span class="descricao">
-                        Canal de voz
-                    </span>
+        </div>
 
+    </header>
+
+
+    <div class="messages" id="messages">
+
+        <div class="chat-welcome">
+            <div class="welcome-icon">#</div>
+
+            <h2 id="welcomeTitle">
+                Bem-vindo ao #geral
+            </h2>
+
+            <p>
+                Este é o começo deste canal.
+            </p>
+        </div>
+
+    </div>
+
+
+    <form class="message-box" id="chatForm">
+
+        <input
+            type="text"
+            id="chatInput"
+            maxlength="2000"
+            autocomplete="off"
+            placeholder="Mensagem em #geral"
+        >
+
+        <button type="submit">
+            ➤
+        </button>
+
+    </form>
+
+</section>
+
+            <section class="hero" id="voiceHero">
+                <div class="hero-left">
+                    <div class="room-badge">AO VIVO</div>
+                    <h2 id="tituloSala">Geral</h2>
+                    <p id="status">Você não está conectado.</p>
+
+                    <div class="hero-tags">
+                        <span class="tag">Baixa latência</span>
+                        <span class="tag">Sala privada</span>
+                        <span class="tag">Até 5 pessoas</span>
+                    </div>
                 </div>
 
-
-                <div class="topbar-right">
-
-                    <button>
-                        👥
-                    </button>
-
-                    <button>
-                        📌
-                    </button>
-
-                    <button>
-                        ?
-                    </button>
-
+                <div class="hero-right">
+                    <div class="sound-visual">
+                        <div class="bar b1"></div>
+                        <div class="bar b2"></div>
+                        <div class="bar b3"></div>
+                        <div class="bar b4"></div>
+                        <div class="bar b5"></div>
+                    </div>
                 </div>
-
-            </header>
-
+            </section>
 
 
-            <section class="voice-area">
+            <section class="content-grid" id="voiceContent">
 
-                <div class="voice-content">
-
-
-                    <div class="voice-title">
-
-                        <div class="voice-circle">
-                            🔊
+                <div class="panel participants-panel">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-mini">Sala atual</span>
+                            <h3>
+                                <span class="panel-icon">🔊</span>
+                                <span id="nomeCanal">Geral</span>
+                            </h3>
                         </div>
 
-                        <h1 id="tituloSala">
-                            Geral
-                        </h1>
-
-                        <p id="status">
-                            Você não está conectado.
-                        </p>
-
+                        <span class="panel-status">Voice Room</span>
                     </div>
 
-
-
-                    <!-- USUÁRIOS -->
                     <div class="users-grid" id="usersGrid">
-
                         <div class="empty-state">
-
-                            <div class="empty-icon">
-                                🎧
-                            </div>
-
-                            <h2>Ninguém conectado</h2>
-
-                            <p>
-                                Entre na sala para começar a conversar.
-                            </p>
-
+                            <div class="empty-state-icon">🎧</div>
+                            <h3>Ninguém conectado</h3>
+                            <p>Entre na sala para começar a conversa.</p>
                         </div>
-
                     </div>
-
-
                 </div>
 
 
+                <div class="panel side-panel">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-mini">Resumo</span>
+                            <h3>Controles</h3>
+                        </div>
+                    </div>
 
-                <!-- CONTROLES DA CALL -->
-                <div class="call-controls">
+                    <div class="mini-card">
+                        <span>Canal</span>
+                        <strong id="miniCanalNome">Geral</strong>
+                    </div>
 
-                    <button
-                        id="btnMute"
-                        class="control-button"
-                        disabled
-                    >
-                        🎙️
-                    </button>
+                    <div class="mini-card">
+                        <span>Modo</span>
+                        <strong>Voz em tempo real</strong>
+                    </div>
 
+                    <div class="mini-card">
+                        <span>Status</span>
+                        <strong id="miniStatus">Offline</strong>
+                    </div>
 
-                    <button
-                        id="btnAudio"
-                        class="control-button"
-                        disabled
-                    >
-                        🎧
-                    </button>
-
-
-                    <button
-                        id="btnEntrar"
-                        class="join-button"
-                    >
-                        Entrar na sala
-                    </button>
-
-
-                    <button
-                        id="btnSair"
-                        class="control-button leave"
-                        disabled
-                    >
-                        📞
-                    </button>
-
+                    <div class="tips-box">
+                        <h4>Dica</h4>
+                        <p>
+                            Primeiro entre na sala, depois teste o microfone e chame outro amigo para verificar o áudio.
+                        </p>
+                    </div>
                 </div>
 
             </section>
+
+
+            <footer class="callbar" id="voiceCallbar">
+                <button id="btnMute" class="circle-btn" disabled>🎙️</button>
+                <button id="btnAudio" class="circle-btn" disabled>🎧</button>
+                <button id="btnEntrar" class="join-btn">Entrar na sala</button>
+                <button id="btnSair" class="circle-btn leave-btn" disabled>📞</button>
+            </footer>
 
         </main>
 
     </div>
 
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
-
 </body>
-
 </html>

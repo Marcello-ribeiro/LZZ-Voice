@@ -46,6 +46,12 @@ const nomeCanal =
 const tituloSala =
     document.getElementById("tituloSala");
 
+const miniCanalNome = 
+    document.getElementById("miniCanalNome");
+
+const miniStatus = 
+document.getElementById("miniStatus");
+
 
 /* =====================================
    CONFIGURAÇÕES
@@ -103,6 +109,9 @@ const audiosRemotos = new Map();
 */
 
 const candidatesPendentes =
+    new Map();
+
+    const monitoresFala =
     new Map();
 
 
@@ -170,11 +179,12 @@ btnEntrar.addEventListener(
             await entrarNoCanal();
 
 
-            conectado = true;
-
+           conectado = true;
 
             statusSala.textContent =
                 `Conectado em ${canalAtual}`;
+
+            miniStatus.textContent = "Conectado";
 
 
             btnEntrar.style.display =
@@ -189,6 +199,11 @@ btnEntrar.addEventListener(
 
 
             mostrarMeuUsuario();
+
+            monitorarFala(
+    streamMicrofone,
+    meuId
+);
 
 
         } catch (erro) {
@@ -471,6 +486,148 @@ async function conectarNovosUsuarios() {
 
 }
 
+/* =====================================
+   DETECTAR QUEM ESTÁ FALANDO
+===================================== */
+
+function monitorarFala(stream, usuarioId) {
+
+    if (monitoresFala.has(usuarioId)) {
+        return;
+    }
+
+    const AudioContextClass =
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+    const audioContext =
+        new AudioContextClass();
+
+    const analyser =
+        audioContext.createAnalyser();
+
+    const source =
+        audioContext.createMediaStreamSource(
+            stream
+        );
+
+    analyser.fftSize = 512;
+
+    analyser.smoothingTimeConstant = 0.65;
+
+    source.connect(analyser);
+
+    const dados =
+        new Uint8Array(
+            analyser.fftSize
+        );
+
+    let animationId = null;
+
+    let ultimoSom = 0;
+
+
+    function analisar() {
+
+        analyser.getByteTimeDomainData(
+            dados
+        );
+
+        let soma = 0;
+
+        for (
+            let i = 0;
+            i < dados.length;
+            i++
+        ) {
+
+            const valor =
+                (dados[i] - 128) / 128;
+
+            soma +=
+                valor * valor;
+
+        }
+
+        const volume =
+            Math.sqrt(
+                soma /
+                dados.length
+            );
+
+
+        // SENSIBILIDADE
+        const estaFalando =
+            volume > 0.025;
+
+
+        const agora =
+            Date.now();
+
+
+        if (estaFalando) {
+            ultimoSom = agora;
+        }
+
+
+        const falando =
+            agora - ultimoSom < 220;
+
+
+        const card =
+            document.querySelector(
+                `[data-user-id="${usuarioId}"]`
+            );
+
+
+        if (card) {
+
+            card.classList.toggle(
+                "falando",
+                falando
+            );
+
+        }
+
+
+        animationId =
+            requestAnimationFrame(
+                analisar
+            );
+
+    }
+
+
+    analisar();
+
+
+    monitoresFala.set(
+        usuarioId,
+        {
+            parar: function () {
+
+                if (animationId) {
+
+                    cancelAnimationFrame(
+                        animationId
+                    );
+
+                }
+
+                source.disconnect();
+
+                audioContext.close();
+
+                monitoresFala.delete(
+                    usuarioId
+                );
+
+            }
+        }
+    );
+
+}
+
 
 /* =====================================
    CRIAR PEER CONNECTION
@@ -550,6 +707,11 @@ function criarPeer(remoteId) {
                 remoteId
             );
 
+
+            monitorarFala(
+                    event.streams[0],
+                    remoteId
+                );
 
             let audio =
                 audiosRemotos.get(
@@ -1020,25 +1182,28 @@ function atualizarUsuarios() {
         `;
 
 
-        htmlCards += `
+       htmlCards += `
 
-            <div class="user-card">
+    <div
+        class="user-card"
+        data-user-id="${id}"
+    >
 
-                <div class="user-avatar">
-                    ${letra}
-                </div>
+        <div class="user-avatar">
+            ${letra}
+        </div>
 
-                <span class="user-name">
-                    ${nome}
-                </span>
+        <span class="user-name">
+            ${nome}
+        </span>
 
-                <div class="user-mic">
-                    🎙️
-                </div>
+        <div class="user-mic">
+            🎙️
+        </div>
 
-            </div>
+    </div>
 
-        `;
+`;
 
     });
 
@@ -1273,6 +1438,16 @@ function removerPeer(
             remoteId
         );
 
+
+        const monitor =
+    monitoresFala.get(
+        remoteId
+    );
+
+if (monitor) {
+    monitor.parar();
+}
+
     }
 
 
@@ -1329,6 +1504,14 @@ async function sairDaSala() {
 
 
     peers.clear();
+
+    monitoresFala.forEach(
+    function (monitor) {
+        monitor.parar();
+    }
+);
+
+monitoresFala.clear();
 
 
     /*
@@ -1398,7 +1581,7 @@ async function sairDaSala() {
 
         <div class="empty-state">
 
-            <div class="empty-icon">
+            <div class="empty-state-icon">
                 🎧
             </div>
 
@@ -1421,6 +1604,8 @@ async function sairDaSala() {
 
     statusSala.textContent =
         "Você não está conectado.";
+
+        miniStatus.textContent = "Offline";
 
 
     btnEntrar.style.display =
@@ -1452,67 +1637,692 @@ async function sairDaSala() {
    CANAIS
 ===================================== */
 
+/* =====================================
+   CANAIS DE VOZ
+===================================== */
+
 const canais =
     document.querySelectorAll(
         ".voice-channel"
     );
 
 
-canais.forEach(
-    function (canal) {
+canais.forEach(function (canal) {
 
-        canal.addEventListener(
-            "click",
-            function () {
+    canal.addEventListener(
+        "click",
+        function () {
 
-
-                /*
-                    Por enquanto não deixa
-                    trocar enquanto está
-                    conectado.
-                */
-
-                if (conectado) {
-
-                    alert(
-                        "Saia da call antes de trocar de canal."
-                    );
-
-                    return;
-
-                }
+            const canalClicado =
+                canal.dataset.canal;
 
 
-                canais.forEach(
-                    function (item) {
+            /*
+                Se eu estiver conectado
+                e clicar no MESMO canal,
+                só volta para a tela da voz.
+            */
 
-                        item.classList
-                            .remove(
-                                "ativo"
-                            );
+            if (
+                conectado &&
+                canalClicado === canalAtual
+            ) {
 
-                    }
-                );
+                mostrarVoz();
 
-
-                canal.classList.add(
-                    "ativo"
-                );
-
-
-                canalAtual =
-                    canal.dataset.canal;
-
-
-                nomeCanal.textContent =
-                    canalAtual;
-
-
-                tituloSala.textContent =
-                    canalAtual;
+                return;
 
             }
+
+
+            /*
+                Se estiver conectado e tentar
+                trocar para outra sala.
+            */
+
+            if (
+                conectado &&
+                canalClicado !== canalAtual
+            ) {
+
+                alert(
+                    "Saia da call antes de trocar de canal."
+                );
+
+                return;
+
+            }
+
+
+            /*
+                Mostra a interface de voz.
+            */
+
+            mostrarVoz();
+
+
+            /*
+                Remove seleção dos outros canais.
+            */
+
+            document
+                .querySelectorAll(".channel")
+                .forEach(function (item) {
+
+                    item.classList.remove(
+                        "ativo"
+                    );
+
+                });
+
+
+            canal.classList.add(
+                "ativo"
+            );
+
+
+            canalAtual =
+                canalClicado;
+
+
+            nomeCanal.textContent =
+                canalAtual;
+
+
+            tituloSala.textContent =
+                canalAtual;
+
+
+            miniCanalNome.textContent =
+                canalAtual;
+
+        }
+    );
+
+});
+
+/* ==========================================
+   CHAT DE TEXTO
+========================================== */
+
+const textChannels =
+    document.querySelectorAll(".text-channel");
+
+
+const textView =
+    document.getElementById("textView");
+
+
+const voiceHero =
+    document.getElementById("voiceHero");
+
+
+const voiceContent =
+    document.getElementById("voiceContent");
+
+
+const voiceCallbar =
+    document.getElementById("voiceCallbar");
+
+
+const chatCanalNome =
+    document.getElementById("chatCanalNome");
+
+
+const welcomeTitle =
+    document.getElementById("welcomeTitle");
+
+
+const messages =
+    document.getElementById("messages");
+
+
+const chatForm =
+    document.getElementById("chatForm");
+
+
+const chatInput =
+    document.getElementById("chatInput");
+
+
+let canalTextoAtual = null;
+
+let realtimeTexto = null;
+
+const mensagensExibidas =
+    new Set();
+
+
+/* ==========================================
+   CLICAR EM CANAL DE TEXTO
+========================================== */
+
+textChannels.forEach(function (canal) {
+
+    canal.addEventListener(
+        "click",
+        async function () {
+
+            const nome =
+                canal.dataset.canal;
+
+
+            canalTextoAtual =
+                nome;
+
+
+            document
+                .querySelectorAll(".channel")
+                .forEach(function (item) {
+
+                    item.classList.remove("ativo");
+
+                });
+
+
+            canal.classList.add("ativo");
+
+
+            mostrarChat();
+
+
+            chatCanalNome.textContent =
+                nome;
+
+
+            welcomeTitle.textContent =
+                `Bem-vindo ao #${nome}`;
+
+
+            chatInput.placeholder =
+                `Mensagem em #${nome}`;
+
+
+            await carregarMensagens(nome);
+
+
+            conectarChatTempoReal(nome);
+
+        }
+    );
+
+});
+
+
+/* ==========================================
+   MOSTRAR CHAT
+========================================== */
+
+function mostrarChat() {
+
+    voiceHero.classList.add("hidden");
+
+    voiceContent.classList.add("hidden");
+
+    voiceCallbar.classList.add("hidden");
+
+
+    textView.classList.remove("hidden");
+
+}
+
+
+/* ==========================================
+   MOSTRAR VOZ
+========================================== */
+
+function mostrarVoz() {
+
+    textView.classList.add("hidden");
+
+
+    voiceHero.classList.remove("hidden");
+
+    voiceContent.classList.remove("hidden");
+
+    voiceCallbar.classList.remove("hidden");
+
+}
+
+
+/* ==========================================
+   CARREGAR HISTÓRICO
+========================================== */
+
+async function carregarMensagens(canal) {
+
+    messages.innerHTML = `
+        <div class="chat-welcome">
+
+            <div class="welcome-icon">
+                #
+            </div>
+
+            <h2>
+                Bem-vindo ao #${canal}
+            </h2>
+
+            <p>
+                Este é o começo deste canal.
+            </p>
+
+        </div>
+    `;
+
+
+    mensagensExibidas.clear();
+
+
+    const { data, error } =
+        await supabaseClient
+
+            .from("mensagens")
+
+            .select(
+                "id, canal, autor, texto, criado_em"
+            )
+
+            .eq(
+                "canal",
+                canal
+            )
+
+            .order(
+                "criado_em",
+                {
+                    ascending: false
+                }
+            )
+
+            .limit(100);
+
+
+    if (error) {
+
+        console.error(
+            "Erro ao carregar mensagens:",
+            error
         );
+
+        return;
+
+    }
+
+
+    const lista =
+        [...data].reverse();
+
+
+    lista.forEach(function (mensagem) {
+
+        adicionarMensagem(
+            mensagem,
+            false
+        );
+
+    });
+
+
+    rolarChat();
+
+}
+
+
+/* ==========================================
+   ENVIAR MENSAGEM
+========================================== */
+
+chatForm.addEventListener(
+    "submit",
+    async function (event) {
+
+        event.preventDefault();
+
+
+        if (!canalTextoAtual) {
+
+            return;
+
+        }
+
+
+        const texto =
+            chatInput.value.trim();
+
+
+        if (!texto) {
+
+            return;
+
+        }
+
+
+        chatInput.value = "";
+
+
+        const novaMensagem = {
+
+            canal:
+                canalTextoAtual,
+
+            autor:
+                meuNome,
+
+            texto:
+                texto
+
+        };
+
+
+        const { data, error } =
+            await supabaseClient
+
+                .from("mensagens")
+
+                .insert(
+                    novaMensagem
+                )
+
+                .select()
+
+                .single();
+
+
+        if (error) {
+
+            console.error(
+                "Erro ao enviar:",
+                error
+            );
+
+
+            alert(
+                "Não foi possível enviar a mensagem."
+            );
+
+
+            return;
+
+        }
+
+
+        adicionarMensagem(data);
+
+
+        if (realtimeTexto) {
+
+            await realtimeTexto.send({
+
+                type:
+                    "broadcast",
+
+                event:
+                    "nova-mensagem",
+
+                payload:
+                    data
+
+            });
+
+        }
 
     }
 );
+
+
+/* ==========================================
+   CHAT EM TEMPO REAL
+========================================== */
+
+async function conectarChatTempoReal(
+    canal
+) {
+
+    if (realtimeTexto) {
+
+        await supabaseClient
+            .removeChannel(
+                realtimeTexto
+            );
+
+    }
+
+
+    realtimeTexto =
+        supabaseClient.channel(
+            `chat-${canal}`
+        );
+
+
+    realtimeTexto.on(
+
+        "broadcast",
+
+        {
+            event:
+                "nova-mensagem"
+        },
+
+        function (evento) {
+
+            const mensagem =
+                evento.payload;
+
+
+            if (
+                mensagem.canal !==
+                canalTextoAtual
+            ) {
+
+                return;
+
+            }
+
+
+            adicionarMensagem(
+                mensagem
+            );
+
+        }
+
+    );
+
+
+    realtimeTexto.subscribe();
+
+}
+
+
+/* ==========================================
+   ADICIONAR MENSAGEM NA TELA
+========================================== */
+
+function adicionarMensagem(
+    mensagem,
+    rolar = true
+) {
+
+    if (
+        mensagensExibidas.has(
+            mensagem.id
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    mensagensExibidas.add(
+        mensagem.id
+    );
+
+
+    const container =
+        document.createElement(
+            "div"
+        );
+
+
+    container.className =
+        "message";
+
+
+    const avatar =
+        document.createElement(
+            "div"
+        );
+
+
+    avatar.className =
+        "message-avatar";
+
+
+    avatar.textContent =
+        mensagem.autor
+            .charAt(0)
+            .toUpperCase();
+
+
+    const content =
+        document.createElement(
+            "div"
+        );
+
+
+    content.className =
+        "message-content";
+
+
+    const top =
+        document.createElement(
+            "div"
+        );
+
+
+    top.className =
+        "message-top";
+
+
+    const autor =
+        document.createElement(
+            "span"
+        );
+
+
+    autor.className =
+        "message-author";
+
+
+    autor.textContent =
+        mensagem.autor;
+
+
+    const hora =
+        document.createElement(
+            "span"
+        );
+
+
+    hora.className =
+        "message-time";
+
+
+    hora.textContent =
+        formatarHora(
+            mensagem.criado_em
+        );
+
+
+    const texto =
+        document.createElement(
+            "div"
+        );
+
+
+    texto.className =
+        "message-text";
+
+
+    texto.textContent =
+        mensagem.texto;
+
+
+    top.appendChild(
+        autor
+    );
+
+
+    top.appendChild(
+        hora
+    );
+
+
+    content.appendChild(
+        top
+    );
+
+
+    content.appendChild(
+        texto
+    );
+
+
+    container.appendChild(
+        avatar
+    );
+
+
+    container.appendChild(
+        content
+    );
+
+
+    messages.appendChild(
+        container
+    );
+
+
+    if (rolar) {
+
+        rolarChat();
+
+    }
+
+}
+
+
+/* ==========================================
+   HORA
+========================================== */
+
+function formatarHora(data) {
+
+    return new Date(
+        data
+    ).toLocaleTimeString(
+        "pt-BR",
+        {
+
+            hour:
+                "2-digit",
+
+            minute:
+                "2-digit"
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+   ROLAR PARA ÚLTIMA MENSAGEM
+========================================== */
+
+function rolarChat() {
+
+    messages.scrollTop =
+        messages.scrollHeight;
+
+}
