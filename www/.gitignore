@@ -1,0 +1,28 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Android / Gradle
+.gradle/
+android/.gradle/
+android/build/
+android/app/build/
+android/.idea/
+android/local.properties
+
+# Android Studio
+.idea/
+*.iml
+
+# Arquivos temporários
+.DS_Store
+Thumbs.db
+*.log
+
+# APKs gerados
+*.apk
+*.aab
+
+# Gradle
+.gradle/
+build/

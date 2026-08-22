@@ -4,15 +4,195 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LZZ Voice</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    
+<!-- LOGIN / CADASTRO -->
+
+<section class="auth-screen" id="authScreen">
+
+    <div class="auth-card">
+
+        <div class="auth-logo">
+            L 
+        </div>
+
+        <h1>LZZ Voice</h1>
+
+        <p class="auth-subtitle">
+            Sua sala. Sua galera. Sua voz.
+        </p>
+
+
+        <div class="auth-tabs">
+
+            <button
+                type="button"
+                id="tabLogin"
+                class="auth-tab ativo"
+            >
+                Entrar
+            </button>
+
+            <button
+                type="button"
+                id="tabCadastro"
+                class="auth-tab"
+            >
+                Criar conta
+            </button>
+
+        </div>
+
+
+        <!-- LOGIN -->
+
+        <form id="loginForm" class="auth-form">
+
+            <label>
+                E-mail
+            </label>
+
+            <input
+                type="email"
+                id="loginEmail"
+                placeholder="seu@email.com"
+                required
+            >
+
+
+            <label>
+                Senha
+            </label>
+
+            <input
+                type="password"
+                id="loginSenha"
+                placeholder="Sua senha"
+                required
+            >
+
+
+            <button
+                type="submit"
+                class="auth-main-btn"
+            >
+                Entrar
+            </button>
+
+        </form>
+
+
+        <!-- CADASTRO -->
+
+        <form
+            id="cadastroForm"
+            class="auth-form hidden"
+        >
+
+            <div class="avatar-register">
+
+                <label
+                    for="cadastroAvatar"
+                    class="avatar-preview"
+                    id="avatarPreview"
+                >
+                    <span id="avatarPreviewText">
+                        +
+                    </span>
+                </label>
+
+                <input
+                    type="file"
+                    id="cadastroAvatar"
+                    accept="image/*"
+                    hidden
+                >
+
+                <small>
+                    Escolher foto
+                </small>
+
+            </div>
+
+
+            <label>
+                Nome de usuário
+            </label>
+
+            <input
+                type="text"
+                id="cadastroUsername"
+                placeholder="marcello"
+                maxlength="20"
+                required
+            >
+
+
+            <label>
+                E-mail
+            </label>
+
+            <input
+                type="email"
+                id="cadastroEmail"
+                placeholder="seu@email.com"
+                required
+            >
+
+
+            <label>
+                Senha
+            </label>
+
+            <input
+                type="password"
+                id="cadastroSenha"
+                placeholder="Mínimo 6 caracteres"
+                minlength="6"
+                required
+            >
+
+
+            <label>
+                Confirmar senha
+            </label>
+
+            <input
+                type="password"
+                id="cadastroConfirmarSenha"
+                placeholder="Digite novamente"
+                minlength="6"
+                required
+            >
+
+
+            <button
+                type="submit"
+                class="auth-main-btn"
+            >
+                Criar conta
+            </button>
+
+        </form>
+
+
+        <p
+            class="auth-message"
+            id="authMessage"
+        ></p>
+
+    </div>
+
+</section>
 
     <div class="bg-orb orb1"></div>
     <div class="bg-orb orb2"></div>
     <div class="bg-orb orb3"></div>
 
-    <div class="app">
+    <div class="app hidden" id="appPrincipal">
 
         <!-- SIDEBAR -->
         <aside class="sidebar">
@@ -57,20 +237,40 @@
             <div class="sidebar-bottom">
                 <div class="profile-card">
                     <div class="profile-left">
-                        <div class="profile-avatar">
-                            M
-                            <span class="status-dot"></span>
-                        </div>
+          <div
+    class="profile-avatar"
+    id="profileAvatar"
+>
+    <span id="profileInitial">
+        M
+    </span>
 
-                        <div class="profile-info">
-                            <strong>Marcello</strong>
-                            <span>Online</span>
-                        </div>
+    <span class="status-dot"></span>
+</div>
+
+
+<div class="profile-info">
+
+    <strong id="profileUsername">
+        Usuário
+    </strong>
+
+    <span>
+        Online
+    </span>
+
+</div>
                     </div>
 
                     <div class="profile-actions">
                         <button id="profileMic" title="Microfone">🎙️</button>
                         <button id="profileAudio" title="Áudio">🎧</button>
+                        <button
+                        id="btnLogout"
+                        title="Sair da conta"
+                    >
+                        ➥
+                    </button>
                     </div>
                 </div>
             </div>

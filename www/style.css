@@ -1593,3 +1593,485 @@ button:disabled {
     }
 
 }
+
+/* ======================================
+   LOGIN / CADASTRO
+====================================== */
+
+.auth-screen {
+    position: fixed;
+    inset: 0;
+
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        radial-gradient(
+            circle at 20% 20%,
+            rgba(124, 92, 255, 0.18),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 80% 80%,
+            rgba(41, 182, 255, 0.12),
+            transparent 35%
+        ),
+        #07111f;
+}
+
+
+.auth-card {
+    width: 100%;
+    max-width: 410px;
+
+    padding: 34px;
+
+    border-radius: 28px;
+
+    background:
+        rgba(15, 24, 41, 0.88);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+
+    backdrop-filter: blur(20px);
+
+    box-shadow:
+        0 30px 80px
+        rgba(0, 0, 0, 0.40);
+}
+
+
+.auth-logo {
+    width: 62px;
+    height: 62px;
+
+    margin:
+        0 auto
+        16px;
+
+    border-radius: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 28px;
+    font-weight: 900;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--primary-2)
+        );
+
+    box-shadow:
+        0 15px 35px
+        rgba(124, 92, 255, 0.35);
+}
+
+
+.auth-card > h1 {
+    text-align: center;
+
+    font-size: 27px;
+}
+
+
+.auth-subtitle {
+    text-align: center;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    margin-top: 6px;
+    margin-bottom: 25px;
+}
+
+
+.auth-tabs {
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    padding: 4px;
+
+    margin-bottom: 22px;
+
+    background:
+        rgba(255, 255, 255, 0.04);
+
+    border-radius: 14px;
+}
+
+
+.auth-tab {
+    height: 42px;
+
+    border: 0;
+
+    border-radius: 11px;
+
+    background: transparent;
+
+    color: var(--muted);
+
+    cursor: pointer;
+
+    font-weight: 600;
+}
+
+
+.auth-tab.ativo {
+    color: white;
+
+    background:
+        rgba(124, 92, 255, 0.18);
+
+    box-shadow:
+        inset 0 0 0 1px
+        rgba(124, 92, 255, 0.20);
+}
+
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+
+.auth-form label {
+    color: #cbd5eb;
+
+    font-size: 12px;
+
+    margin-top: 7px;
+}
+
+
+.auth-form input {
+    width: 100%;
+    height: 48px;
+
+    padding:
+        0 15px;
+
+    border-radius: 13px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+
+    outline: 0;
+
+    background:
+        rgba(255, 255, 255, 0.045);
+
+    color: white;
+
+    font-size: 14px;
+}
+
+
+.auth-form input:focus {
+    border-color:
+        rgba(124, 92, 255, 0.65);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(124, 92, 255, 0.09);
+}
+
+
+.auth-main-btn {
+    height: 50px;
+
+    margin-top: 14px;
+
+    border: 0;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--primary-2)
+        );
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.auth-main-btn:hover {
+    transform:
+        translateY(-1px);
+}
+
+
+.auth-message {
+    min-height: 18px;
+
+    margin-top: 15px;
+
+    text-align: center;
+
+    font-size: 12px;
+
+    color: #ff7d90;
+}
+
+
+/* FOTO DE CADASTRO */
+
+.avatar-register {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-bottom: 8px;
+}
+
+
+.avatar-register small {
+    color: var(--muted);
+}
+
+
+.avatar-preview {
+    width: 82px;
+    height: 82px;
+
+    border-radius: 25px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(124, 92, 255, 0.35),
+            rgba(41, 182, 255, 0.25)
+        );
+
+    border:
+        1px solid
+        rgba(124, 92, 255, 0.30);
+
+    background-size: cover;
+    background-position: center;
+
+    font-size: 28px;
+}
+
+
+/* FOTO DO PERFIL */
+
+.profile-avatar {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* ======================================
+   AVATARES COM FOTO
+====================================== */
+
+.user-avatar,
+.avatar-canal,
+.profile-avatar {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+}
+
+
+/* quando tiver foto, não deixa texto bagunçar */
+.user-avatar.tem-foto,
+.avatar-canal.tem-foto,
+.profile-avatar.tem-foto {
+    color: transparent;
+    text-indent: -9999px;
+    font-size: 0;
+}
+
+
+/* card grande da call */
+.user-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* lista da esquerda */
+.avatar-canal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* se tiver foto, some com qualquer texto interno */
+.user-avatar.tem-foto *,
+.avatar-canal.tem-foto *,
+.profile-avatar.tem-foto * {
+    display: none !important;
+}
+
+/* =====================================
+   FOTOS DOS USUÁRIOS
+===================================== */
+
+.user-avatar,
+.avatar-canal,
+.profile-avatar {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
+/* FOTO GRANDE NA CALL */
+
+.user-avatar.tem-foto {
+    color: transparent;
+}
+
+
+/* FOTO PEQUENA NA SIDEBAR */
+
+.avatar-canal.tem-foto {
+    color: transparent;
+}
+
+
+/* USUÁRIO NA SIDEBAR */
+
+.usuario-canal {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.usuario-canal-nome {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* FOTO DO CARD GRANDE */
+
+.user-avatar {
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+
+/* FOTO PEQUENA */
+
+.avatar-canal {
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+/* =====================================
+   CORRIGIR PERFIL ESTOURANDO SIDEBAR
+===================================== */
+
+.sidebar-bottom {
+    width: 100%;
+    min-width: 0;
+}
+
+.profile-card {
+    width: 100%;
+    max-width: 100%;
+
+    padding: 10px;
+
+    gap: 8px;
+
+    overflow: hidden;
+}
+
+.profile-left {
+    flex: 1;
+
+    min-width: 0;
+
+    overflow: hidden;
+}
+
+.profile-avatar {
+    width: 42px;
+    height: 42px;
+
+    min-width: 42px;
+    flex-shrink: 0;
+}
+
+.profile-info {
+    flex: 1;
+
+    min-width: 0;
+
+    overflow: hidden;
+}
+
+.profile-info strong,
+.profile-info span {
+    display: block;
+
+    max-width: 100%;
+
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+}
+
+.profile-actions {
+    display: flex;
+
+    gap: 5px;
+
+    flex-shrink: 0;
+}
+
+.profile-actions button {
+    width: 34px;
+    height: 34px;
+
+    min-width: 34px;
+
+    padding: 0;
+
+    flex-shrink: 0;
+}

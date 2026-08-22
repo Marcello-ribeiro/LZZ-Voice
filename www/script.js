@@ -70,6 +70,69 @@ let streamMicrofone = null;
 let canalSupabase = null;
 
 
+/* =====================================
+   SERVIÇO ANDROID DA CALL
+===================================== */
+
+async function iniciarServicoCall() {
+
+    try {
+
+        const plugin =
+            window.Capacitor?.Plugins?.CallService;
+
+        if (!plugin) {
+
+            console.log(
+                "CallService só existe no app Android."
+            );
+
+            return;
+        }
+
+        await plugin.start();
+
+        console.log(
+            "CallService iniciado."
+        );
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao iniciar CallService:",
+            erro
+        );
+    }
+}
+
+
+async function pararServicoCall() {
+
+    try {
+
+        const plugin =
+            window.Capacitor?.Plugins?.CallService;
+
+        if (!plugin) {
+            return;
+        }
+
+        await plugin.stop();
+
+        console.log(
+            "CallService parado."
+        );
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao parar CallService:",
+            erro
+        );
+    }
+}
+
+
 /*
     Cada PC recebe um ID diferente.
 */
@@ -84,7 +147,13 @@ const meuId =
 */
 
 let meuNome =
-    prompt("Qual é seu nome?") || "Marcello";
+    "Usuário";
+
+let meuAvatar =
+    null;
+
+let meuPerfil =
+    null;
 
 
 /*
@@ -107,6 +176,633 @@ const audiosRemotos = new Map();
     ICE candidates que chegarem
     antes da hora.
 */
+
+/* ======================================
+   LOGIN / CADASTRO
+====================================== */
+
+const authScreen =
+    document.getElementById(
+        "authScreen"
+    );
+
+const appPrincipal =
+    document.getElementById(
+        "appPrincipal"
+    );
+
+const loginForm =
+    document.getElementById(
+        "loginForm"
+    );
+
+const cadastroForm =
+    document.getElementById(
+        "cadastroForm"
+    );
+
+const tabLogin =
+    document.getElementById(
+        "tabLogin"
+    );
+
+const tabCadastro =
+    document.getElementById(
+        "tabCadastro"
+    );
+
+const authMessage =
+    document.getElementById(
+        "authMessage"
+    );
+
+const cadastroAvatar =
+    document.getElementById(
+        "cadastroAvatar"
+    );
+
+const avatarPreview =
+    document.getElementById(
+        "avatarPreview"
+    );
+
+const avatarPreviewText =
+    document.getElementById(
+        "avatarPreviewText"
+    );
+
+const profileAvatar =
+    document.getElementById(
+        "profileAvatar"
+    );
+
+const profileInitial =
+    document.getElementById(
+        "profileInitial"
+    );
+
+const profileUsername =
+    document.getElementById(
+        "profileUsername"
+    );
+
+const btnLogout =
+    document.getElementById(
+        "btnLogout"
+    );
+
+
+/* TROCAR ENTRE LOGIN E CADASTRO */
+
+tabLogin.addEventListener(
+    "click",
+    function () {
+
+        loginForm.classList.remove(
+            "hidden"
+        );
+
+        cadastroForm.classList.add(
+            "hidden"
+        );
+
+        tabLogin.classList.add(
+            "ativo"
+        );
+
+        tabCadastro.classList.remove(
+            "ativo"
+        );
+
+        authMessage.textContent =
+            "";
+
+    }
+);
+
+
+tabCadastro.addEventListener(
+    "click",
+    function () {
+
+        cadastroForm.classList.remove(
+            "hidden"
+        );
+
+        loginForm.classList.add(
+            "hidden"
+        );
+
+        tabCadastro.classList.add(
+            "ativo"
+        );
+
+        tabLogin.classList.remove(
+            "ativo"
+        );
+
+        authMessage.textContent =
+            "";
+
+    }
+);
+
+
+/* PREVIEW DA FOTO */
+
+cadastroAvatar.addEventListener(
+    "change",
+    function () {
+
+        const arquivo =
+            cadastroAvatar.files[0];
+
+        if (!arquivo) {
+            return;
+        }
+
+        const url =
+            URL.createObjectURL(
+                arquivo
+            );
+
+        avatarPreview.style.backgroundImage =
+            `url("${url}")`;
+
+        avatarPreviewText.style.display =
+            "none";
+
+    }
+);
+
+
+/* ======================================
+   CADASTRO
+====================================== */
+
+cadastroForm.addEventListener(
+    "submit",
+    async function (event) {
+
+        event.preventDefault();
+
+
+        const username =
+            document
+                .getElementById(
+                    "cadastroUsername"
+                )
+                .value
+                .trim();
+
+
+        const email =
+            document
+                .getElementById(
+                    "cadastroEmail"
+                )
+                .value
+                .trim();
+
+
+        const senha =
+            document
+                .getElementById(
+                    "cadastroSenha"
+                )
+                .value;
+
+
+        const confirmarSenha =
+            document
+                .getElementById(
+                    "cadastroConfirmarSenha"
+                )
+                .value;
+
+
+        if (
+            senha !==
+            confirmarSenha
+        ) {
+
+            authMessage.textContent =
+                "As senhas não são iguais.";
+
+            return;
+        }
+
+
+        authMessage.textContent =
+            "Criando conta...";
+
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .auth
+                .signUp({
+
+                    email:
+                        email,
+
+                    password:
+                        senha,
+
+                    options: {
+
+                        data: {
+                            username:
+                                username
+                        }
+
+                    }
+
+                });
+
+
+        if (error) {
+
+            console.error(error);
+
+            authMessage.textContent =
+                error.message;
+
+            return;
+        }
+
+
+        if (!data.user) {
+
+            authMessage.textContent =
+                "Erro ao criar usuário.";
+
+            return;
+        }
+
+
+        /*
+            ENVIA FOTO
+        */
+
+        const arquivo =
+            cadastroAvatar.files[0];
+
+
+        if (
+            arquivo &&
+            data.session
+        ) {
+
+            await salvarAvatar(
+                data.user,
+                arquivo
+            );
+
+        }
+
+
+        authMessage.style.color =
+            "#65eaa6";
+
+        authMessage.textContent =
+            "Conta criada!";
+
+
+        await iniciarUsuario(
+            data.user
+        );
+
+    }
+);
+
+
+/* ======================================
+   LOGIN
+====================================== */
+
+loginForm.addEventListener(
+    "submit",
+    async function (event) {
+
+        event.preventDefault();
+
+
+        const email =
+            document
+                .getElementById(
+                    "loginEmail"
+                )
+                .value
+                .trim();
+
+
+        const senha =
+            document
+                .getElementById(
+                    "loginSenha"
+                )
+                .value;
+
+
+        authMessage.textContent =
+            "Entrando...";
+
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .auth
+                .signInWithPassword({
+
+                    email:
+                        email,
+
+                    password:
+                        senha
+
+                });
+
+
+     if (error) {
+
+    console.error(
+        "ERRO LOGIN:",
+        error
+    );
+
+    authMessage.textContent =
+        error.message;
+
+    return;
+}
+
+
+        await iniciarUsuario(
+            data.user
+        );
+
+    }
+);
+
+
+/* ======================================
+   SALVAR AVATAR
+====================================== */
+
+async function salvarAvatar(
+    usuario,
+    arquivo
+) {
+
+    const extensao =
+        arquivo.name
+            .split(".")
+            .pop();
+
+
+    const caminho =
+        `${usuario.id}/avatar-${Date.now()}.${extensao}`;
+
+
+    const {
+        error
+    } =
+        await supabaseClient
+            .storage
+            .from("avatars")
+            .upload(
+                caminho,
+                arquivo
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Erro no avatar:",
+            error
+        );
+
+        return;
+    }
+
+
+    const {
+        data
+    } =
+        supabaseClient
+            .storage
+            .from("avatars")
+            .getPublicUrl(
+                caminho
+            );
+
+
+    const avatarUrl =
+        data.publicUrl;
+
+
+    await supabaseClient
+        .from("perfis")
+        .update({
+
+            avatar_url:
+                avatarUrl
+
+        })
+        .eq(
+            "id",
+            usuario.id
+        );
+
+}
+
+
+/* ======================================
+   CARREGAR PERFIL
+====================================== */
+
+async function iniciarUsuario(
+    usuario
+) {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from("perfis")
+
+            .select(
+                "id, username, avatar_url"
+            )
+
+            .eq(
+                "id",
+                usuario.id
+            )
+
+            .single();
+
+
+    if (error) {
+
+        console.error(
+            "Erro ao carregar perfil:",
+            error
+        );
+
+        return;
+    }
+
+
+    meuPerfil =
+        data;
+
+
+    meuNome =
+        data.username;
+
+
+    meuAvatar =
+        data.avatar_url;
+
+
+    atualizarPerfilVisual();
+
+
+    authScreen.classList.add(
+        "hidden"
+    );
+
+
+    appPrincipal.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+/* ======================================
+   MOSTRAR PERFIL
+====================================== */
+
+function atualizarPerfilVisual() {
+
+    profileUsername.textContent =
+        meuNome;
+
+
+    profileInitial.textContent =
+        meuNome
+            .charAt(0)
+            .toUpperCase();
+
+
+if (meuAvatar) {
+
+    profileAvatar.style.backgroundImage =
+        `url("${meuAvatar}")`;
+
+    profileAvatar.classList.add("tem-foto");
+
+    profileInitial.style.display = "none";
+
+} else {
+
+    profileAvatar.style.backgroundImage =
+        "none";
+
+    profileAvatar.classList.remove("tem-foto");
+
+    profileInitial.style.display = "block";
+}
+
+}
+
+
+/* ======================================
+   LOGOUT
+====================================== */
+
+btnLogout.addEventListener(
+    "click",
+    async function () {
+
+        /*
+            SE ESTIVER EM CALL,
+            SAI PRIMEIRO.
+        */
+
+        if (conectado) {
+
+            await sairDaSala();
+
+        }
+
+
+        await supabaseClient
+            .auth
+            .signOut();
+
+
+        meuPerfil =
+            null;
+
+        meuNome =
+            "Usuário";
+
+        meuAvatar =
+            null;
+
+
+        appPrincipal.classList.add(
+            "hidden"
+        );
+
+
+        authScreen.classList.remove(
+            "hidden"
+        );
+
+    }
+);
+
+
+/* ======================================
+   VER SE JÁ ESTAVA LOGADO
+====================================== */
+
+async function verificarLogin() {
+
+    const {
+        data
+    } =
+        await supabaseClient
+            .auth
+            .getSession();
+
+
+    if (
+        data.session
+    ) {
+
+        await iniciarUsuario(
+            data.session.user
+        );
+
+    }
+
+}
+
+
+verificarLogin();
 
 const candidatesPendentes =
     new Map();
@@ -198,12 +894,14 @@ btnEntrar.addEventListener(
             btnSair.disabled = false;
 
 
-            mostrarMeuUsuario();
+mostrarMeuUsuario();
 
-            monitorarFala(
+monitorarFala(
     streamMicrofone,
     meuId
 );
+
+await iniciarServicoCall();
 
 
         } catch (erro) {
@@ -384,17 +1082,22 @@ function entrarNoCanal() {
                         "SUBSCRIBED"
                     ) {
 
-                        await canalSupabase.track({
+                      await canalSupabase.track({
 
-                            id: meuId,
+    id:
+        meuId,
 
-                            nome: meuNome,
+    nome:
+        meuNome,
 
-                            online_at:
-                                new Date()
-                                    .toISOString()
+    avatar_url:
+        meuAvatar,
 
-                        });
+    online_at:
+        new Date()
+            .toISOString()
+
+});
 
 
                         resolve();
@@ -1133,10 +1836,7 @@ function atualizarUsuarios() {
     let htmlCards = "";
 
 
-    Object.keys(
-        estado
-    ).forEach(function (id) {
-
+    Object.keys(estado).forEach(function (id) {
 
         const presencas =
             estado[id];
@@ -1146,9 +1846,7 @@ function atualizarUsuarios() {
             !presencas ||
             presencas.length === 0
         ) {
-
             return;
-
         }
 
 
@@ -1161,49 +1859,80 @@ function atualizarUsuarios() {
             "Usuário";
 
 
+        const avatar =
+            usuario.avatar_url ||
+            null;
+
+
         const letra =
             nome
                 .charAt(0)
                 .toUpperCase();
 
 
+        /* =============================
+           USUÁRIO NA BARRA ESQUERDA
+        ============================= */
+
         htmlSidebar += `
 
             <div class="usuario-canal">
 
-                <div class="avatar-canal">
-                    ${letra}
+                <div
+                    class="avatar-canal ${avatar ? "tem-foto" : ""}"
+                    ${
+                        avatar
+                            ? `style="background-image: url('${avatar}');"`
+                            : ""
+                    }
+                >
+                    ${avatar ? "" : letra}
                 </div>
 
-                ${nome}
+                <span class="usuario-canal-nome">
+                    ${nome}
+                </span>
 
             </div>
 
         `;
 
 
-       htmlCards += `
+        /* =============================
+           CARD GRANDE DA CALL
+        ============================= */
 
-    <div
-        class="user-card"
-        data-user-id="${id}"
-    >
+        htmlCards += `
 
-        <div class="user-avatar">
-            ${letra}
-        </div>
+            <div
+                class="user-card"
+                data-user-id="${id}"
+            >
 
-        <span class="user-name">
-            ${nome}
-        </span>
+                <div
+                    class="user-avatar ${avatar ? "tem-foto" : ""}"
+                    ${
+                        avatar
+                            ? `style="background-image: url('${avatar}');"`
+                            : ""
+                    }
+                >
+                    ${avatar ? "" : letra}
+                </div>
 
-        <div class="user-mic">
-            🎙️
-        </div>
 
-    </div>
+                <span class="user-name">
+                    ${nome}
+                </span>
 
-`;
+
+                <div class="user-mic">
+                    🎙️
+                </div>
+
+            </div>
+
+        `;
 
     });
 
@@ -1216,6 +1945,28 @@ function atualizarUsuarios() {
 
         usersGrid.innerHTML =
             htmlCards;
+
+    } else {
+
+        usersGrid.innerHTML = `
+
+            <div class="empty-state">
+
+                <div class="empty-state-icon">
+                    🎧
+                </div>
+
+                <h2>
+                    Ninguém conectado
+                </h2>
+
+                <p>
+                    Entre na sala para começar.
+                </p>
+
+            </div>
+
+        `;
 
     }
 
@@ -1488,6 +2239,8 @@ btnSair.addEventListener(
 async function sairDaSala() {
 
     conectado = false;
+
+    await pararServicoCall();
 
 
     /*
