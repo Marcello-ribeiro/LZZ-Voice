@@ -223,12 +223,12 @@
 
                 <div id="usuariosCanal" class="usuarios-canal"></div>
 
-                <button class="channel voice-channel" data-canal="Rankeada">
+                <button class="channel voice-channel" data-canal="Football">
                     <span>🎮</span>
                     Football
                 </button>
 
-                <button class="channel voice-channel" data-canal="Chill">
+                <button class="channel voice-channel" data-canal="Afk">
                     <span>🌙</span>
                     Afk
                 </button>
@@ -262,9 +262,12 @@
 </div>
                     </div>
 
+                    
+
                     <div class="profile-actions">
                         <button id="profileMic" title="Microfone">🎙️</button>
                         <button id="profileAudio" title="Áudio">🎧</button>
+                        <button id="btnConfig"title="Configurações">⚙️</button>
                         <button
                         id="btnLogout"
                         title="Sair da conta"
@@ -433,6 +436,137 @@
         </main>
 
     </div>
+
+    <!-- =====================================
+     CONFIGURAÇÕES
+===================================== -->
+
+<div class="settings-overlay hidden" id="settingsModal">
+
+    <div class="settings-card">
+
+        <div class="settings-header">
+
+            <div>
+                <span class="settings-mini">
+                    LZZ Voice
+                </span>
+
+                <h2>Configurações</h2>
+            </div>
+
+            <button
+                class="settings-close"
+                id="btnFecharConfig"
+            >
+                ✕
+            </button>
+
+        </div>
+
+
+        <!-- PERFIL -->
+
+        <section class="settings-section">
+
+            <h3>Perfil</h3>
+
+            <div class="settings-profile">
+
+                <label
+                    for="configAvatarInput"
+                    class="settings-avatar"
+                    id="configAvatarPreview"
+                >
+                    <span id="configAvatarLetra">
+                        M
+                    </span>
+
+                    <div class="avatar-edit">
+                        ✎
+                    </div>
+                </label>
+
+                <input
+                    type="file"
+                    id="configAvatarInput"
+                    accept="image/*"
+                    hidden
+                >
+
+
+                <div class="settings-profile-fields">
+
+                    <label>
+                        Nome de usuário
+                    </label>
+
+                    <input
+                        type="text"
+                        id="configUsername"
+                        maxlength="20"
+                    >
+
+                </div>
+
+            </div>
+
+            <button
+                class="settings-save"
+                id="btnSalvarPerfil"
+            >
+                Salvar perfil
+            </button>
+
+        </section>
+
+
+        <!-- ÁUDIO -->
+
+        <section class="settings-section">
+
+            <h3>Áudio</h3>
+
+            <div class="audio-setting">
+
+                <label>
+                    🎙️ Microfone
+                </label>
+
+                <select id="selectMicrofone">
+                    <option value="default">
+                        Padrão do sistema
+                    </option>
+                </select>
+
+            </div>
+
+
+            <div class="audio-setting">
+
+                <label>
+                    🎧 Saída de áudio
+                </label>
+
+                <select id="selectSaida">
+                    <option value="default">
+                        Padrão do sistema
+                    </option>
+                </select>
+
+            </div>
+
+        </section>
+
+
+        <p
+            class="settings-status"
+            id="settingsStatus"
+        ></p>
+
+    </div>
+
+</div>
 
 <div class="mobile-overlay" id="mobileOverlay"></div>
 

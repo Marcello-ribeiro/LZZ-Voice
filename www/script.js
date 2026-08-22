@@ -155,6 +155,17 @@ let meuAvatar =
 let meuPerfil =
     null;
 
+    let microfoneSelecionado =
+    localStorage.getItem(
+        "lzz_microfone"
+    ) || "default";
+
+
+let saidaSelecionada =
+    localStorage.getItem(
+        "lzz_saida"
+    ) || "default";
+
 
 /*
     Aqui ficam as conexões
@@ -249,6 +260,61 @@ const profileUsername =
 const btnLogout =
     document.getElementById(
         "btnLogout"
+    );
+
+    const btnConfig =
+    document.getElementById(
+        "btnConfig"
+    );
+
+const settingsModal =
+    document.getElementById(
+        "settingsModal"
+    );
+
+const btnFecharConfig =
+    document.getElementById(
+        "btnFecharConfig"
+    );
+
+const configUsername =
+    document.getElementById(
+        "configUsername"
+    );
+
+const configAvatarInput =
+    document.getElementById(
+        "configAvatarInput"
+    );
+
+const configAvatarPreview =
+    document.getElementById(
+        "configAvatarPreview"
+    );
+
+const configAvatarLetra =
+    document.getElementById(
+        "configAvatarLetra"
+    );
+
+const btnSalvarPerfil =
+    document.getElementById(
+        "btnSalvarPerfil"
+    );
+
+const selectMicrofone =
+    document.getElementById(
+        "selectMicrofone"
+    );
+
+const selectSaida =
+    document.getElementById(
+        "selectSaida"
+    );
+
+const settingsStatus =
+    document.getElementById(
+        "settingsStatus"
     );
 
 
@@ -620,7 +686,485 @@ async function salvarAvatar(
             usuario.id
         );
 
+        return avatarUrl;
+
 }
+
+/* =====================================
+   DISPOSITIVOS DE ÁUDIO
+===================================== */
+
+async function carregarDispositivosAudio() {
+
+    try {
+
+        /*
+            Se ainda não tiver permissão,
+            pede acesso só para descobrir
+            os nomes dos dispositivos.
+        */
+
+        let dispositivos =
+            await navigator.mediaDevices
+                .enumerateDevices();
+
+
+        const semNome =
+            dispositivos.some(
+                dispositivo =>
+                    dispositivo.kind ===
+                        "audioinput" &&
+                    !dispositivo.label
+            );
+
+
+        if (
+            semNome &&
+            !streamMicrofone
+        ) {
+
+            const teste =
+                await navigator.mediaDevices
+                    .getUserMedia({
+                        audio: true
+                    });
+
+
+            teste
+                .getTracks()
+                .forEach(
+                    track =>
+                        track.stop()
+                );
+
+
+            dispositivos =
+                await navigator.mediaDevices
+                    .enumerateDevices();
+
+        }
+
+
+        const microfones =
+            dispositivos.filter(
+                d =>
+                    d.kind ===
+                    "audioinput"
+            );
+
+
+        const saidas =
+            dispositivos.filter(
+                d =>
+                    d.kind ===
+                    "audiooutput"
+            );
+
+
+        selectMicrofone.innerHTML =
+            `<option value="default">
+                Padrão do sistema
+            </option>`;
+
+
+        microfones.forEach(
+            function (
+                dispositivo,
+                index
+            ) {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    dispositivo.deviceId;
+
+
+                option.textContent =
+                    dispositivo.label ||
+                    `Microfone ${index + 1}`;
+
+
+                selectMicrofone
+                    .appendChild(
+                        option
+                    );
+
+            }
+        );
+
+
+       const existeMicrofone =
+    [...selectMicrofone.options]
+        .some(
+            option =>
+                option.value ===
+                microfoneSelecionado
+        );
+
+if (existeMicrofone) {
+
+    selectMicrofone.value =
+        microfoneSelecionado;
+
+} else {
+
+    microfoneSelecionado =
+        "default";
+
+    selectMicrofone.value =
+        "default";
+
+    localStorage.setItem(
+        "lzz_microfone",
+        "default"
+    );
+}
+
+
+        /*
+            SAÍDA
+        */
+
+        if (
+            typeof HTMLMediaElement
+                .prototype
+                .setSinkId !==
+            "function"
+        ) {
+
+            selectSaida.innerHTML =
+                `<option>
+                    Controlado pelo sistema
+                </option>`;
+
+            selectSaida.disabled =
+                true;
+
+            return;
+
+        }
+
+
+        selectSaida.disabled =
+            false;
+
+
+        selectSaida.innerHTML =
+            `<option value="default">
+                Padrão do sistema
+            </option>`;
+
+
+        saidas.forEach(
+            function (
+                dispositivo,
+                index
+            ) {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    dispositivo.deviceId;
+
+
+                option.textContent =
+                    dispositivo.label ||
+                    `Saída ${index + 1}`;
+
+
+                selectSaida
+                    .appendChild(
+                        option
+                    );
+
+            }
+        );
+
+
+        const existeSaida =
+    [...selectSaida.options]
+        .some(
+            option =>
+                option.value ===
+                saidaSelecionada
+        );
+
+if (existeSaida) {
+
+    selectSaida.value =
+        saidaSelecionada;
+
+} else {
+
+    saidaSelecionada =
+        "default";
+
+    selectSaida.value =
+        "default";
+
+    localStorage.setItem(
+        "lzz_saida",
+        "default"
+    );
+}
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar áudio:",
+            erro
+        );
+
+    }
+
+}
+
+/* =====================================
+   TROCAR MICROFONE
+===================================== */
+
+selectMicrofone.addEventListener(
+    "change",
+    async function () {
+
+        microfoneSelecionado =
+            selectMicrofone.value;
+
+
+        localStorage.setItem(
+            "lzz_microfone",
+            microfoneSelecionado
+        );
+
+
+        /*
+            Se não estiver numa call,
+            apenas salva a preferência.
+        */
+
+        if (!conectado) {
+
+            settingsStatus.textContent =
+                "Microfone selecionado.";
+
+            return;
+
+        }
+
+
+        try {
+
+            const constraints = {
+
+                echoCancellation:
+                    true,
+
+                noiseSuppression:
+                    true,
+
+                autoGainControl:
+                    true
+
+            };
+
+
+            if (
+                microfoneSelecionado !==
+                "default"
+            ) {
+
+                constraints.deviceId = {
+
+                    exact:
+                        microfoneSelecionado
+
+                };
+
+            }
+
+
+            const novoStream =
+                await navigator.mediaDevices
+                    .getUserMedia({
+
+                        audio:
+                            constraints
+
+                    });
+
+
+            const novaTrack =
+                novoStream
+                    .getAudioTracks()[0];
+
+
+            /*
+                Mantém mute se já estava
+                mutado.
+            */
+
+            novaTrack.enabled =
+                !mutado;
+
+
+            /*
+                Troca o microfone em todas
+                as conexões WebRTC.
+            */
+
+            for (
+                const pc of
+                peers.values()
+            ) {
+
+                const sender =
+                    pc.getSenders()
+                        .find(
+                            s =>
+                                s.track &&
+                                s.track.kind ===
+                                "audio"
+                        );
+
+
+                if (sender) {
+
+                    await sender
+                        .replaceTrack(
+                            novaTrack
+                        );
+
+                }
+
+            }
+
+
+            if (streamMicrofone) {
+
+                streamMicrofone
+                    .getTracks()
+                    .forEach(
+                        track =>
+                            track.stop()
+                    );
+
+            }
+
+
+            const monitor =
+                monitoresFala.get(
+                    meuId
+                );
+
+
+            if (monitor) {
+
+                monitor.parar();
+
+            }
+
+
+            streamMicrofone =
+                novoStream;
+
+
+            monitorarFala(
+                streamMicrofone,
+                meuId
+            );
+
+
+            settingsStatus.textContent =
+                "Microfone alterado.";
+
+
+        } catch (erro) {
+
+            console.error(erro);
+
+            settingsStatus.style.color =
+                "#ff7185";
+
+            settingsStatus.textContent =
+                "Não foi possível trocar o microfone.";
+
+        }
+
+    }
+);
+
+async function aplicarSaidaAudio(
+    audio
+) {
+
+    if (
+        typeof audio.setSinkId !==
+        "function"
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await audio.setSinkId(
+            saidaSelecionada
+        );
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao trocar saída:",
+            erro
+        );
+
+    }
+
+}
+
+
+selectSaida.addEventListener(
+    "change",
+    async function () {
+
+        saidaSelecionada =
+            selectSaida.value;
+
+
+        localStorage.setItem(
+            "lzz_saida",
+            saidaSelecionada
+        );
+
+
+        for (
+            const audio of
+            audiosRemotos.values()
+        ) {
+
+            await aplicarSaidaAudio(
+                audio
+            );
+
+        }
+
+
+        settingsStatus.textContent =
+            "Saída de áudio alterada.";
+
+    }
+);
 
 
 /* ======================================
@@ -810,6 +1354,287 @@ const candidatesPendentes =
     const monitoresFala =
     new Map();
 
+/* =====================================
+   CONFIGURAÇÕES DO USUÁRIO
+===================================== */
+
+btnConfig.addEventListener(
+    "click",
+    async function () {
+
+        configUsername.value =
+            meuNome;
+
+        configAvatarLetra.textContent =
+            meuNome
+                .charAt(0)
+                .toUpperCase();
+
+
+        if (meuAvatar) {
+
+            configAvatarPreview
+                .style
+                .backgroundImage =
+                `url("${meuAvatar}")`;
+
+            configAvatarLetra.style.display =
+                "none";
+
+        } else {
+
+            configAvatarPreview
+                .style
+                .backgroundImage =
+                "none";
+
+            configAvatarLetra.style.display =
+                "block";
+        }
+
+
+        settingsStatus.textContent =
+            "";
+
+
+        settingsModal.classList.remove(
+            "hidden"
+        );
+
+
+        await carregarDispositivosAudio();
+
+    }
+);
+
+
+btnFecharConfig.addEventListener(
+    "click",
+    function () {
+
+        settingsModal.classList.add(
+            "hidden"
+        );
+
+    }
+);
+
+
+/* FOTO NOVA */
+
+configAvatarInput.addEventListener(
+    "change",
+    function () {
+
+        const arquivo =
+            configAvatarInput.files[0];
+
+
+        if (!arquivo) return;
+
+
+        const url =
+            URL.createObjectURL(
+                arquivo
+            );
+
+
+        configAvatarPreview
+            .style
+            .backgroundImage =
+            `url("${url}")`;
+
+
+        configAvatarLetra.style.display =
+            "none";
+
+    }
+);
+
+
+/* =====================================
+   SALVAR PERFIL
+===================================== */
+
+btnSalvarPerfil.addEventListener(
+    "click",
+    async function () {
+
+        const novoNome =
+            configUsername
+                .value
+                .trim();
+
+
+        if (
+            novoNome.length < 2
+        ) {
+
+            settingsStatus.style.color =
+                "#ff7185";
+
+            settingsStatus.textContent =
+                "Nome muito curto.";
+
+            return;
+        }
+
+
+        settingsStatus.style.color =
+            "#9da9c5";
+
+        settingsStatus.textContent =
+            "Salvando...";
+
+
+        const {
+            data: authData
+        } =
+            await supabaseClient
+                .auth
+                .getUser();
+
+
+        const usuario =
+            authData.user;
+
+
+        if (!usuario) {
+
+            settingsStatus.textContent =
+                "Usuário não encontrado.";
+
+            return;
+        }
+
+
+        let avatarNovo =
+            meuAvatar;
+
+
+        const arquivo =
+            configAvatarInput.files[0];
+
+
+        if (arquivo) {
+
+            const resultado =
+                await salvarAvatar(
+                    usuario,
+                    arquivo
+                );
+
+
+            if (resultado) {
+
+                avatarNovo =
+                    resultado;
+
+            }
+
+        }
+
+
+        const {
+            error
+        } =
+            await supabaseClient
+
+                .from("perfis")
+
+                .update({
+
+                    username:
+                        novoNome,
+
+                    avatar_url:
+                        avatarNovo
+
+                })
+
+                .eq(
+                    "id",
+                    usuario.id
+                );
+
+
+        if (error) {
+
+            console.error(error);
+
+            settingsStatus.style.color =
+                "#ff7185";
+
+
+            if (
+                error.code === "23505"
+            ) {
+
+                settingsStatus.textContent =
+                    "Esse nome já está sendo usado.";
+
+            } else {
+
+                settingsStatus.textContent =
+                    "Não foi possível salvar.";
+
+            }
+
+            return;
+        }
+
+
+        meuNome =
+            novoNome;
+
+        meuAvatar =
+            avatarNovo;
+
+
+        atualizarPerfilVisual();
+
+
+        /*
+            Atualiza nome/foto na call
+            sem precisar sair.
+        */
+
+        if (canalSupabase) {
+
+            await canalSupabase.track({
+
+                id:
+                    meuId,
+
+                nome:
+                    meuNome,
+
+                avatar_url:
+                    meuAvatar,
+
+                online_at:
+                    new Date()
+                        .toISOString()
+
+            });
+
+        }
+
+
+        atualizarUsuarios();
+
+
+        settingsStatus.style.color =
+            "#70e5aa";
+
+        settingsStatus.textContent =
+            "Perfil atualizado.";
+
+            configAvatarInput.value = "";
+
+    }
+);
+
 
 /* =====================================
    CONFIGURAÇÃO WEBRTC
@@ -847,19 +1672,41 @@ btnEntrar.addEventListener(
                 PEGA O MICROFONE
             */
 
+                        const audioConstraints = {
+
+                echoCancellation:
+                    true,
+
+                noiseSuppression:
+                    true,
+
+                autoGainControl:
+                    true
+
+            };
+
+
+            if (
+                microfoneSelecionado !==
+                "default"
+            ) {
+
+                audioConstraints.deviceId = {
+
+                    exact:
+                        microfoneSelecionado
+
+                };
+
+            }
+
+
             streamMicrofone =
                 await navigator.mediaDevices
                     .getUserMedia({
 
-                        audio: {
-
-                            echoCancellation: true,
-
-                            noiseSuppression: true,
-
-                            autoGainControl: true
-
-                        }
+                        audio:
+                            audioConstraints
 
                     });
 
@@ -1459,6 +2306,10 @@ function criarPeer(remoteId) {
 
             audio.srcObject =
                 event.streams[0];
+
+                aplicarSaidaAudio(
+    audio
+);
 
 
             audio.play()

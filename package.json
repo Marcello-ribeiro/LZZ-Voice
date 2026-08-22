@@ -1,16 +1,24 @@
 {
   "name": "lzz-voice",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Aplicativo privado de voz e texto LZZ Voice",
+  "main": "electron-main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pc": "electron .",
+    "build-pc": "electron-builder --win"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Marcello-ribeiro/LZZ-Voice.git"
   },
-  "keywords": [],
+  "keywords": [
+    "voice",
+    "chat",
+    "webrtc",
+    "electron",
+    "capacitor"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
@@ -23,6 +31,43 @@
     "@capacitor/core": "^8.5.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^8.5.0"
+    "@capacitor/cli": "^8.5.0",
+    "electron": "^43.4.1",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.lzz.voice",
+    "productName": "LZZ Voice",
+    "asar": true,
+  "directories": {
+  "output": "dist-pc2"
+},
+    "files": [
+      "www/**/*",
+      "electron-main.js",
+      "package.json",
+      "build/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/favicon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "LZZ Voice",
+      "installerIcon": "build/favicon.ico",
+      "uninstallerIcon": "build/favicon.ico",
+      "installerHeaderIcon": "build/favicon.ico"
+    }
   }
 }

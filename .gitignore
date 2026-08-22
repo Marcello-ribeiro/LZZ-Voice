@@ -1,29 +1,25 @@
 # Node
 node_modules/
-npm-debug.log*
+
+# Electron
+dist-pc/
+dist-pc2/
+
+# Android builds
+android/.gradle/
+android/build/
+android/app/build/
 
 # IDE
 .idea/
-*.iml
+.vscode/
 
-# Android Studio / Gradle
-.gradle/
-android/.gradle/
-android/.idea/
-android/local.properties
+# Logs
+*.log
 
-# Builds
-build/
-android/build/
-android/app/build/
+# Temporários
+*.tmp
+
+# Instaladores/builds
 *.apk
 *.aab
-
-# Chaves / certificados
-*.jks
-*.keystore
-
-# Temporarios
-*.log
-.DS_Store
-Thumbs.db
