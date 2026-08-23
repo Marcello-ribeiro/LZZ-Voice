@@ -74,12 +74,25 @@ const mobileMenuBtn = $("mobileMenuBtn");
 const mobileOverlay = $("mobileOverlay");
 const sidebar = document.querySelector(".sidebar");
 
+const updateModal = $("updateModal");
+const versaoAtualTexto = $("versaoAtualTexto");
+const versaoNovaTexto = $("versaoNovaTexto");
+const btnAtualizarApp = $("btnAtualizarApp");
+
 const canaisVoz = document.querySelectorAll(".voice-channel");
 const canaisTexto = document.querySelectorAll(".text-channel");
 
 /* ==========================================
    ESTADO
 ========================================== */
+
+const APP_VERSION = "1.0.1";
+
+const UPDATE_URL =
+    "https://lzz-voice.vercel.app/version.json";
+
+let linkAtualizacao =
+    "https://lzz-voicedownload.vercel.app";
 
 const meuId = crypto.randomUUID();
 
@@ -2315,8 +2328,178 @@ mobileOverlay.addEventListener(
 );
 
 /* ==========================================
+   ATUALIZAÇÃO DO APP
+========================================== */
+
+function rodandoComoAppInstalado() {
+
+    const android =
+        Boolean(
+            window.Capacitor?.isNativePlatform?.()
+        ) &&
+        window.Capacitor.getPlatform() === "android";
+
+    const electron =
+        navigator.userAgent
+            .toLowerCase()
+            .includes("electron");
+
+    return android || electron;
+}
+
+
+function compararVersoes(
+    atual,
+    minima
+) {
+
+    const a =
+        atual
+            .split(".")
+            .map(Number);
+
+    const b =
+        minima
+            .split(".")
+            .map(Number);
+
+    const tamanho =
+        Math.max(
+            a.length,
+            b.length
+        );
+
+    for (
+        let i = 0;
+        i < tamanho;
+        i++
+    ) {
+
+        const atualNumero =
+            a[i] || 0;
+
+        const minimoNumero =
+            b[i] || 0;
+
+        if (
+            atualNumero <
+            minimoNumero
+        ) {
+            return -1;
+        }
+
+        if (
+            atualNumero >
+            minimoNumero
+        ) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+
+async function verificarAtualizacaoObrigatoria() {
+
+    /*
+        No navegador normal não bloqueia.
+        Apenas APK e programa do PC.
+    */
+
+    if (!rodandoComoAppInstalado()) {
+        return false;
+    }
+
+    try {
+
+        const resposta =
+            await fetch(
+                `${UPDATE_URL}?t=${Date.now()}`,
+                {
+                    cache: "no-store"
+                }
+            );
+
+        if (!resposta.ok) {
+
+            console.warn(
+                "Não foi possível consultar a versão."
+            );
+
+            return false;
+        }
+
+        const dados =
+            await resposta.json();
+
+        linkAtualizacao =
+            dados.download_url ||
+            linkAtualizacao;
+
+        const desatualizado =
+            dados.minimum &&
+            compararVersoes(
+                APP_VERSION,
+                dados.minimum
+            ) < 0;
+
+        if (
+            dados.obrigatoria === true &&
+            desatualizado
+        ) {
+
+            versaoAtualTexto.textContent =
+                APP_VERSION;
+
+            versaoNovaTexto.textContent =
+                dados.latest;
+
+            updateModal.classList.remove(
+                "hidden"
+            );
+
+            return true;
+        }
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao verificar atualização:",
+            erro
+        );
+    }
+
+    return false;
+}
+
+
+btnAtualizarApp.addEventListener(
+    "click",
+    function () {
+
+        window.location.href =
+            linkAtualizacao;
+    }
+);
+
+/* ==========================================
    INICIALIZAÇÃO
 ========================================== */
 
-atualizarNomesSala();
-verificarLogin();
+async function inicializarApp() {
+
+    atualizarNomesSala();
+
+    const atualizacaoObrigatoria =
+        await verificarAtualizacaoObrigatoria();
+
+    if (atualizacaoObrigatoria) {
+        return;
+    }
+
+    await verificarLogin();
+}
+
+
+inicializarApp();

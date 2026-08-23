@@ -898,7 +898,59 @@
         id="mobileOverlay"
     ></div>
 
+<!-- =====================================
+     ATUALIZAÇÃO OBRIGATÓRIA
+====================================== -->
 
+<div class="update-overlay hidden" id="updateModal">
+
+    <div class="update-card">
+
+        <div class="update-icon">
+            ↑
+        </div>
+
+        <span class="update-label">
+            ATUALIZAÇÃO NECESSÁRIA
+        </span>
+
+        <h2>
+            Nova versão disponível
+        </h2>
+
+        <p>
+            Você precisa atualizar o LZZ Voice
+            para continuar usando o aplicativo.
+        </p>
+
+        <div class="update-version">
+
+            <div>
+                <span>Sua versão</span>
+                <strong id="versaoAtualTexto">-</strong>
+            </div>
+
+            <div>
+                <span>Nova versão</span>
+                <strong id="versaoNovaTexto">-</strong>
+            </div>
+
+        </div>
+
+        <button
+            type="button"
+            id="btnAtualizarApp"
+        >
+            Baixar atualização
+        </button>
+
+        <small>
+            A atualização é obrigatória.
+        </small>
+
+    </div>
+
+</div>
     <!-- SCRIPTS -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

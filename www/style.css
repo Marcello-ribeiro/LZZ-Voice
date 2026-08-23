@@ -1767,3 +1767,163 @@ button:disabled {
         gap: 5px;
     }
 }
+
+/* =====================================
+   ATUALIZAÇÃO OBRIGATÓRIA
+===================================== */
+
+.update-overlay {
+    position: fixed;
+    inset: 0;
+
+    z-index: 999999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(5, 7, 9, 0.97);
+}
+
+.update-card {
+    width: 100%;
+    max-width: 430px;
+
+    padding: 30px;
+
+    text-align: center;
+
+    background: #101419;
+
+    border: 1px solid #2b333d;
+    border-radius: 10px;
+}
+
+.update-icon {
+    width: 56px;
+    height: 56px;
+
+    margin: 0 auto 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #171d24;
+
+    border: 1px solid #303945;
+    border-radius: 8px;
+
+    color: #8ca8ff;
+
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.update-label {
+    display: block;
+
+    margin-bottom: 10px;
+
+    color: #8ca8ff;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+}
+
+.update-card h2 {
+    margin-bottom: 10px;
+
+    color: #f1f4f7;
+
+    font-size: 23px;
+}
+
+.update-card p {
+    color: #8994a0;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.update-version {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 8px;
+
+    margin: 22px 0;
+}
+
+.update-version div {
+    padding: 12px;
+
+    background: #0c1014;
+
+    border: 1px solid #252c34;
+    border-radius: 7px;
+}
+
+.update-version span {
+    display: block;
+
+    color: #66717d;
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+}
+
+.update-version strong {
+    display: block;
+
+    margin-top: 5px;
+
+    color: #e5e9ee;
+
+    font-size: 14px;
+}
+
+#btnAtualizarApp {
+    width: 100%;
+    height: 46px;
+
+    border: 1px solid #8ca6ff;
+    border-radius: 7px;
+
+    background: #7897ff;
+
+    color: #08101c;
+
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+#btnAtualizarApp:hover {
+    background: #8ca6ff;
+}
+
+.update-card small {
+    display: block;
+
+    margin-top: 14px;
+
+    color: #59636e;
+
+    font-size: 10px;
+}
+
+@media (max-width: 500px) {
+    .update-card {
+        padding: 24px 18px;
+    }
+
+    .update-version {
+        grid-template-columns: 1fr;
+    }
+}
