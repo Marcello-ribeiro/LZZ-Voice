@@ -1,6 +1,6 @@
 {
-  "latest": "1.0.1",
-  "minimum": "1.0.1",
+  "latest": "1.0.2",
+  "minimum": "1.0.2",
   "obrigatoria": true,
   "download_url": "https://lzz-voicedownload.vercel.app"
 }
