@@ -1,576 +1,909 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>LZZ Voice</title>
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="style.css">
+
+    <link
+        rel="shortcut icon"
+        href="favicon.ico"
+        type="image/x-icon"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 </head>
+
 <body>
-    
-<!-- LOGIN / CADASTRO -->
 
-<section class="auth-screen" id="authScreen">
+    <!-- =====================================
+         LOGIN / CADASTRO
+    ====================================== -->
 
-    <div class="auth-card">
+    <section
+        class="auth-screen"
+        id="authScreen"
+    >
+        <div class="auth-card">
 
-        <div class="auth-logo">
-            L 
-        </div>
+            <div class="auth-logo">
+                L
+            </div>
 
-        <h1>LZZ Voice</h1>
+            <h1>LZZ Voice</h1>
 
-        <p class="auth-subtitle">
-            Sua sala. Sua galera. Sua voz.
-        </p>
-
-
-        <div class="auth-tabs">
-
-            <button
-                type="button"
-                id="tabLogin"
-                class="auth-tab ativo"
-            >
-                Entrar
-            </button>
-
-            <button
-                type="button"
-                id="tabCadastro"
-                class="auth-tab"
-            >
-                Criar conta
-            </button>
-
-        </div>
+            <p class="auth-subtitle">
+                Sua sala. Sua galera. Sua voz.
+            </p>
 
 
-        <!-- LOGIN -->
+            <div class="auth-tabs">
 
-        <form id="loginForm" class="auth-form">
-
-            <label>
-                E-mail
-            </label>
-
-            <input
-                type="email"
-                id="loginEmail"
-                placeholder="seu@email.com"
-                required
-            >
-
-
-            <label>
-                Senha
-            </label>
-
-            <input
-                type="password"
-                id="loginSenha"
-                placeholder="Sua senha"
-                required
-            >
-
-
-            <button
-                type="submit"
-                class="auth-main-btn"
-            >
-                Entrar
-            </button>
-
-        </form>
-
-
-        <!-- CADASTRO -->
-
-        <form
-            id="cadastroForm"
-            class="auth-form hidden"
-        >
-
-            <div class="avatar-register">
-
-                <label
-                    for="cadastroAvatar"
-                    class="avatar-preview"
-                    id="avatarPreview"
+                <button
+                    type="button"
+                    id="tabLogin"
+                    class="auth-tab ativo"
                 >
-                    <span id="avatarPreviewText">
-                        +
-                    </span>
-                </label>
+                    Entrar
+                </button>
 
-                <input
-                    type="file"
-                    id="cadastroAvatar"
-                    accept="image/*"
-                    hidden
+                <button
+                    type="button"
+                    id="tabCadastro"
+                    class="auth-tab"
                 >
-
-                <small>
-                    Escolher foto
-                </small>
+                    Criar conta
+                </button>
 
             </div>
 
 
-            <label>
-                Nome de usuário
-            </label>
+            <!-- LOGIN -->
 
-            <input
-                type="text"
-                id="cadastroUsername"
-                placeholder="marcello"
-                maxlength="20"
-                required
+            <form
+                id="loginForm"
+                class="auth-form"
             >
 
+                <label for="loginEmail">
+                    E-mail
+                </label>
 
-            <label>
-                E-mail
-            </label>
+                <input
+                    type="email"
+                    id="loginEmail"
+                    placeholder="seu@email.com"
+                    required
+                >
 
-            <input
-                type="email"
-                id="cadastroEmail"
-                placeholder="seu@email.com"
-                required
+
+                <label for="loginSenha">
+                    Senha
+                </label>
+
+                <input
+                    type="password"
+                    id="loginSenha"
+                    placeholder="Sua senha"
+                    required
+                >
+
+
+                <button
+                    type="submit"
+                    class="auth-main-btn"
+                >
+                    Entrar
+                </button>
+
+            </form>
+
+
+            <!-- CADASTRO -->
+
+            <form
+                id="cadastroForm"
+                class="auth-form hidden"
             >
 
+                <div class="avatar-register">
 
-            <label>
-                Senha
-            </label>
+                    <label
+                        for="cadastroAvatar"
+                        class="avatar-preview"
+                        id="avatarPreview"
+                    >
+                        <span id="avatarPreviewText">
+                            +
+                        </span>
+                    </label>
 
-            <input
-                type="password"
-                id="cadastroSenha"
-                placeholder="Mínimo 6 caracteres"
-                minlength="6"
-                required
-            >
+                    <input
+                        type="file"
+                        id="cadastroAvatar"
+                        accept="image/*"
+                        hidden
+                    >
 
+                    <small>
+                        Escolher foto
+                    </small>
 
-            <label>
-                Confirmar senha
-            </label>
-
-            <input
-                type="password"
-                id="cadastroConfirmarSenha"
-                placeholder="Digite novamente"
-                minlength="6"
-                required
-            >
-
-
-            <button
-                type="submit"
-                class="auth-main-btn"
-            >
-                Criar conta
-            </button>
-
-        </form>
+                </div>
 
 
-        <p
-            class="auth-message"
-            id="authMessage"
-        ></p>
+                <label for="cadastroUsername">
+                    Nome de usuário
+                </label>
 
-    </div>
+                <input
+                    type="text"
+                    id="cadastroUsername"
+                    placeholder="marcello"
+                    maxlength="20"
+                    required
+                >
 
-</section>
 
-    <div class="bg-orb orb1"></div>
-    <div class="bg-orb orb2"></div>
-    <div class="bg-orb orb3"></div>
+                <label for="cadastroEmail">
+                    E-mail
+                </label>
 
-    <div class="app hidden" id="appPrincipal">
+                <input
+                    type="email"
+                    id="cadastroEmail"
+                    placeholder="seu@email.com"
+                    required
+                >
+
+
+                <label for="cadastroSenha">
+                    Senha
+                </label>
+
+                <input
+                    type="password"
+                    id="cadastroSenha"
+                    placeholder="Mínimo 6 caracteres"
+                    minlength="6"
+                    required
+                >
+
+
+                <label for="cadastroConfirmarSenha">
+                    Confirmar senha
+                </label>
+
+                <input
+                    type="password"
+                    id="cadastroConfirmarSenha"
+                    placeholder="Digite novamente"
+                    minlength="6"
+                    required
+                >
+
+
+                <button
+                    type="submit"
+                    class="auth-main-btn"
+                >
+                    Criar conta
+                </button>
+
+            </form>
+
+
+            <p
+                class="auth-message"
+                id="authMessage"
+            ></p>
+
+        </div>
+    </section>
+
+
+    <!-- =====================================
+         APP
+    ====================================== -->
+
+    <div
+        class="app hidden"
+        id="appPrincipal"
+    >
 
         <!-- SIDEBAR -->
+
         <aside class="sidebar">
+
             <div class="brand">
-                <div class="brand-icon">L</div>
+
+                <div class="brand-icon">
+                    L
+                </div>
+
                 <div class="brand-text">
                     <h1>LZZ Voice</h1>
                     <p>Private squad room</p>
                 </div>
+
             </div>
 
-            <div class="menu-block">
-                <span class="menu-label">Texto</span>
 
-         <button class="channel text-channel" data-canal="geral">
-            <span>#</span>
-            geral
-        </button>
+            <!-- CANAIS DE TEXTO -->
+
+            <div class="menu-block">
+
+                <span class="menu-label">
+                    Texto
+                </span>
+
+                <button
+                    type="button"
+                    class="channel text-channel"
+                    data-canal="geral"
+                >
+                    <span>#</span>
+                    geral
+                </button>
+
             </div>
 
-            <div class="menu-block">
-                <span class="menu-label">Salas de voz</span>
 
-                <button class="channel voice-channel ativo" data-canal="Geral">
+            <!-- CANAIS DE VOZ -->
+
+            <div class="menu-block">
+
+                <span class="menu-label">
+                    Salas de voz
+                </span>
+
+
+                <button
+                    type="button"
+                    class="channel voice-channel ativo"
+                    data-canal="Geral"
+                >
                     <span>🔊</span>
                     Geral
                 </button>
 
-                <div id="usuariosCanal" class="usuarios-canal"></div>
 
-                <button class="channel voice-channel" data-canal="Football">
+                <div
+                    id="usuariosCanal"
+                    class="usuarios-canal"
+                ></div>
+
+
+                <button
+                    type="button"
+                    class="channel voice-channel"
+                    data-canal="Football"
+                >
                     <span>🎮</span>
                     Football
                 </button>
 
-                <button class="channel voice-channel" data-canal="Afk">
+
+                <button
+                    type="button"
+                    class="channel voice-channel"
+                    data-canal="Afk"
+                >
                     <span>🌙</span>
                     Afk
                 </button>
+
             </div>
+
+
+            <!-- PERFIL -->
 
             <div class="sidebar-bottom">
+
                 <div class="profile-card">
+
                     <div class="profile-left">
-          <div
-    class="profile-avatar"
-    id="profileAvatar"
->
-    <span id="profileInitial">
-        M
-    </span>
 
-    <span class="status-dot"></span>
-</div>
+                        <div
+                            class="profile-avatar"
+                            id="profileAvatar"
+                        >
+                            <span id="profileInitial">
+                                M
+                            </span>
+
+                            <span class="status-dot"></span>
+                        </div>
 
 
-<div class="profile-info">
+                        <div class="profile-info">
 
-    <strong id="profileUsername">
-        Usuário
-    </strong>
+                            <strong id="profileUsername">
+                                Usuário
+                            </strong>
 
-    <span>
-        Online
-    </span>
+                            <span>
+                                Online
+                            </span>
 
-</div>
+                        </div>
+
                     </div>
 
-                    
 
                     <div class="profile-actions">
-                        <button id="profileMic" title="Microfone">🎙️</button>
-                        <button id="profileAudio" title="Áudio">🎧</button>
-                        <button id="btnConfig"title="Configurações">⚙️</button>
+
                         <button
-                        id="btnLogout"
-                        title="Sair da conta"
-                    >
-                        ➥
-                    </button>
+                            type="button"
+                            id="profileMic"
+                            title="Microfone"
+                        >
+                            🎙️
+                        </button>
+
+                        <button
+                            type="button"
+                            id="profileAudio"
+                            title="Áudio"
+                        >
+                            🎧
+                        </button>
+
+                        <button
+                            type="button"
+                            id="btnConfig"
+                            title="Configurações"
+                        >
+                            ⚙️
+                        </button>
+
+                        <button
+                            type="button"
+                            id="btnLogout"
+                            title="Sair da conta"
+                        >
+                            ➥
+                        </button>
+
                     </div>
+
                 </div>
+
             </div>
+
         </aside>
 
 
-        <!-- MAIN -->
+        <!-- =====================================
+             ÁREA PRINCIPAL
+        ====================================== -->
+
         <main class="main">
 
-            <button class="mobile-menu-btn" id="mobileMenuBtn">
-    ☰
-</button>
-
-            <section class="text-view hidden" id="textView">
-
-    <header class="chat-header">
-
-        <div class="chat-title">
-
-            <div class="chat-icon">
-                #
-            </div>
-
-            <div>
-                <h2 id="chatCanalNome">geral</h2>
-                <p>Conversa do grupo</p>
-            </div>
-
-        </div>
-
-    </header>
+            <button
+                type="button"
+                class="mobile-menu-btn"
+                id="mobileMenuBtn"
+            >
+                ☰
+            </button>
 
 
-    <div class="messages" id="messages">
+            <!-- =====================================
+                 CHAT DE TEXTO
+            ====================================== -->
 
-        <div class="chat-welcome">
-            <div class="welcome-icon">#</div>
+            <section
+                class="text-view hidden"
+                id="textView"
+            >
 
-            <h2 id="welcomeTitle">
-                Bem-vindo ao #geral
-            </h2>
+                <header class="chat-header">
 
-            <p>
-                Este é o começo deste canal.
-            </p>
-        </div>
+                    <div class="chat-title">
 
-    </div>
+                        <div class="chat-icon">
+                            #
+                        </div>
 
+                        <div>
+                            <h2 id="chatCanalNome">
+                                geral
+                            </h2>
 
-    <form class="message-box" id="chatForm">
+                            <p>
+                                Conversa do grupo
+                            </p>
+                        </div>
 
-        <input
-            type="text"
-            id="chatInput"
-            maxlength="2000"
-            autocomplete="off"
-            placeholder="Mensagem em #geral"
-        >
-
-        <button type="submit">
-            ➤
-        </button>
-
-    </form>
-
-</section>
-
-            <section class="hero" id="voiceHero">
-                <div class="hero-left">
-                    <div class="room-badge">AO VIVO</div>
-                    <h2 id="tituloSala">Geral</h2>
-                    <p id="status">Você não está conectado.</p>
-
-                    <div class="hero-tags">
-                        <span class="tag">Baixa latência</span>
-                        <span class="tag">Sala privada</span>
-                        <span class="tag">Até 5 pessoas</span>
                     </div>
+
+                </header>
+
+
+                <div
+                    class="messages"
+                    id="messages"
+                >
+
+                    <div class="chat-welcome">
+
+                        <div class="welcome-icon">
+                            #
+                        </div>
+
+                        <h2 id="welcomeTitle">
+                            Bem-vindo ao #geral
+                        </h2>
+
+                        <p>
+                            Este é o começo deste canal.
+                        </p>
+
+                    </div>
+
                 </div>
 
+
+                <form
+                    class="message-box"
+                    id="chatForm"
+                >
+
+                    <input
+                        type="text"
+                        id="chatInput"
+                        maxlength="2000"
+                        autocomplete="off"
+                        placeholder="Mensagem em #geral"
+                    >
+
+                    <button type="submit">
+                        ➤
+                    </button>
+
+                </form>
+
+            </section>
+
+
+            <!-- =====================================
+                 CABEÇALHO DA SALA
+            ====================================== -->
+
+            <section
+                class="hero"
+                id="voiceHero"
+            >
+
+                <div class="hero-left">
+
+                    <div class="room-badge">
+                        AO VIVO
+                    </div>
+
+                    <h2 id="tituloSala">
+                        Geral
+                    </h2>
+
+                    <p id="status">
+                        Você não está conectado.
+                    </p>
+
+
+                    <div class="hero-tags">
+
+                        <span class="tag">
+                            Baixa latência
+                        </span>
+
+                        <span class="tag">
+                            Sala privada
+                        </span>
+
+                        <span class="tag">
+                            Até 5 pessoas
+                        </span>
+
+                    </div>
+
+                </div>
+
+
                 <div class="hero-right">
+
                     <div class="sound-visual">
+
                         <div class="bar b1"></div>
                         <div class="bar b2"></div>
                         <div class="bar b3"></div>
                         <div class="bar b4"></div>
                         <div class="bar b5"></div>
+
                     </div>
+
                 </div>
+
             </section>
 
 
-            <section class="content-grid" id="voiceContent">
+            <!-- =====================================
+                 SALA DE VOZ
+            ====================================== -->
+
+            <section
+                class="content-grid"
+                id="voiceContent"
+            >
+
+                <!-- PARTICIPANTES -->
 
                 <div class="panel participants-panel">
+
                     <div class="panel-header">
+
                         <div>
-                            <span class="panel-mini">Sala atual</span>
+
+                            <span class="panel-mini">
+                                Sala atual
+                            </span>
+
                             <h3>
-                                <span class="panel-icon">🔊</span>
-                                <span id="nomeCanal">Geral</span>
+                                <span class="panel-icon">
+                                    🔊
+                                </span>
+
+                                <span id="nomeCanal">
+                                    Geral
+                                </span>
                             </h3>
+
                         </div>
 
-                        <span class="panel-status">Voice Room</span>
+
+                        <span class="panel-status">
+                            Voice Room
+                        </span>
+
                     </div>
 
-                    <div class="users-grid" id="usersGrid">
+
+                    <div
+                        class="users-grid"
+                        id="usersGrid"
+                    >
+
                         <div class="empty-state">
-                            <div class="empty-state-icon">🎧</div>
-                            <h3>Ninguém conectado</h3>
-                            <p>Entre na sala para começar a conversa.</p>
+
+                            <div class="empty-state-icon">
+                                🎧
+                            </div>
+
+                            <h3>
+                                Ninguém conectado
+                            </h3>
+
+                            <p>
+                                Entre na sala para começar a conversa.
+                            </p>
+
                         </div>
+
                     </div>
+
                 </div>
 
 
+                <!-- RESUMO DA SALA -->
+
                 <div class="panel side-panel">
+
                     <div class="panel-header">
+
                         <div>
-                            <span class="panel-mini">Resumo</span>
-                            <h3>Controles</h3>
+
+                            <span class="panel-mini">
+                                Resumo
+                            </span>
+
+                            <h3>
+                                Controles
+                            </h3>
+
                         </div>
+
                     </div>
 
-                    <div class="mini-card">
-                        <span>Canal</span>
-                        <strong id="miniCanalNome">Geral</strong>
-                    </div>
 
                     <div class="mini-card">
-                        <span>Modo</span>
-                        <strong>Voz em tempo real</strong>
+
+                        <span>
+                            Canal
+                        </span>
+
+                        <strong id="miniCanalNome">
+                            Geral
+                        </strong>
+
                     </div>
 
+
                     <div class="mini-card">
-                        <span>Status</span>
-                        <strong id="miniStatus">Offline</strong>
+
+                        <span>
+                            Modo
+                        </span>
+
+                        <strong>
+                            Voz em tempo real
+                        </strong>
+
                     </div>
+
+
+                    <div class="mini-card">
+
+                        <span>
+                            Status
+                        </span>
+
+                        <strong id="miniStatus">
+                            Offline
+                        </strong>
+
+                    </div>
+
 
                     <div class="tips-box">
-                        <h4>Dica</h4>
+
+                        <h4>
+                            Dica
+                        </h4>
+
                         <p>
-                            Primeiro entre na sala, depois teste o microfone e chame outro amigo para verificar o áudio.
+                            Primeiro entre na sala, depois teste o microfone
+                            e chame outro amigo para verificar o áudio.
                         </p>
+
                     </div>
+
                 </div>
 
             </section>
 
 
-            <footer class="callbar" id="voiceCallbar">
-                <button id="btnMute" class="circle-btn" disabled>🎙️</button>
-                <button id="btnAudio" class="circle-btn" disabled>🎧</button>
-                <button id="btnEntrar" class="join-btn">Entrar na sala</button>
-                <button id="btnSair" class="circle-btn leave-btn" disabled>📞</button>
+            <!-- =====================================
+                 CONTROLES DA CALL
+            ====================================== -->
+
+            <footer
+                class="callbar"
+                id="voiceCallbar"
+            >
+
+                <button
+                    type="button"
+                    id="btnMute"
+                    class="circle-btn"
+                    title="Microfone"
+                    disabled
+                >
+                    🎙️
+                </button>
+
+
+                <button
+                    type="button"
+                    id="btnAudio"
+                    class="circle-btn"
+                    title="Áudio"
+                    disabled
+                >
+                    🎧
+                </button>
+
+
+                <button
+                    type="button"
+                    id="btnEntrar"
+                    class="join-btn"
+                >
+                    Entrar na sala
+                </button>
+
+
+                <button
+                    type="button"
+                    id="btnSair"
+                    class="circle-btn leave-btn"
+                    title="Sair da sala"
+                    disabled
+                >
+                    📞
+                </button>
+
             </footer>
 
         </main>
 
     </div>
 
+
     <!-- =====================================
-     CONFIGURAÇÕES
-===================================== -->
+         CONFIGURAÇÕES
+    ====================================== -->
 
-<div class="settings-overlay hidden" id="settingsModal">
+    <div
+        class="settings-overlay hidden"
+        id="settingsModal"
+    >
 
-    <div class="settings-card">
+        <div class="settings-card">
 
-        <div class="settings-header">
+            <div class="settings-header">
 
-            <div>
-                <span class="settings-mini">
-                    LZZ Voice
-                </span>
+                <div>
 
-                <h2>Configurações</h2>
-            </div>
-
-            <button
-                class="settings-close"
-                id="btnFecharConfig"
-            >
-                ✕
-            </button>
-
-        </div>
-
-
-        <!-- PERFIL -->
-
-        <section class="settings-section">
-
-            <h3>Perfil</h3>
-
-            <div class="settings-profile">
-
-                <label
-                    for="configAvatarInput"
-                    class="settings-avatar"
-                    id="configAvatarPreview"
-                >
-                    <span id="configAvatarLetra">
-                        M
+                    <span class="settings-mini">
+                        LZZ Voice
                     </span>
 
-                    <div class="avatar-edit">
-                        ✎
-                    </div>
-                </label>
-
-                <input
-                    type="file"
-                    id="configAvatarInput"
-                    accept="image/*"
-                    hidden
-                >
-
-
-                <div class="settings-profile-fields">
-
-                    <label>
-                        Nome de usuário
-                    </label>
-
-                    <input
-                        type="text"
-                        id="configUsername"
-                        maxlength="20"
-                    >
+                    <h2>
+                        Configurações
+                    </h2>
 
                 </div>
 
-            </div>
 
-            <button
-                class="settings-save"
-                id="btnSalvarPerfil"
-            >
-                Salvar perfil
-            </button>
-
-        </section>
-
-
-        <!-- ÁUDIO -->
-
-        <section class="settings-section">
-
-            <h3>Áudio</h3>
-
-            <div class="audio-setting">
-
-                <label>
-                    🎙️ Microfone
-                </label>
-
-                <select id="selectMicrofone">
-                    <option value="default">
-                        Padrão do sistema
-                    </option>
-                </select>
+                <button
+                    type="button"
+                    class="settings-close"
+                    id="btnFecharConfig"
+                    title="Fechar"
+                >
+                    ✕
+                </button>
 
             </div>
 
 
-            <div class="audio-setting">
+            <!-- PERFIL -->
 
-                <label>
-                    🎧 Saída de áudio
-                </label>
+            <section class="settings-section">
 
-                <select id="selectSaida">
-                    <option value="default">
-                        Padrão do sistema
-                    </option>
-                </select>
-
-            </div>
-
-        </section>
+                <h3>
+                    Perfil
+                </h3>
 
 
-        <p
-            class="settings-status"
-            id="settingsStatus"
-        ></p>
+                <div class="settings-profile">
+
+                    <label
+                        for="configAvatarInput"
+                        class="settings-avatar"
+                        id="configAvatarPreview"
+                    >
+
+                        <span id="configAvatarLetra">
+                            M
+                        </span>
+
+                        <div class="avatar-edit">
+                            ✎
+                        </div>
+
+                    </label>
+
+
+                    <input
+                        type="file"
+                        id="configAvatarInput"
+                        accept="image/*"
+                        hidden
+                    >
+
+
+                    <div class="settings-profile-fields">
+
+                        <label for="configUsername">
+                            Nome de usuário
+                        </label>
+
+                        <input
+                            type="text"
+                            id="configUsername"
+                            maxlength="20"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="settings-save"
+                    id="btnSalvarPerfil"
+                >
+                    Salvar perfil
+                </button>
+
+            </section>
+
+
+            <!-- ÁUDIO -->
+
+            <section class="settings-section">
+
+                <h3>
+                    Áudio
+                </h3>
+
+
+                <div class="audio-setting">
+
+                    <label for="selectMicrofone">
+                        🎙️ Microfone
+                    </label>
+
+                    <select id="selectMicrofone">
+
+                        <option value="default">
+                            Padrão do sistema
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="audio-setting">
+
+                    <label for="selectSaida">
+                        🎧 Saída de áudio
+                    </label>
+
+                    <select id="selectSaida">
+
+                        <option value="default">
+                            Padrão do sistema
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </section>
+
+
+            <p
+                class="settings-status"
+                id="settingsStatus"
+            ></p>
+
+        </div>
 
     </div>
 
-</div>
 
-<div class="mobile-overlay" id="mobileOverlay"></div>
+    <!-- MENU MOBILE -->
+
+    <div
+        class="mobile-overlay"
+        id="mobileOverlay"
+    ></div>
+
+
+    <!-- SCRIPTS -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
+
 </body>
+
 </html>

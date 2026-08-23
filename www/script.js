@@ -1,2081 +1,1533 @@
 const SUPABASE_URL = "https://jjkypbiyvhwqeztbztnx.supabase.co";
-
 const SUPABASE_KEY = "sb_publishable_w-vZeqvzEWr_itftzILJoQ_NbXWky8y";
 
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
-
-
-    /* =====================================
-   ANDROID NATIVO
-===================================== */
-
-const ehAndroidNativo =
-    window.Capacitor &&
-    window.Capacitor.getPlatform &&
-    window.Capacitor.getPlatform() === "android";
-
-
-const NativeVoice = 
-    ehAndroidNativo
-        ? window.Capacitor.Plugins.NativeVoice
-        : null;
-
-
-console.log(
-    "Android nativo:",
-    ehAndroidNativo
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
 );
 
-console.log(
-    "NativeVoice:",
-    NativeVoice
-);
+const $ = (id) => document.getElementById(id);
 
-
-/* =====================================
+/* ==========================================
    ELEMENTOS
-===================================== */
+========================================== */
 
-const btnEntrar =
-    document.getElementById("btnEntrar");
+const authScreen = $("authScreen");
+const appPrincipal = $("appPrincipal");
 
-const btnMute =
-    document.getElementById("btnMute");
+const tabLogin = $("tabLogin");
+const tabCadastro = $("tabCadastro");
+const loginForm = $("loginForm");
+const cadastroForm = $("cadastroForm");
+const authMessage = $("authMessage");
 
-const btnAudio =
-    document.getElementById("btnAudio");
+const cadastroUsername = $("cadastroUsername");
+const cadastroEmail = $("cadastroEmail");
+const cadastroSenha = $("cadastroSenha");
+const cadastroConfirmarSenha = $("cadastroConfirmarSenha");
+const cadastroAvatar = $("cadastroAvatar");
+const avatarPreview = $("avatarPreview");
+const avatarPreviewText = $("avatarPreviewText");
 
-const btnSair =
-    document.getElementById("btnSair");
+const profileAvatar = $("profileAvatar");
+const profileInitial = $("profileInitial");
+const profileUsername = $("profileUsername");
+const profileMic = $("profileMic");
+const profileAudio = $("profileAudio");
+const btnConfig = $("btnConfig");
+const btnLogout = $("btnLogout");
 
-const statusSala =
-    document.getElementById("status");
+const settingsModal = $("settingsModal");
+const btnFecharConfig = $("btnFecharConfig");
+const configUsername = $("configUsername");
+const configAvatarInput = $("configAvatarInput");
+const configAvatarPreview = $("configAvatarPreview");
+const configAvatarLetra = $("configAvatarLetra");
+const btnSalvarPerfil = $("btnSalvarPerfil");
+const selectMicrofone = $("selectMicrofone");
+const selectSaida = $("selectSaida");
+const settingsStatus = $("settingsStatus");
 
-const usersGrid =
-    document.getElementById("usersGrid");
+const btnEntrar = $("btnEntrar");
+const btnMute = $("btnMute");
+const btnAudio = $("btnAudio");
+const btnSair = $("btnSair");
+const statusSala = $("status");
+const usersGrid = $("usersGrid");
+const usuariosCanal = $("usuariosCanal");
+const nomeCanal = $("nomeCanal");
+const tituloSala = $("tituloSala");
+const miniCanalNome = $("miniCanalNome");
+const miniStatus = $("miniStatus");
 
-const usuariosCanal =
-    document.getElementById("usuariosCanal");
+const textView = $("textView");
+const voiceHero = $("voiceHero");
+const voiceContent = $("voiceContent");
+const voiceCallbar = $("voiceCallbar");
+const chatCanalNome = $("chatCanalNome");
+const welcomeTitle = $("welcomeTitle");
+const messages = $("messages");
+const chatForm = $("chatForm");
+const chatInput = $("chatInput");
 
-const profileMic =
-    document.getElementById("profileMic");
+const mobileMenuBtn = $("mobileMenuBtn");
+const mobileOverlay = $("mobileOverlay");
+const sidebar = document.querySelector(".sidebar");
 
-const profileAudio =
-    document.getElementById("profileAudio");
+const canaisVoz = document.querySelectorAll(".voice-channel");
+const canaisTexto = document.querySelectorAll(".text-channel");
 
-const nomeCanal =
-    document.getElementById("nomeCanal");
+/* ==========================================
+   ESTADO
+========================================== */
 
-const tituloSala =
-    document.getElementById("tituloSala");
+const meuId = crypto.randomUUID();
 
-const miniCanalNome = 
-    document.getElementById("miniCanalNome");
-
-const miniStatus = 
-document.getElementById("miniStatus");
-
-
-/* =====================================
-   CONFIGURAÇÕES
-===================================== */
+let meuNome = "Usuário";
+let meuAvatar = null;
 
 let conectado = false;
-
 let mutado = false;
-
 let audioSilenciado = false;
-
 let canalAtual = "Geral";
 
 let streamMicrofone = null;
-
 let canalSupabase = null;
 
+let canalPresenca = null;
+let topicoPresencaAtual = null;
 
-/* =====================================
-   SERVIÇO ANDROID DA CALL
-===================================== */
-
-async function iniciarServicoCall() {
-
-    try {
-
-        const plugin =
-            window.Capacitor?.Plugins?.CallService;
-
-        if (!plugin) {
-
-            console.log(
-                "CallService só existe no app Android."
-            );
-
-            return;
-        }
-
-        await plugin.start();
-
-        console.log(
-            "CallService iniciado."
-        );
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao iniciar CallService:",
-            erro
-        );
-    }
-}
-
-
-async function pararServicoCall() {
-
-    try {
-
-        const plugin =
-            window.Capacitor?.Plugins?.CallService;
-
-        if (!plugin) {
-            return;
-        }
-
-        await plugin.stop();
-
-        console.log(
-            "CallService parado."
-        );
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao parar CallService:",
-            erro
-        );
-    }
-}
-
-
-/*
-    Cada PC recebe um ID diferente.
-*/
-
-const meuId =
-    crypto.randomUUID();
-
-
-/*
-    Por enquanto vamos pedir o nome
-    quando o app abrir.
-*/
-
-let meuNome =
-    "Usuário";
-
-let meuAvatar =
-    null;
-
-let meuPerfil =
-    null;
-
-    let microfoneSelecionado =
-    localStorage.getItem(
-        "lzz_microfone"
-    ) || "default";
-
+let microfoneSelecionado =
+    localStorage.getItem("lzz_microfone") || "default";
 
 let saidaSelecionada =
-    localStorage.getItem(
-        "lzz_saida"
-    ) || "default";
+    localStorage.getItem("lzz_saida") || "default";
 
-
-/*
-    Aqui ficam as conexões
-    com cada amigo.
-*/
+let canalTextoAtual = null;
+let realtimeTexto = null;
 
 const peers = new Map();
-
-
-/*
-    Aqui ficam os elementos de áudio
-    de cada amigo.
-*/
-
 const audiosRemotos = new Map();
+const candidatesPendentes = new Map();
+const monitoresFala = new Map();
+const mensagensExibidas = new Set();
 
-
-/*
-    ICE candidates que chegarem
-    antes da hora.
-*/
-
-/* ======================================
-   LOGIN / CADASTRO
-====================================== */
-
-const authScreen =
-    document.getElementById(
-        "authScreen"
-    );
-
-const appPrincipal =
-    document.getElementById(
-        "appPrincipal"
-    );
-
-const loginForm =
-    document.getElementById(
-        "loginForm"
-    );
-
-const cadastroForm =
-    document.getElementById(
-        "cadastroForm"
-    );
-
-const tabLogin =
-    document.getElementById(
-        "tabLogin"
-    );
-
-const tabCadastro =
-    document.getElementById(
-        "tabCadastro"
-    );
-
-const authMessage =
-    document.getElementById(
-        "authMessage"
-    );
-
-const cadastroAvatar =
-    document.getElementById(
-        "cadastroAvatar"
-    );
-
-const avatarPreview =
-    document.getElementById(
-        "avatarPreview"
-    );
-
-const avatarPreviewText =
-    document.getElementById(
-        "avatarPreviewText"
-    );
-
-const profileAvatar =
-    document.getElementById(
-        "profileAvatar"
-    );
-
-const profileInitial =
-    document.getElementById(
-        "profileInitial"
-    );
-
-const profileUsername =
-    document.getElementById(
-        "profileUsername"
-    );
-
-const btnLogout =
-    document.getElementById(
-        "btnLogout"
-    );
-
-    const btnConfig =
-    document.getElementById(
-        "btnConfig"
-    );
-
-const settingsModal =
-    document.getElementById(
-        "settingsModal"
-    );
-
-const btnFecharConfig =
-    document.getElementById(
-        "btnFecharConfig"
-    );
-
-const configUsername =
-    document.getElementById(
-        "configUsername"
-    );
-
-const configAvatarInput =
-    document.getElementById(
-        "configAvatarInput"
-    );
-
-const configAvatarPreview =
-    document.getElementById(
-        "configAvatarPreview"
-    );
-
-const configAvatarLetra =
-    document.getElementById(
-        "configAvatarLetra"
-    );
-
-const btnSalvarPerfil =
-    document.getElementById(
-        "btnSalvarPerfil"
-    );
-
-const selectMicrofone =
-    document.getElementById(
-        "selectMicrofone"
-    );
-
-const selectSaida =
-    document.getElementById(
-        "selectSaida"
-    );
-
-const settingsStatus =
-    document.getElementById(
-        "settingsStatus"
-    );
-
-
-/* TROCAR ENTRE LOGIN E CADASTRO */
-
-tabLogin.addEventListener(
-    "click",
-    function () {
-
-        loginForm.classList.remove(
-            "hidden"
-        );
-
-        cadastroForm.classList.add(
-            "hidden"
-        );
-
-        tabLogin.classList.add(
-            "ativo"
-        );
-
-        tabCadastro.classList.remove(
-            "ativo"
-        );
-
-        authMessage.textContent =
-            "";
-
-    }
-);
-
-
-tabCadastro.addEventListener(
-    "click",
-    function () {
-
-        cadastroForm.classList.remove(
-            "hidden"
-        );
-
-        loginForm.classList.add(
-            "hidden"
-        );
-
-        tabCadastro.classList.add(
-            "ativo"
-        );
-
-        tabLogin.classList.remove(
-            "ativo"
-        );
-
-        authMessage.textContent =
-            "";
-
-    }
-);
-
-
-/* PREVIEW DA FOTO */
-
-cadastroAvatar.addEventListener(
-    "change",
-    function () {
-
-        const arquivo =
-            cadastroAvatar.files[0];
-
-        if (!arquivo) {
-            return;
+const rtcConfig = {
+    iceServers: [
+        {
+            urls: "stun:stun.l.google.com:19302"
         }
-
-        const url =
-            URL.createObjectURL(
-                arquivo
-            );
-
-        avatarPreview.style.backgroundImage =
-            `url("${url}")`;
-
-        avatarPreviewText.style.display =
-            "none";
-
-    }
-);
-
-
-/* ======================================
-   CADASTRO
-====================================== */
-
-cadastroForm.addEventListener(
-    "submit",
-    async function (event) {
-
-        event.preventDefault();
-
-
-        const username =
-            document
-                .getElementById(
-                    "cadastroUsername"
-                )
-                .value
-                .trim();
-
-
-        const email =
-            document
-                .getElementById(
-                    "cadastroEmail"
-                )
-                .value
-                .trim();
-
-
-        const senha =
-            document
-                .getElementById(
-                    "cadastroSenha"
-                )
-                .value;
-
-
-        const confirmarSenha =
-            document
-                .getElementById(
-                    "cadastroConfirmarSenha"
-                )
-                .value;
-
-
-        if (
-            senha !==
-            confirmarSenha
-        ) {
-
-            authMessage.textContent =
-                "As senhas não são iguais.";
-
-            return;
-        }
-
-
-        authMessage.textContent =
-            "Criando conta...";
-
-
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .auth
-                .signUp({
-
-                    email:
-                        email,
-
-                    password:
-                        senha,
-
-                    options: {
-
-                        data: {
-                            username:
-                                username
-                        }
-
-                    }
-
-                });
-
-
-        if (error) {
-
-            console.error(error);
-
-            authMessage.textContent =
-                error.message;
-
-            return;
-        }
-
-
-        if (!data.user) {
-
-            authMessage.textContent =
-                "Erro ao criar usuário.";
-
-            return;
-        }
-
-
-        /*
-            ENVIA FOTO
-        */
-
-        const arquivo =
-            cadastroAvatar.files[0];
-
-
-        if (
-            arquivo &&
-            data.session
-        ) {
-
-            await salvarAvatar(
-                data.user,
-                arquivo
-            );
-
-        }
-
-
-        authMessage.style.color =
-            "#65eaa6";
-
-        authMessage.textContent =
-            "Conta criada!";
-
-
-        await iniciarUsuario(
-            data.user
-        );
-
-    }
-);
-
-
-/* ======================================
-   LOGIN
-====================================== */
-
-loginForm.addEventListener(
-    "submit",
-    async function (event) {
-
-        event.preventDefault();
-
-
-        const email =
-            document
-                .getElementById(
-                    "loginEmail"
-                )
-                .value
-                .trim();
-
-
-        const senha =
-            document
-                .getElementById(
-                    "loginSenha"
-                )
-                .value;
-
-
-        authMessage.textContent =
-            "Entrando...";
-
-
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .auth
-                .signInWithPassword({
-
-                    email:
-                        email,
-
-                    password:
-                        senha
-
-                });
-
-
-     if (error) {
-
-    console.error(
-        "ERRO LOGIN:",
-        error
-    );
-
-    authMessage.textContent =
-        error.message;
-
-    return;
+    ]
+};
+
+/* ==========================================
+   HELPERS
+========================================== */
+
+function setStatusConfig(texto, tipo = "normal") {
+    const cores = {
+        normal: "#9da9c5",
+        sucesso: "#70e5aa",
+        erro: "#ff7185"
+    };
+
+    settingsStatus.style.color = cores[tipo] || cores.normal;
+    settingsStatus.textContent = texto;
 }
 
+function primeiraLetra(nome) {
+    return (nome || "U").charAt(0).toUpperCase();
+}
 
-        await iniciarUsuario(
-            data.user
-        );
+function montarConstraintsMicrofone() {
+    const audio = {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+    };
 
+    if (microfoneSelecionado !== "default") {
+        audio.deviceId = {
+            exact: microfoneSelecionado
+        };
     }
-);
 
+    return audio;
+}
 
-/* ======================================
-   SALVAR AVATAR
-====================================== */
+function pararStream(stream) {
+    if (!stream) return;
 
-async function salvarAvatar(
-    usuario,
-    arquivo
+    stream.getTracks().forEach((track) => {
+        track.stop();
+    });
+}
+
+function criarEstadoVazio(
+    titulo = "Ninguém conectado",
+    texto = "Entre na sala para começar."
 ) {
+    usersGrid.innerHTML = "";
 
+    const vazio = document.createElement("div");
+    vazio.className = "empty-state";
+
+    const icone = document.createElement("div");
+    icone.className = "empty-state-icon";
+    icone.textContent = "🎧";
+
+    const h2 = document.createElement("h2");
+    h2.textContent = titulo;
+
+    vazio.append(icone, h2);
+
+    if (texto) {
+        const p = document.createElement("p");
+        p.textContent = texto;
+        vazio.appendChild(p);
+    }
+
+    usersGrid.appendChild(vazio);
+}
+
+function atualizarNomesSala() {
+    nomeCanal.textContent = canalAtual;
+    tituloSala.textContent = canalAtual;
+    miniCanalNome.textContent = canalAtual;
+}
+
+/* ==========================================
+   ANDROID - FOREGROUND SERVICE
+========================================== */
+
+async function iniciarServicoCall() {
+    const plugin = window.Capacitor?.Plugins?.CallService;
+
+    if (!plugin) return;
+
+    try {
+        await plugin.start();
+    } catch (erro) {
+        console.error("Erro ao iniciar CallService:", erro);
+    }
+}
+
+async function pararServicoCall() {
+    const plugin = window.Capacitor?.Plugins?.CallService;
+
+    if (!plugin) return;
+
+    try {
+        await plugin.stop();
+    } catch (erro) {
+        console.error("Erro ao parar CallService:", erro);
+    }
+}
+
+/* ==========================================
+   AUTH
+========================================== */
+
+tabLogin.addEventListener("click", () => {
+    loginForm.classList.remove("hidden");
+    cadastroForm.classList.add("hidden");
+
+    tabLogin.classList.add("ativo");
+    tabCadastro.classList.remove("ativo");
+
+    authMessage.textContent = "";
+});
+
+tabCadastro.addEventListener("click", () => {
+    cadastroForm.classList.remove("hidden");
+    loginForm.classList.add("hidden");
+
+    tabCadastro.classList.add("ativo");
+    tabLogin.classList.remove("ativo");
+
+    authMessage.textContent = "";
+});
+
+cadastroAvatar.addEventListener("change", () => {
+    const arquivo = cadastroAvatar.files[0];
+
+    if (!arquivo) return;
+
+    avatarPreview.style.backgroundImage =
+        `url("${URL.createObjectURL(arquivo)}")`;
+
+    avatarPreviewText.style.display = "none";
+});
+
+cadastroForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const username = cadastroUsername.value.trim();
+    const email = cadastroEmail.value.trim();
+    const senha = cadastroSenha.value;
+    const confirmarSenha = cadastroConfirmarSenha.value;
+
+    if (senha !== confirmarSenha) {
+        authMessage.style.color = "#ff7185";
+        authMessage.textContent = "As senhas não são iguais.";
+        return;
+    }
+
+    authMessage.style.color = "";
+    authMessage.textContent = "Criando conta...";
+
+    const { data, error } =
+        await supabaseClient.auth.signUp({
+            email,
+            password: senha,
+            options: {
+                data: {
+                    username
+                }
+            }
+        });
+
+    if (error) {
+        console.error(error);
+        authMessage.style.color = "#ff7185";
+        authMessage.textContent = error.message;
+        return;
+    }
+
+    if (!data.user) {
+        authMessage.style.color = "#ff7185";
+        authMessage.textContent = "Erro ao criar usuário.";
+        return;
+    }
+
+    if (!data.session) {
+        authMessage.style.color = "#70e5aa";
+        authMessage.textContent =
+            "Conta criada. Confirme o e-mail para entrar.";
+        return;
+    }
+
+    const arquivo = cadastroAvatar.files[0];
+
+    if (arquivo) {
+        const avatarUrl =
+            await enviarAvatar(data.user, arquivo);
+
+        if (avatarUrl) {
+            await supabaseClient
+                .from("perfis")
+                .update({
+                    avatar_url: avatarUrl
+                })
+                .eq("id", data.user.id);
+        }
+    }
+
+    authMessage.style.color = "#70e5aa";
+    authMessage.textContent = "Conta criada!";
+
+    await iniciarUsuario(data.user);
+});
+
+loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const email = $("loginEmail").value.trim();
+    const senha = $("loginSenha").value;
+
+    authMessage.style.color = "";
+    authMessage.textContent = "Entrando...";
+
+    const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+            email,
+            password: senha
+        });
+
+    if (error) {
+        console.error("Erro no login:", error);
+        authMessage.style.color = "#ff7185";
+        authMessage.textContent = error.message;
+        return;
+    }
+
+    await iniciarUsuario(data.user);
+});
+
+async function enviarAvatar(usuario, arquivo) {
     const extensao =
-        arquivo.name
-            .split(".")
-            .pop();
-
+        arquivo.name.split(".").pop()?.toLowerCase() || "jpg";
 
     const caminho =
         `${usuario.id}/avatar-${Date.now()}.${extensao}`;
 
-
-    const {
-        error
-    } =
+    const { error } =
         await supabaseClient
             .storage
             .from("avatars")
-            .upload(
-                caminho,
-                arquivo
-            );
-
+            .upload(caminho, arquivo);
 
     if (error) {
-
-        console.error(
-            "Erro no avatar:",
-            error
-        );
-
-        return;
+        console.error("Erro no avatar:", error);
+        return null;
     }
 
-
-    const {
-        data
-    } =
+    const { data } =
         supabaseClient
             .storage
             .from("avatars")
-            .getPublicUrl(
-                caminho
-            );
+            .getPublicUrl(caminho);
 
-
-    const avatarUrl =
-        data.publicUrl;
-
-
-    await supabaseClient
-        .from("perfis")
-        .update({
-
-            avatar_url:
-                avatarUrl
-
-        })
-        .eq(
-            "id",
-            usuario.id
-        );
-
-        return avatarUrl;
-
+    return data.publicUrl;
 }
 
-/* =====================================
+async function iniciarUsuario(usuario) {
+    const { data, error } =
+        await supabaseClient
+            .from("perfis")
+            .select("id, username, avatar_url")
+            .eq("id", usuario.id)
+            .single();
+
+    if (error) {
+        console.error("Erro ao carregar perfil:", error);
+        authMessage.style.color = "#ff7185";
+        authMessage.textContent =
+            "Não foi possível carregar o perfil.";
+        return;
+    }
+
+    meuNome = data.username || "Usuário";
+    meuAvatar = data.avatar_url || null;
+
+    atualizarPerfilVisual();
+
+    authScreen.classList.add("hidden");
+    appPrincipal.classList.remove("hidden");
+
+    await observarSala(canalAtual);
+}
+
+function atualizarPerfilVisual() {
+    profileUsername.textContent = meuNome;
+    profileInitial.textContent = primeiraLetra(meuNome);
+
+    if (meuAvatar) {
+        profileAvatar.style.backgroundImage =
+            `url("${meuAvatar}")`;
+
+        profileAvatar.classList.add("tem-foto");
+        profileInitial.style.display = "none";
+    } else {
+        profileAvatar.style.backgroundImage = "none";
+        profileAvatar.classList.remove("tem-foto");
+        profileInitial.style.display = "block";
+    }
+}
+
+btnLogout.addEventListener("click", async () => {
+    if (conectado) {
+        await sairDaSala();
+    }
+
+    if (canalPresenca) {
+        await supabaseClient.removeChannel(canalPresenca);
+        canalPresenca = null;
+        topicoPresencaAtual = null;
+    }
+
+    if (realtimeTexto) {
+        await supabaseClient.removeChannel(realtimeTexto);
+        realtimeTexto = null;
+    }
+
+    await supabaseClient.auth.signOut();
+
+    meuNome = "Usuário";
+    meuAvatar = null;
+    canalTextoAtual = null;
+
+    appPrincipal.classList.add("hidden");
+    authScreen.classList.remove("hidden");
+});
+
+async function verificarLogin() {
+    const { data } =
+        await supabaseClient.auth.getSession();
+
+    if (data.session) {
+        await iniciarUsuario(data.session.user);
+    }
+}
+
+/* ==========================================
+   CONFIGURAÇÕES / PERFIL
+========================================== */
+
+btnConfig.addEventListener("click", async () => {
+    configUsername.value = meuNome;
+    configAvatarLetra.textContent = primeiraLetra(meuNome);
+
+    if (meuAvatar) {
+        configAvatarPreview.style.backgroundImage =
+            `url("${meuAvatar}")`;
+
+        configAvatarLetra.style.display = "none";
+    } else {
+        configAvatarPreview.style.backgroundImage = "none";
+        configAvatarLetra.style.display = "block";
+    }
+
+    configAvatarInput.value = "";
+    setStatusConfig("");
+
+    settingsModal.classList.remove("hidden");
+
+    await carregarDispositivosAudio();
+});
+
+btnFecharConfig.addEventListener("click", () => {
+    settingsModal.classList.add("hidden");
+});
+
+settingsModal.addEventListener("click", (event) => {
+    if (event.target === settingsModal) {
+        settingsModal.classList.add("hidden");
+    }
+});
+
+configAvatarInput.addEventListener("change", () => {
+    const arquivo = configAvatarInput.files[0];
+
+    if (!arquivo) return;
+
+    configAvatarPreview.style.backgroundImage =
+        `url("${URL.createObjectURL(arquivo)}")`;
+
+    configAvatarLetra.style.display = "none";
+});
+
+btnSalvarPerfil.addEventListener("click", async () => {
+    const novoNome = configUsername.value.trim();
+
+    if (novoNome.length < 2) {
+        setStatusConfig("Nome muito curto.", "erro");
+        return;
+    }
+
+    setStatusConfig("Salvando...");
+
+    const { data: authData } =
+        await supabaseClient.auth.getUser();
+
+    const usuario = authData.user;
+
+    if (!usuario) {
+        setStatusConfig("Usuário não encontrado.", "erro");
+        return;
+    }
+
+    let avatarNovo = meuAvatar;
+    const arquivo = configAvatarInput.files[0];
+
+    if (arquivo) {
+        const resultado =
+            await enviarAvatar(usuario, arquivo);
+
+        if (!resultado) {
+            setStatusConfig(
+                "Não foi possível enviar a foto.",
+                "erro"
+            );
+            return;
+        }
+
+        avatarNovo = resultado;
+    }
+
+    const { error } =
+        await supabaseClient
+            .from("perfis")
+            .update({
+                username: novoNome,
+                avatar_url: avatarNovo
+            })
+            .eq("id", usuario.id);
+
+    if (error) {
+        console.error(error);
+
+        if (error.code === "23505") {
+            setStatusConfig(
+                "Esse nome já está sendo usado.",
+                "erro"
+            );
+        } else {
+            setStatusConfig(
+                "Não foi possível salvar.",
+                "erro"
+            );
+        }
+
+        return;
+    }
+
+    meuNome = novoNome;
+    meuAvatar = avatarNovo;
+
+    atualizarPerfilVisual();
+
+    if (canalSupabase) {
+        await canalSupabase.track({
+            id: meuId,
+            nome: meuNome,
+            avatar_url: meuAvatar,
+            online_at: new Date().toISOString()
+        });
+    }
+
+    if (conectado && canalPresenca) {
+        await canalPresenca.track({
+            id: meuId,
+            nome: meuNome,
+            avatar_url: meuAvatar,
+            online_at: new Date().toISOString()
+        });
+    }
+
+    atualizarUsuarios();
+
+    configAvatarInput.value = "";
+    setStatusConfig("Perfil atualizado.", "sucesso");
+});
+
+/* ==========================================
    DISPOSITIVOS DE ÁUDIO
-===================================== */
+========================================== */
 
 async function carregarDispositivosAudio() {
-
     try {
-
-        /*
-            Se ainda não tiver permissão,
-            pede acesso só para descobrir
-            os nomes dos dispositivos.
-        */
-
         let dispositivos =
-            await navigator.mediaDevices
-                .enumerateDevices();
-
+            await navigator.mediaDevices.enumerateDevices();
 
         const semNome =
             dispositivos.some(
-                dispositivo =>
-                    dispositivo.kind ===
-                        "audioinput" &&
+                (dispositivo) =>
+                    dispositivo.kind === "audioinput" &&
                     !dispositivo.label
             );
 
-
-        if (
-            semNome &&
-            !streamMicrofone
-        ) {
-
+        if (semNome && !streamMicrofone) {
             const teste =
-                await navigator.mediaDevices
-                    .getUserMedia({
-                        audio: true
-                    });
+                await navigator.mediaDevices.getUserMedia({
+                    audio: true
+                });
 
-
-            teste
-                .getTracks()
-                .forEach(
-                    track =>
-                        track.stop()
-                );
-
+            pararStream(teste);
 
             dispositivos =
-                await navigator.mediaDevices
-                    .enumerateDevices();
-
+                await navigator.mediaDevices.enumerateDevices();
         }
-
 
         const microfones =
             dispositivos.filter(
-                d =>
-                    d.kind ===
-                    "audioinput"
+                (d) => d.kind === "audioinput"
             );
-
 
         const saidas =
             dispositivos.filter(
-                d =>
-                    d.kind ===
-                    "audiooutput"
+                (d) => d.kind === "audiooutput"
             );
 
-
-        selectMicrofone.innerHTML =
-            `<option value="default">
-                Padrão do sistema
-            </option>`;
-
-
-        microfones.forEach(
-            function (
-                dispositivo,
-                index
-            ) {
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    dispositivo.deviceId;
-
-
-                option.textContent =
-                    dispositivo.label ||
-                    `Microfone ${index + 1}`;
-
-
-                selectMicrofone
-                    .appendChild(
-                        option
-                    );
-
-            }
-        );
-
-
-       const existeMicrofone =
-    [...selectMicrofone.options]
-        .some(
-            option =>
-                option.value ===
-                microfoneSelecionado
-        );
-
-if (existeMicrofone) {
-
-    selectMicrofone.value =
-        microfoneSelecionado;
-
-} else {
-
-    microfoneSelecionado =
-        "default";
-
-    selectMicrofone.value =
-        "default";
-
-    localStorage.setItem(
-        "lzz_microfone",
-        "default"
-    );
-}
-
-
-        /*
-            SAÍDA
-        */
-
-        if (
-            typeof HTMLMediaElement
-                .prototype
-                .setSinkId !==
-            "function"
-        ) {
-
-            selectSaida.innerHTML =
-                `<option>
-                    Controlado pelo sistema
-                </option>`;
-
-            selectSaida.disabled =
-                true;
-
-            return;
-
-        }
-
-
-        selectSaida.disabled =
-            false;
-
-
-        selectSaida.innerHTML =
-            `<option value="default">
-                Padrão do sistema
-            </option>`;
-
-
-        saidas.forEach(
-            function (
-                dispositivo,
-                index
-            ) {
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    dispositivo.deviceId;
-
-
-                option.textContent =
-                    dispositivo.label ||
-                    `Saída ${index + 1}`;
-
-
-                selectSaida
-                    .appendChild(
-                        option
-                    );
-
-            }
-        );
-
-
-        const existeSaida =
-    [...selectSaida.options]
-        .some(
-            option =>
-                option.value ===
-                saidaSelecionada
-        );
-
-if (existeSaida) {
-
-    selectSaida.value =
-        saidaSelecionada;
-
-} else {
-
-    saidaSelecionada =
-        "default";
-
-    selectSaida.value =
-        "default";
-
-    localStorage.setItem(
-        "lzz_saida",
-        "default"
-    );
-}
-
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao carregar áudio:",
-            erro
-        );
-
-    }
-
-}
-
-/* =====================================
-   TROCAR MICROFONE
-===================================== */
-
-selectMicrofone.addEventListener(
-    "change",
-    async function () {
-
-        microfoneSelecionado =
-            selectMicrofone.value;
-
-
-        localStorage.setItem(
-            "lzz_microfone",
+        preencherSelectDispositivos(
+            selectMicrofone,
+            microfones,
+            "Microfone",
             microfoneSelecionado
         );
 
+        if (
+            ![...selectMicrofone.options]
+                .some(
+                    (option) =>
+                        option.value === microfoneSelecionado
+                )
+        ) {
+            microfoneSelecionado = "default";
+            selectMicrofone.value = "default";
 
-        /*
-            Se não estiver numa call,
-            apenas salva a preferência.
-        */
-
-        if (!conectado) {
-
-            settingsStatus.textContent =
-                "Microfone selecionado.";
-
-            return;
-
-        }
-
-
-        try {
-
-            const constraints = {
-
-                echoCancellation:
-                    true,
-
-                noiseSuppression:
-                    true,
-
-                autoGainControl:
-                    true
-
-            };
-
-
-            if (
-                microfoneSelecionado !==
+            localStorage.setItem(
+                "lzz_microfone",
                 "default"
-            ) {
-
-                constraints.deviceId = {
-
-                    exact:
-                        microfoneSelecionado
-
-                };
-
-            }
-
-
-            const novoStream =
-                await navigator.mediaDevices
-                    .getUserMedia({
-
-                        audio:
-                            constraints
-
-                    });
-
-
-            const novaTrack =
-                novoStream
-                    .getAudioTracks()[0];
-
-
-            /*
-                Mantém mute se já estava
-                mutado.
-            */
-
-            novaTrack.enabled =
-                !mutado;
-
-
-            /*
-                Troca o microfone em todas
-                as conexões WebRTC.
-            */
-
-            for (
-                const pc of
-                peers.values()
-            ) {
-
-                const sender =
-                    pc.getSenders()
-                        .find(
-                            s =>
-                                s.track &&
-                                s.track.kind ===
-                                "audio"
-                        );
-
-
-                if (sender) {
-
-                    await sender
-                        .replaceTrack(
-                            novaTrack
-                        );
-
-                }
-
-            }
-
-
-            if (streamMicrofone) {
-
-                streamMicrofone
-                    .getTracks()
-                    .forEach(
-                        track =>
-                            track.stop()
-                    );
-
-            }
-
-
-            const monitor =
-                monitoresFala.get(
-                    meuId
-                );
-
-
-            if (monitor) {
-
-                monitor.parar();
-
-            }
-
-
-            streamMicrofone =
-                novoStream;
-
-
-            monitorarFala(
-                streamMicrofone,
-                meuId
             );
-
-
-            settingsStatus.textContent =
-                "Microfone alterado.";
-
-
-        } catch (erro) {
-
-            console.error(erro);
-
-            settingsStatus.style.color =
-                "#ff7185";
-
-            settingsStatus.textContent =
-                "Não foi possível trocar o microfone.";
-
         }
 
-    }
-);
+        if (
+            typeof HTMLMediaElement.prototype.setSinkId !==
+            "function"
+        ) {
+            selectSaida.innerHTML =
+                "<option>Controlado pelo sistema</option>";
 
-async function aplicarSaidaAudio(
-    audio
-) {
+            selectSaida.disabled = true;
+            return;
+        }
 
-    if (
-        typeof audio.setSinkId !==
-        "function"
-    ) {
+        selectSaida.disabled = false;
 
-        return;
-
-    }
-
-
-    try {
-
-        await audio.setSinkId(
+        preencherSelectDispositivos(
+            selectSaida,
+            saidas,
+            "Saída",
             saidaSelecionada
         );
 
-    } catch (erro) {
+        if (
+            ![...selectSaida.options]
+                .some(
+                    (option) =>
+                        option.value === saidaSelecionada
+                )
+        ) {
+            saidaSelecionada = "default";
+            selectSaida.value = "default";
 
+            localStorage.setItem(
+                "lzz_saida",
+                "default"
+            );
+        }
+    } catch (erro) {
+        console.error("Erro ao carregar áudio:", erro);
+    }
+}
+
+function preencherSelectDispositivos(
+    select,
+    dispositivos,
+    nomePadrao,
+    valorSelecionado
+) {
+    select.innerHTML = "";
+
+    const padrao = document.createElement("option");
+    padrao.value = "default";
+    padrao.textContent = "Padrão do sistema";
+    select.appendChild(padrao);
+
+    dispositivos.forEach((dispositivo, index) => {
+        const option = document.createElement("option");
+
+        option.value = dispositivo.deviceId;
+        option.textContent =
+            dispositivo.label ||
+            `${nomePadrao} ${index + 1}`;
+
+        select.appendChild(option);
+    });
+
+    select.value = valorSelecionado;
+}
+
+selectMicrofone.addEventListener("change", async () => {
+    microfoneSelecionado = selectMicrofone.value;
+
+    localStorage.setItem(
+        "lzz_microfone",
+        microfoneSelecionado
+    );
+
+    if (!conectado) {
+        setStatusConfig(
+            "Microfone selecionado.",
+            "sucesso"
+        );
+        return;
+    }
+
+    try {
+        const novoStream =
+            await navigator.mediaDevices.getUserMedia({
+                audio: montarConstraintsMicrofone()
+            });
+
+        const novaTrack =
+            novoStream.getAudioTracks()[0];
+
+        novaTrack.enabled = !mutado;
+
+        for (const pc of peers.values()) {
+            const sender =
+                pc.getSenders().find(
+                    (s) =>
+                        s.track &&
+                        s.track.kind === "audio"
+                );
+
+            if (sender) {
+                await sender.replaceTrack(novaTrack);
+            }
+        }
+
+        const monitor =
+            monitoresFala.get(meuId);
+
+        if (monitor) {
+            monitor.parar();
+        }
+
+        pararStream(streamMicrofone);
+        streamMicrofone = novoStream;
+
+        monitorarFala(
+            streamMicrofone,
+            meuId
+        );
+
+        setStatusConfig(
+            "Microfone alterado.",
+            "sucesso"
+        );
+    } catch (erro) {
+        console.error(erro);
+
+        setStatusConfig(
+            "Não foi possível trocar o microfone.",
+            "erro"
+        );
+    }
+});
+
+async function aplicarSaidaAudio(audio) {
+    if (typeof audio.setSinkId !== "function") {
+        return;
+    }
+
+    try {
+        await audio.setSinkId(saidaSelecionada);
+    } catch (erro) {
         console.error(
             "Erro ao trocar saída:",
             erro
         );
-
     }
-
 }
 
+selectSaida.addEventListener("change", async () => {
+    saidaSelecionada = selectSaida.value;
 
-selectSaida.addEventListener(
-    "change",
-    async function () {
-
-        saidaSelecionada =
-            selectSaida.value;
-
-
-        localStorage.setItem(
-            "lzz_saida",
-            saidaSelecionada
-        );
-
-
-        for (
-            const audio of
-            audiosRemotos.values()
-        ) {
-
-            await aplicarSaidaAudio(
-                audio
-            );
-
-        }
-
-
-        settingsStatus.textContent =
-            "Saída de áudio alterada.";
-
-    }
-);
-
-
-/* ======================================
-   CARREGAR PERFIL
-====================================== */
-
-async function iniciarUsuario(
-    usuario
-) {
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-
-            .from("perfis")
-
-            .select(
-                "id, username, avatar_url"
-            )
-
-            .eq(
-                "id",
-                usuario.id
-            )
-
-            .single();
-
-
-    if (error) {
-
-        console.error(
-            "Erro ao carregar perfil:",
-            error
-        );
-
-        return;
-    }
-
-
-    meuPerfil =
-        data;
-
-
-    meuNome =
-        data.username;
-
-
-    meuAvatar =
-        data.avatar_url;
-
-
-    atualizarPerfilVisual();
-
-
-    authScreen.classList.add(
-        "hidden"
+    localStorage.setItem(
+        "lzz_saida",
+        saidaSelecionada
     );
 
+    for (const audio of audiosRemotos.values()) {
+        await aplicarSaidaAudio(audio);
+    }
 
-    appPrincipal.classList.remove(
-        "hidden"
+    setStatusConfig(
+        "Saída de áudio alterada.",
+        "sucesso"
     );
+});
 
-}
+/* ==========================================
+   ENTRAR / SAIR DA CALL
+========================================== */
 
+btnEntrar.addEventListener("click", async () => {
+    if (conectado) return;
 
-/* ======================================
-   MOSTRAR PERFIL
-====================================== */
+    try {
+        statusSala.textContent =
+            "Ativando microfone...";
 
-function atualizarPerfilVisual() {
-
-    profileUsername.textContent =
-        meuNome;
-
-
-    profileInitial.textContent =
-        meuNome
-            .charAt(0)
-            .toUpperCase();
-
-
-if (meuAvatar) {
-
-    profileAvatar.style.backgroundImage =
-        `url("${meuAvatar}")`;
-
-    profileAvatar.classList.add("tem-foto");
-
-    profileInitial.style.display = "none";
-
-} else {
-
-    profileAvatar.style.backgroundImage =
-        "none";
-
-    profileAvatar.classList.remove("tem-foto");
-
-    profileInitial.style.display = "block";
-}
-
-}
-
-
-/* ======================================
-   LOGOUT
-====================================== */
-
-btnLogout.addEventListener(
-    "click",
-    async function () {
-
-        /*
-            SE ESTIVER EM CALL,
-            SAI PRIMEIRO.
-        */
-
-        if (conectado) {
-
-            await sairDaSala();
-
-        }
-
-
-        await supabaseClient
-            .auth
-            .signOut();
-
-
-        meuPerfil =
-            null;
-
-        meuNome =
-            "Usuário";
-
-        meuAvatar =
-            null;
-
-
-        appPrincipal.classList.add(
-            "hidden"
-        );
-
-
-        authScreen.classList.remove(
-            "hidden"
-        );
-
-    }
-);
-
-
-/* ======================================
-   VER SE JÁ ESTAVA LOGADO
-====================================== */
-
-async function verificarLogin() {
-
-    const {
-        data
-    } =
-        await supabaseClient
-            .auth
-            .getSession();
-
-
-    if (
-        data.session
-    ) {
-
-        await iniciarUsuario(
-            data.session.user
-        );
-
-    }
-
-}
-
-
-verificarLogin();
-
-const candidatesPendentes =
-    new Map();
-
-    const monitoresFala =
-    new Map();
-
-/* =====================================
-   CONFIGURAÇÕES DO USUÁRIO
-===================================== */
-
-btnConfig.addEventListener(
-    "click",
-    async function () {
-
-        configUsername.value =
-            meuNome;
-
-        configAvatarLetra.textContent =
-            meuNome
-                .charAt(0)
-                .toUpperCase();
-
-
-        if (meuAvatar) {
-
-            configAvatarPreview
-                .style
-                .backgroundImage =
-                `url("${meuAvatar}")`;
-
-            configAvatarLetra.style.display =
-                "none";
-
-        } else {
-
-            configAvatarPreview
-                .style
-                .backgroundImage =
-                "none";
-
-            configAvatarLetra.style.display =
-                "block";
-        }
-
-
-        settingsStatus.textContent =
-            "";
-
-
-        settingsModal.classList.remove(
-            "hidden"
-        );
-
-
-        await carregarDispositivosAudio();
-
-    }
-);
-
-
-btnFecharConfig.addEventListener(
-    "click",
-    function () {
-
-        settingsModal.classList.add(
-            "hidden"
-        );
-
-    }
-);
-
-
-/* FOTO NOVA */
-
-configAvatarInput.addEventListener(
-    "change",
-    function () {
-
-        const arquivo =
-            configAvatarInput.files[0];
-
-
-        if (!arquivo) return;
-
-
-        const url =
-            URL.createObjectURL(
-                arquivo
-            );
-
-
-        configAvatarPreview
-            .style
-            .backgroundImage =
-            `url("${url}")`;
-
-
-        configAvatarLetra.style.display =
-            "none";
-
-    }
-);
-
-
-/* =====================================
-   SALVAR PERFIL
-===================================== */
-
-btnSalvarPerfil.addEventListener(
-    "click",
-    async function () {
-
-        const novoNome =
-            configUsername
-                .value
-                .trim();
-
-
-        if (
-            novoNome.length < 2
-        ) {
-
-            settingsStatus.style.color =
-                "#ff7185";
-
-            settingsStatus.textContent =
-                "Nome muito curto.";
-
-            return;
-        }
-
-
-        settingsStatus.style.color =
-            "#9da9c5";
-
-        settingsStatus.textContent =
-            "Salvando...";
-
-
-        const {
-            data: authData
-        } =
-            await supabaseClient
-                .auth
-                .getUser();
-
-
-        const usuario =
-            authData.user;
-
-
-        if (!usuario) {
-
-            settingsStatus.textContent =
-                "Usuário não encontrado.";
-
-            return;
-        }
-
-
-        let avatarNovo =
-            meuAvatar;
-
-
-        const arquivo =
-            configAvatarInput.files[0];
-
-
-        if (arquivo) {
-
-            const resultado =
-                await salvarAvatar(
-                    usuario,
-                    arquivo
-                );
-
-
-            if (resultado) {
-
-                avatarNovo =
-                    resultado;
-
-            }
-
-        }
-
-
-        const {
-            error
-        } =
-            await supabaseClient
-
-                .from("perfis")
-
-                .update({
-
-                    username:
-                        novoNome,
-
-                    avatar_url:
-                        avatarNovo
-
-                })
-
-                .eq(
-                    "id",
-                    usuario.id
-                );
-
-
-        if (error) {
-
-            console.error(error);
-
-            settingsStatus.style.color =
-                "#ff7185";
-
-
-            if (
-                error.code === "23505"
-            ) {
-
-                settingsStatus.textContent =
-                    "Esse nome já está sendo usado.";
-
-            } else {
-
-                settingsStatus.textContent =
-                    "Não foi possível salvar.";
-
-            }
-
-            return;
-        }
-
-
-        meuNome =
-            novoNome;
-
-        meuAvatar =
-            avatarNovo;
-
-
-        atualizarPerfilVisual();
-
-
-        /*
-            Atualiza nome/foto na call
-            sem precisar sair.
-        */
-
-        if (canalSupabase) {
-
-            await canalSupabase.track({
-
-                id:
-                    meuId,
-
-                nome:
-                    meuNome,
-
-                avatar_url:
-                    meuAvatar,
-
-                online_at:
-                    new Date()
-                        .toISOString()
-
+        streamMicrofone =
+            await navigator.mediaDevices.getUserMedia({
+                audio: montarConstraintsMicrofone()
             });
 
-        }
+        statusSala.textContent =
+            "Conectando à sala...";
 
+        await entrarNoCanal();
+
+        conectado = true;
+
+        await marcarPresencaCall();
+
+        statusSala.textContent =
+            `Conectado em ${canalAtual}`;
+
+        miniStatus.textContent =
+            "Conectado";
+
+        btnEntrar.style.display = "none";
+        btnMute.disabled = false;
+        btnAudio.disabled = false;
+        btnSair.disabled = false;
 
         atualizarUsuarios();
 
+        monitorarFala(
+            streamMicrofone,
+            meuId
+        );
 
-        settingsStatus.style.color =
-            "#70e5aa";
+        await iniciarServicoCall();
+    } catch (erro) {
+        console.error("Erro ao entrar:", erro);
 
-        settingsStatus.textContent =
-            "Perfil atualizado.";
+        conectado = false;
 
-            configAvatarInput.value = "";
+        pararStream(streamMicrofone);
+        streamMicrofone = null;
 
-    }
-);
+        if (canalSupabase) {
+            await supabaseClient
+                .removeChannel(canalSupabase);
 
-
-/* =====================================
-   CONFIGURAÇÃO WEBRTC
-===================================== */
-
-const rtcConfig = {
-
-    iceServers: [
-
-        {
-            urls:
-                "stun:stun.l.google.com:19302"
+            canalSupabase = null;
         }
 
-    ]
+        statusSala.textContent =
+            `Erro: ${erro.message}`;
 
-};
+        alert(
+            "Não foi possível entrar na sala."
+        );
+    }
+});
 
-
-/* =====================================
-   ENTRAR NA SALA
-===================================== */
-
-btnEntrar.addEventListener(
+btnSair.addEventListener(
     "click",
-    async function () {
-
-        try {
-
-            statusSala.textContent =
-                "Ativando microfone...";
-
-
-            /*
-                PEGA O MICROFONE
-            */
-
-                        const audioConstraints = {
-
-                echoCancellation:
-                    true,
-
-                noiseSuppression:
-                    true,
-
-                autoGainControl:
-                    true
-
-            };
-
-
-            if (
-                microfoneSelecionado !==
-                "default"
-            ) {
-
-                audioConstraints.deviceId = {
-
-                    exact:
-                        microfoneSelecionado
-
-                };
-
-            }
-
-
-            streamMicrofone =
-                await navigator.mediaDevices
-                    .getUserMedia({
-
-                        audio:
-                            audioConstraints
-
-                    });
-
-
-            statusSala.textContent =
-                "Conectando à sala...";
-
-
-            /*
-                CONECTA AO SUPABASE
-            */
-
-            await entrarNoCanal();
-
-
-           conectado = true;
-
-            statusSala.textContent =
-                `Conectado em ${canalAtual}`;
-
-            miniStatus.textContent = "Conectado";
-
-
-            btnEntrar.style.display =
-                "none";
-
-
-            btnMute.disabled = false;
-
-            btnAudio.disabled = false;
-
-            btnSair.disabled = false;
-
-
-mostrarMeuUsuario();
-
-monitorarFala(
-    streamMicrofone,
-    meuId
+    sairDaSala
 );
 
-await iniciarServicoCall();
-
-
-        } catch (erro) {
-
-            console.error(
-                "Erro:",
-                erro
-            );
-
-
-            statusSala.textContent =
-                `Erro: ${erro.message}`;
-
-
-            alert(
-                "Não foi possível entrar na sala."
-            );
-
-        }
-
+async function sairDaSala() {
+    if (!conectado && !streamMicrofone && !canalSupabase) {
+        return;
     }
-);
 
+    conectado = false;
 
-/* =====================================
-   SUPABASE REALTIME
-===================================== */
+    await removerPresencaCall();
+    await pararServicoCall();
+
+    for (const pc of peers.values()) {
+        pc.close();
+    }
+
+    peers.clear();
+
+    for (const monitor of monitoresFala.values()) {
+        monitor.parar();
+    }
+
+    monitoresFala.clear();
+
+    for (const audio of audiosRemotos.values()) {
+        audio.remove();
+    }
+
+    audiosRemotos.clear();
+
+    pararStream(streamMicrofone);
+    streamMicrofone = null;
+
+    if (canalSupabase) {
+        try {
+            await canalSupabase.untrack();
+        } catch (_) {}
+
+        await supabaseClient
+            .removeChannel(canalSupabase);
+
+        canalSupabase = null;
+    }
+
+    candidatesPendentes.clear();
+
+    mutado = false;
+    audioSilenciado = false;
+
+    btnEntrar.style.display = "block";
+    btnMute.disabled = true;
+    btnAudio.disabled = true;
+    btnSair.disabled = true;
+
+    btnMute.textContent = "🎙️";
+    profileMic.textContent = "🎙️";
+    btnMute.classList.remove("ativo");
+
+    btnAudio.textContent = "🎧";
+    profileAudio.textContent = "🎧";
+    btnAudio.classList.remove("ativo");
+
+    statusSala.textContent =
+        "Você não está conectado.";
+
+    miniStatus.textContent =
+        "Offline";
+
+    atualizarUsuarios();
+}
+
+/* ==========================================
+   SUPABASE REALTIME DA CALL
+========================================== */
 
 function entrarNoCanal() {
-
     return new Promise(
-        function (resolve, reject) {
-
+        (resolve, reject) => {
             const nomeSala =
-                "voz-" +
-                canalAtual
-                    .toLowerCase();
-
+                `voz-${canalAtual.toLowerCase()}`;
 
             canalSupabase =
                 supabaseClient.channel(
                     nomeSala,
                     {
-
                         config: {
-
                             presence: {
-
                                 key: meuId
-
                             }
-
                         }
-
                     }
                 );
 
-
-            /*
-                RECEBER SINALIZAÇÃO
-            */
-
             canalSupabase.on(
-
                 "broadcast",
-
                 {
                     event: "webrtc"
                 },
-
-                async function (mensagem) {
-
-                    const dados =
-                        mensagem.payload;
-
-
-                    /*
-                        Ignora mensagens
-                        para outro usuário.
-                    */
+                async (mensagem) => {
+                    const dados = mensagem.payload;
 
                     if (
                         dados.destino &&
                         dados.destino !== meuId
                     ) {
-
                         return;
-
                     }
 
-
-                    /*
-                        Ignora nossa própria
-                        mensagem.
-                    */
-
-                    if (
-                        dados.origem === meuId
-                    ) {
-
+                    if (dados.origem === meuId) {
                         return;
-
                     }
 
-
-                    await receberSinal(
-                        dados
-                    );
-
+                    await receberSinal(dados);
                 }
-
             );
 
-
-            /*
-                QUANDO ALGUÉM ENTRA
-                OU SAI
-            */
-
             canalSupabase.on(
-
                 "presence",
-
                 {
                     event: "sync"
                 },
-
-                async function () {
-
-                    atualizarUsuarios();
-
+                async () => {
                     await conectarNovosUsuarios();
-
                 }
-
             );
 
-
             canalSupabase.on(
-
                 "presence",
-
                 {
                     event: "leave"
                 },
-
-                function (dados) {
-
-                    console.log(
-                        "Usuário saiu:",
-                        dados
-                    );
-
-
-                    atualizarUsuarios();
-
+                () => {
+                    sincronizarPeersComSala();
                 }
-
             );
 
-
-            /*
-                CONECTAR AO CANAL
-            */
-
             canalSupabase.subscribe(
-
-                async function (status) {
-
-                    console.log(
-                        "Supabase:",
-                        status
-                    );
-
-
-                    if (
-                        status ===
-                        "SUBSCRIBED"
-                    ) {
-
-                      await canalSupabase.track({
-
-    id:
-        meuId,
-
-    nome:
-        meuNome,
-
-    avatar_url:
-        meuAvatar,
-
-    online_at:
-        new Date()
-            .toISOString()
-
-});
-
+                async (status) => {
+                    if (status === "SUBSCRIBED") {
+                        await canalSupabase.track({
+                            id: meuId,
+                            nome: meuNome,
+                            avatar_url: meuAvatar,
+                            online_at:
+                                new Date().toISOString()
+                        });
 
                         resolve();
-
+                        return;
                     }
 
-
                     if (
-                        status ===
-                        "CHANNEL_ERROR"
+                        status === "CHANNEL_ERROR" ||
+                        status === "TIMED_OUT"
                     ) {
-
                         reject(
                             new Error(
                                 "Erro no Supabase."
                             )
                         );
-
                     }
-
                 }
-
             );
-
         }
-
     );
-
 }
 
-
-/* =====================================
-   ENCONTRAR OUTROS USUÁRIOS
-===================================== */
-
 async function conectarNovosUsuarios() {
-
     if (!canalSupabase) return;
-
 
     const estado =
         canalSupabase.presenceState();
 
+    const ids = Object.keys(estado);
 
-    const ids =
-        Object.keys(estado);
-
+    sincronizarPeersComSala();
 
     for (const id of ids) {
-
-
-        /*
-            Não conecta com você mesmo.
-        */
-
-        if (id === meuId) {
-
+        if (
+            id === meuId ||
+            peers.has(id)
+        ) {
             continue;
-
         }
-
-
-        /*
-            Se já existe conexão,
-            não cria outra.
-        */
-
-        if (peers.has(id)) {
-
-            continue;
-
-        }
-
-
-        /*
-            Para evitar os dois PCs
-            criando oferta ao mesmo tempo,
-            apenas quem possuir o menor ID
-            começa.
-        */
 
         if (meuId < id) {
-
             await criarOferta(id);
-
         }
-
     }
-
 }
 
-/* =====================================
-   DETECTAR QUEM ESTÁ FALANDO
-===================================== */
+function sincronizarPeersComSala() {
+    if (!canalSupabase) return;
 
-function monitorarFala(stream, usuarioId) {
+    const ativos =
+        new Set(
+            Object.keys(
+                canalSupabase.presenceState()
+            )
+        );
 
-    if (monitoresFala.has(usuarioId)) {
+    for (const remoteId of peers.keys()) {
+        if (!ativos.has(remoteId)) {
+            removerPeer(remoteId);
+        }
+    }
+}
+
+/* ==========================================
+   PRESENÇA VISÍVEL ANTES DE ENTRAR
+========================================== */
+
+async function observarSala(nomeSala) {
+    const topico =
+        `presenca-voz-${nomeSala.toLowerCase()}`;
+
+    if (
+        canalPresenca &&
+        topicoPresencaAtual === topico
+    ) {
+        atualizarUsuarios();
+        return;
+    }
+
+    if (canalPresenca) {
+        try {
+            await supabaseClient
+                .removeChannel(canalPresenca);
+        } catch (erro) {
+            console.error(
+                "Erro ao trocar presença:",
+                erro
+            );
+        }
+
+        canalPresenca = null;
+    }
+
+    topicoPresencaAtual = topico;
+
+    usuariosCanal.innerHTML = "";
+    criarEstadoVazio(
+        "Carregando sala...",
+        ""
+    );
+
+    canalPresenca =
+        supabaseClient.channel(
+            topico,
+            {
+                config: {
+                    presence: {
+                        key: meuId
+                    }
+                }
+            }
+        );
+
+    const atualizar =
+        () => atualizarUsuarios();
+
+    canalPresenca.on(
+        "presence",
+        { event: "sync" },
+        atualizar
+    );
+
+    canalPresenca.on(
+        "presence",
+        { event: "join" },
+        atualizar
+    );
+
+    canalPresenca.on(
+        "presence",
+        { event: "leave" },
+        atualizar
+    );
+
+    await new Promise(
+        (resolve, reject) => {
+            canalPresenca.subscribe(
+                (status) => {
+                    if (status === "SUBSCRIBED") {
+                        atualizarUsuarios();
+                        resolve();
+                        return;
+                    }
+
+                    if (
+                        status === "CHANNEL_ERROR" ||
+                        status === "TIMED_OUT"
+                    ) {
+                        reject(
+                            new Error(
+                                "Erro ao observar sala."
+                            )
+                        );
+                    }
+                }
+            );
+        }
+    );
+}
+
+async function marcarPresencaCall() {
+    try {
+        const topicoCorreto =
+            `presenca-voz-${canalAtual.toLowerCase()}`;
+
+        if (
+            !canalPresenca ||
+            topicoPresencaAtual !== topicoCorreto
+        ) {
+            await observarSala(canalAtual);
+        }
+
+        await canalPresenca.track({
+            id: meuId,
+            nome: meuNome,
+            avatar_url: meuAvatar,
+            online_at: new Date().toISOString()
+        });
+
+        atualizarUsuarios();
+    } catch (erro) {
+        console.error(
+            "Erro na presença da call:",
+            erro
+        );
+    }
+}
+
+async function removerPresencaCall() {
+    if (!canalPresenca) return;
+
+    try {
+        await canalPresenca.untrack();
+    } catch (erro) {
+        console.error(
+            "Erro ao sair da presença:",
+            erro
+        );
+    }
+}
+
+/* ==========================================
+   WEBRTC
+========================================== */
+
+function criarPeer(remoteId) {
+    if (peers.has(remoteId)) {
+        return peers.get(remoteId);
+    }
+
+    if (!streamMicrofone) {
+        throw new Error(
+            "Microfone não está ativo."
+        );
+    }
+
+    const pc =
+        new RTCPeerConnection(rtcConfig);
+
+    streamMicrofone
+        .getTracks()
+        .forEach((track) => {
+            pc.addTrack(
+                track,
+                streamMicrofone
+            );
+        });
+
+    pc.onicecandidate = (event) => {
+        if (!event.candidate) return;
+
+        enviarSinal({
+            tipo: "candidate",
+            destino: remoteId,
+            candidate: event.candidate
+        });
+    };
+
+    pc.ontrack = (event) => {
+        const stream = event.streams[0];
+
+        if (!stream) return;
+
+        monitorarFala(stream, remoteId);
+
+        let audio =
+            audiosRemotos.get(remoteId);
+
+        if (!audio) {
+            audio =
+                document.createElement("audio");
+
+            audio.autoplay = true;
+            audio.playsInline = true;
+            audio.muted = audioSilenciado;
+
+            document.body.appendChild(audio);
+            audiosRemotos.set(remoteId, audio);
+        }
+
+        audio.srcObject = stream;
+
+        aplicarSaidaAudio(audio);
+
+        audio.play().catch((erro) => {
+            console.log("Autoplay:", erro);
+        });
+    };
+
+    pc.onconnectionstatechange = () => {
+        atualizarStatusConexao();
+
+        if (
+            pc.connectionState === "failed" ||
+            pc.connectionState === "closed"
+        ) {
+            removerPeer(remoteId);
+        }
+    };
+
+    peers.set(remoteId, pc);
+
+    return pc;
+}
+
+async function criarOferta(remoteId) {
+    const pc = criarPeer(remoteId);
+    const oferta = await pc.createOffer();
+
+    await pc.setLocalDescription(oferta);
+
+    await enviarSinal({
+        tipo: "offer",
+        destino: remoteId,
+        sdp: pc.localDescription
+    });
+}
+
+async function receberSinal(dados) {
+    const remoteId = dados.origem;
+
+    if (!remoteId) return;
+
+    let pc = peers.get(remoteId);
+
+    if (dados.tipo === "offer") {
+        if (!pc) {
+            pc = criarPeer(remoteId);
+        }
+
+        await pc.setRemoteDescription(
+            dados.sdp
+        );
+
+        await adicionarCandidatesPendentes(
+            remoteId,
+            pc
+        );
+
+        const resposta =
+            await pc.createAnswer();
+
+        await pc.setLocalDescription(
+            resposta
+        );
+
+        await enviarSinal({
+            tipo: "answer",
+            destino: remoteId,
+            sdp: pc.localDescription
+        });
+
+        return;
+    }
+
+    if (dados.tipo === "answer") {
+        if (!pc) return;
+
+        await pc.setRemoteDescription(
+            dados.sdp
+        );
+
+        await adicionarCandidatesPendentes(
+            remoteId,
+            pc
+        );
+
+        return;
+    }
+
+    if (dados.tipo === "candidate") {
+        if (!dados.candidate) return;
+
+        if (
+            !pc ||
+            !pc.remoteDescription
+        ) {
+            salvarCandidatePendente(
+                remoteId,
+                dados.candidate
+            );
+            return;
+        }
+
+        try {
+            await pc.addIceCandidate(
+                dados.candidate
+            );
+        } catch (erro) {
+            console.error("Erro ICE:", erro);
+        }
+    }
+}
+
+function salvarCandidatePendente(
+    remoteId,
+    candidate
+) {
+    if (!candidatesPendentes.has(remoteId)) {
+        candidatesPendentes.set(
+            remoteId,
+            []
+        );
+    }
+
+    candidatesPendentes
+        .get(remoteId)
+        .push(candidate);
+}
+
+async function adicionarCandidatesPendentes(
+    remoteId,
+    pc
+) {
+    const lista =
+        candidatesPendentes.get(remoteId);
+
+    if (!lista) return;
+
+    for (const candidate of lista) {
+        try {
+            await pc.addIceCandidate(
+                candidate
+            );
+        } catch (erro) {
+            console.error(
+                "Erro ao adicionar ICE:",
+                erro
+            );
+        }
+    }
+
+    candidatesPendentes.delete(remoteId);
+}
+
+async function enviarSinal(dados) {
+    if (!canalSupabase) return;
+
+    await canalSupabase.send({
+        type: "broadcast",
+        event: "webrtc",
+        payload: {
+            ...dados,
+            origem: meuId,
+            nome: meuNome
+        }
+    });
+}
+
+function removerPeer(remoteId) {
+    const pc = peers.get(remoteId);
+
+    if (pc) {
+        pc.onicecandidate = null;
+        pc.ontrack = null;
+        pc.onconnectionstatechange = null;
+
+        pc.close();
+        peers.delete(remoteId);
+    }
+
+    const monitor =
+        monitoresFala.get(remoteId);
+
+    if (monitor) {
+        monitor.parar();
+    }
+
+    const audio =
+        audiosRemotos.get(remoteId);
+
+    if (audio) {
+        audio.srcObject = null;
+        audio.remove();
+
+        audiosRemotos.delete(remoteId);
+    }
+
+    candidatesPendentes.delete(remoteId);
+}
+
+/* ==========================================
+   DETECÇÃO DE FALA
+========================================== */
+
+function monitorarFala(
+    stream,
+    usuarioId
+) {
+    if (
+        monitoresFala.has(usuarioId) ||
+        !stream
+    ) {
         return;
     }
 
     const AudioContextClass =
         window.AudioContext ||
         window.webkitAudioContext;
+
+    if (!AudioContextClass) return;
 
     const audioContext =
         new AudioContextClass();
@@ -2084,12 +1536,10 @@ function monitorarFala(stream, usuarioId) {
         audioContext.createAnalyser();
 
     const source =
-        audioContext.createMediaStreamSource(
-            stream
-        );
+        audioContext
+            .createMediaStreamSource(stream);
 
     analyser.fftSize = 512;
-
     analyser.smoothingTimeConstant = 0.65;
 
     source.connect(analyser);
@@ -2100,15 +1550,10 @@ function monitorarFala(stream, usuarioId) {
         );
 
     let animationId = null;
-
     let ultimoSom = 0;
 
-
     function analisar() {
-
-        analyser.getByteTimeDomainData(
-            dados
-        );
+        analyser.getByteTimeDomainData(dados);
 
         let soma = 0;
 
@@ -2117,1941 +1562,761 @@ function monitorarFala(stream, usuarioId) {
             i < dados.length;
             i++
         ) {
-
             const valor =
                 (dados[i] - 128) / 128;
 
-            soma +=
-                valor * valor;
-
+            soma += valor * valor;
         }
 
         const volume =
             Math.sqrt(
-                soma /
-                dados.length
+                soma / dados.length
             );
 
-
-        // SENSIBILIDADE
-        const estaFalando =
-            volume > 0.025;
-
-
-        const agora =
-            Date.now();
-
-
-        if (estaFalando) {
-            ultimoSom = agora;
+        if (volume > 0.025) {
+            ultimoSom = Date.now();
         }
 
-
         const falando =
-            agora - ultimoSom < 220;
-
+            Date.now() - ultimoSom < 220;
 
         const card =
             document.querySelector(
                 `[data-user-id="${usuarioId}"]`
             );
 
-
         if (card) {
-
             card.classList.toggle(
                 "falando",
                 falando
             );
-
         }
 
-
         animationId =
-            requestAnimationFrame(
-                analisar
-            );
-
+            requestAnimationFrame(analisar);
     }
 
-
     analisar();
-
 
     monitoresFala.set(
         usuarioId,
         {
-            parar: function () {
-
+            parar() {
                 if (animationId) {
-
                     cancelAnimationFrame(
                         animationId
                     );
-
                 }
 
-                source.disconnect();
+                try {
+                    source.disconnect();
+                } catch (_) {}
 
-                audioContext.close();
+                audioContext.close()
+                    .catch(() => {});
 
                 monitoresFala.delete(
                     usuarioId
                 );
-
             }
         }
     );
-
 }
 
-
-/* =====================================
-   CRIAR PEER CONNECTION
-===================================== */
-
-function criarPeer(remoteId) {
-
-    if (
-        peers.has(remoteId)
-    ) {
-
-        return peers.get(remoteId);
-
-    }
-
-
-    const pc =
-        new RTCPeerConnection(
-            rtcConfig
-        );
-
-
-    /*
-        COLOCA NOSSO MICROFONE
-        NA CONEXÃO
-    */
-
-    streamMicrofone
-        .getTracks()
-        .forEach(function (track) {
-
-            pc.addTrack(
-                track,
-                streamMicrofone
-            );
-
-        });
-
-
-    /*
-        ICE CANDIDATES
-    */
-
-    pc.onicecandidate =
-        function (event) {
-
-            if (
-                event.candidate
-            ) {
-
-                enviarSinal({
-
-                    tipo: "candidate",
-
-                    destino:
-                        remoteId,
-
-                    candidate:
-                        event.candidate
-
-                });
-
-            }
-
-        };
-
-
-    /*
-        ÁUDIO DO AMIGO
-    */
-
-    pc.ontrack =
-        function (event) {
-
-            console.log(
-                "Recebendo áudio de:",
-                remoteId
-            );
-
-
-            monitorarFala(
-                    event.streams[0],
-                    remoteId
-                );
-
-            let audio =
-                audiosRemotos.get(
-                    remoteId
-                );
-
-
-            if (!audio) {
-
-                audio =
-                    document.createElement(
-                        "audio"
-                    );
-
-
-                audio.autoplay = true;
-
-                audio.playsInline = true;
-
-
-                /*
-                    Se apertar silenciar,
-                    o áudio remoto fica mudo.
-                */
-
-                audio.muted =
-                    audioSilenciado;
-
-
-                document.body.appendChild(
-                    audio
-                );
-
-
-                audiosRemotos.set(
-                    remoteId,
-                    audio
-                );
-
-            }
-
-
-            audio.srcObject =
-                event.streams[0];
-
-                aplicarSaidaAudio(
-    audio
-);
-
-
-            audio.play()
-                .catch(function (erro) {
-
-                    console.log(
-                        "Autoplay:",
-                        erro
-                    );
-
-                });
-
-        };
-
-
-    /*
-        ESTADO DA CONEXÃO
-    */
-
-    pc.onconnectionstatechange =
-        function () {
-
-            console.log(
-                remoteId,
-                pc.connectionState
-            );
-
-
-            atualizarStatusConexao();
-
-
-            if (
-
-                pc.connectionState ===
-                "failed" ||
-
-                pc.connectionState ===
-                "closed"
-
-            ) {
-
-                removerPeer(
-                    remoteId
-                );
-
-            }
-
-        };
-
-
-    peers.set(
-        remoteId,
-        pc
-    );
-
-
-    return pc;
-
-}
-
-
-/* =====================================
-   CRIAR OFERTA
-===================================== */
-
-async function criarOferta(
-    remoteId
-) {
-
-    console.log(
-        "Criando oferta para:",
-        remoteId
-    );
-
-
-    const pc =
-        criarPeer(remoteId);
-
-
-    const oferta =
-        await pc.createOffer();
-
-
-    await pc.setLocalDescription(
-        oferta
-    );
-
-
-    await enviarSinal({
-
-        tipo: "offer",
-
-        destino:
-            remoteId,
-
-        sdp:
-            pc.localDescription
-
-    });
-
-}
-
-
-/* =====================================
-   RECEBER SINAL
-===================================== */
-
-async function receberSinal(
-    dados
-) {
-
-    const remoteId =
-        dados.origem;
-
-
-    let pc =
-        peers.get(
-            remoteId
-        );
-
-
-    /*
-        RECEBEU UMA OFERTA
-    */
-
-    if (
-        dados.tipo === "offer"
-    ) {
-
-        if (!pc) {
-
-            pc =
-                criarPeer(
-                    remoteId
-                );
-
-        }
-
-
-        await pc.setRemoteDescription(
-            dados.sdp
-        );
-
-
-        await adicionarCandidatesPendentes(
-            remoteId,
-            pc
-        );
-
-
-        const resposta =
-            await pc.createAnswer();
-
-
-        await pc.setLocalDescription(
-            resposta
-        );
-
-
-        await enviarSinal({
-
-            tipo: "answer",
-
-            destino:
-                remoteId,
-
-            sdp:
-                pc.localDescription
-
-        });
-
-    }
-
-
-    /*
-        RECEBEU RESPOSTA
-    */
-
-    if (
-        dados.tipo === "answer"
-    ) {
-
-        if (!pc) return;
-
-
-        await pc.setRemoteDescription(
-            dados.sdp
-        );
-
-
-        await adicionarCandidatesPendentes(
-            remoteId,
-            pc
-        );
-
-    }
-
-
-    /*
-        RECEBEU ICE CANDIDATE
-    */
-
-    if (
-        dados.tipo ===
-        "candidate"
-    ) {
-
-        if (!pc) {
-
-            salvarCandidatePendente(
-                remoteId,
-                dados.candidate
-            );
-
-            return;
-
-        }
-
-
-        if (
-            !pc.remoteDescription
-        ) {
-
-            salvarCandidatePendente(
-                remoteId,
-                dados.candidate
-            );
-
-            return;
-
-        }
-
-
-        try {
-
-            await pc.addIceCandidate(
-                dados.candidate
-            );
-
-        } catch (erro) {
-
-            console.error(
-                "Erro ICE:",
-                erro
-            );
-
-        }
-
-    }
-
-}
-
-
-/* =====================================
-   CANDIDATES PENDENTES
-===================================== */
-
-function salvarCandidatePendente(
-    remoteId,
-    candidate
-) {
-
-    if (
-        !candidatesPendentes.has(
-            remoteId
-        )
-    ) {
-
-        candidatesPendentes.set(
-            remoteId,
-            []
-        );
-
-    }
-
-
-    candidatesPendentes
-        .get(remoteId)
-        .push(candidate);
-
-}
-
-
-async function adicionarCandidatesPendentes(
-    remoteId,
-    pc
-) {
-
-    const lista =
-        candidatesPendentes.get(
-            remoteId
-        );
-
-
-    if (!lista) return;
-
-
-    for (
-        const candidate of lista
-    ) {
-
-        try {
-
-            await pc.addIceCandidate(
-                candidate
-            );
-
-        } catch (erro) {
-
-            console.error(
-                erro
-            );
-
-        }
-
-    }
-
-
-    candidatesPendentes.delete(
-        remoteId
-    );
-
-}
-
-
-/* =====================================
-   ENVIAR SINAL
-===================================== */
-
-async function enviarSinal(
-    dados
-) {
-
-    if (!canalSupabase) return;
-
-
-    await canalSupabase.send({
-
-        type: "broadcast",
-
-        event: "webrtc",
-
-        payload: {
-
-            ...dados,
-
-            origem:
-                meuId,
-
-            nome:
-                meuNome
-
-        }
-
-    });
-
-}
-
-
-/* =====================================
-   USUÁRIOS ONLINE
-===================================== */
+/* ==========================================
+   USUÁRIOS NA SALA
+========================================== */
 
 function atualizarUsuarios() {
-
-    if (!canalSupabase) return;
-
+    if (!canalPresenca) return;
 
     const estado =
-        canalSupabase.presenceState();
+        canalPresenca.presenceState();
 
+    usuariosCanal.innerHTML = "";
+    usersGrid.innerHTML = "";
 
-    let htmlSidebar = "";
+    let quantidade = 0;
 
-    let htmlCards = "";
+    Object.entries(estado)
+        .forEach(([id, presencas]) => {
+            if (
+                !presencas ||
+                presencas.length === 0
+            ) {
+                return;
+            }
 
+            const usuario = presencas[0];
 
-    Object.keys(estado).forEach(function (id) {
+            const nome =
+                String(
+                    usuario.nome ||
+                    "Usuário"
+                );
 
-        const presencas =
-            estado[id];
+            const avatar =
+                usuario.avatar_url
+                    ? String(
+                        usuario.avatar_url
+                    )
+                    : null;
 
+            quantidade++;
 
-        if (
-            !presencas ||
-            presencas.length === 0
-        ) {
-            return;
-        }
+            usuariosCanal.appendChild(
+                criarUsuarioSidebar(
+                    nome,
+                    avatar
+                )
+            );
 
+            usersGrid.appendChild(
+                criarCardUsuario(
+                    id,
+                    nome,
+                    avatar
+                )
+            );
+        });
 
-        const usuario =
-            presencas[0];
-
-
-        const nome =
-            usuario.nome ||
-            "Usuário";
-
-
-        const avatar =
-            usuario.avatar_url ||
-            null;
-
-
-        const letra =
-            nome
-                .charAt(0)
-                .toUpperCase();
-
-
-        /* =============================
-           USUÁRIO NA BARRA ESQUERDA
-        ============================= */
-
-        htmlSidebar += `
-
-            <div class="usuario-canal">
-
-                <div
-                    class="avatar-canal ${avatar ? "tem-foto" : ""}"
-                    ${
-                        avatar
-                            ? `style="background-image: url('${avatar}');"`
-                            : ""
-                    }
-                >
-                    ${avatar ? "" : letra}
-                </div>
-
-                <span class="usuario-canal-nome">
-                    ${nome}
-                </span>
-
-            </div>
-
-        `;
-
-
-        /* =============================
-           CARD GRANDE DA CALL
-        ============================= */
-
-        htmlCards += `
-
-            <div
-                class="user-card"
-                data-user-id="${id}"
-            >
-
-                <div
-                    class="user-avatar ${avatar ? "tem-foto" : ""}"
-                    ${
-                        avatar
-                            ? `style="background-image: url('${avatar}');"`
-                            : ""
-                    }
-                >
-                    ${avatar ? "" : letra}
-                </div>
-
-
-                <span class="user-name">
-                    ${nome}
-                </span>
-
-
-                <div class="user-mic">
-                    🎙️
-                </div>
-
-            </div>
-
-        `;
-
-    });
-
-
-    usuariosCanal.innerHTML =
-        htmlSidebar;
-
-
-    if (htmlCards) {
-
-        usersGrid.innerHTML =
-            htmlCards;
-
-    } else {
-
-        usersGrid.innerHTML = `
-
-            <div class="empty-state">
-
-                <div class="empty-state-icon">
-                    🎧
-                </div>
-
-                <h2>
-                    Ninguém conectado
-                </h2>
-
-                <p>
-                    Entre na sala para começar.
-                </p>
-
-            </div>
-
-        `;
-
+    if (quantidade === 0) {
+        criarEstadoVazio();
     }
-
 }
 
+function criarUsuarioSidebar(
+    nome,
+    avatar
+) {
+    const item =
+        document.createElement("div");
 
-/* =====================================
-   MOSTRAR MEU USUÁRIO
-===================================== */
+    item.className =
+        "usuario-canal";
 
-function mostrarMeuUsuario() {
+    const foto =
+        document.createElement("div");
 
-    atualizarUsuarios();
+    foto.className =
+        "avatar-canal";
 
+    aplicarAvatar(
+        foto,
+        nome,
+        avatar
+    );
+
+    const nomeEl =
+        document.createElement("span");
+
+    nomeEl.className =
+        "usuario-canal-nome";
+
+    nomeEl.textContent =
+        nome;
+
+    item.append(
+        foto,
+        nomeEl
+    );
+
+    return item;
 }
 
+function criarCardUsuario(
+    id,
+    nome,
+    avatar
+) {
+    const card =
+        document.createElement("div");
 
-/* =====================================
-   STATUS
-===================================== */
+    card.className =
+        "user-card";
+
+    card.dataset.userId =
+        id;
+
+    const foto =
+        document.createElement("div");
+
+    foto.className =
+        "user-avatar";
+
+    aplicarAvatar(
+        foto,
+        nome,
+        avatar
+    );
+
+    const nomeEl =
+        document.createElement("span");
+
+    nomeEl.className =
+        "user-name";
+
+    nomeEl.textContent =
+        nome;
+
+    const mic =
+        document.createElement("div");
+
+    mic.className =
+        "user-mic";
+
+    mic.textContent =
+        "🎙️";
+
+    card.append(
+        foto,
+        nomeEl,
+        mic
+    );
+
+    return card;
+}
+
+function aplicarAvatar(
+    elemento,
+    nome,
+    avatar
+) {
+    if (avatar) {
+        elemento.classList.add("tem-foto");
+
+        elemento.style.backgroundImage =
+            `url("${avatar.replace(/"/g, "%22")}")`;
+
+        elemento.textContent = "";
+    } else {
+        elemento.classList.remove("tem-foto");
+        elemento.style.backgroundImage = "none";
+        elemento.textContent = primeiraLetra(nome);
+    }
+}
 
 function atualizarStatusConexao() {
+    if (!conectado) return;
 
     let conectados = 0;
 
-
-    peers.forEach(
-        function (pc) {
-
-            if (
-                pc.connectionState ===
-                "connected"
-            ) {
-
-                conectados++;
-
-            }
-
+    peers.forEach((pc) => {
+        if (
+            pc.connectionState ===
+            "connected"
+        ) {
+            conectados++;
         }
-    );
+    });
 
-
-    if (conectados === 0) {
-
-        statusSala.textContent =
-            `Conectado em ${canalAtual} - aguardando amigos...`;
-
-    } else {
-
-        statusSala.textContent =
-            `🔊 ${conectados + 1} pessoas conectadas`;
-
-    }
-
+    statusSala.textContent =
+        conectados === 0
+            ? `Conectado em ${canalAtual} - aguardando amigos...`
+            : `🔊 ${conectados + 1} pessoas conectadas`;
 }
 
-
-/* =====================================
-   MUTE
-===================================== */
+/* ==========================================
+   MUTE / DEAFEN
+========================================== */
 
 btnMute.addEventListener(
     "click",
     alternarMute
 );
 
-
 profileMic.addEventListener(
     "click",
-    function () {
-
-        if (!conectado) return;
-
-        alternarMute();
-
+    () => {
+        if (conectado) {
+            alternarMute();
+        }
     }
 );
 
-
 function alternarMute() {
-
     mutado = !mutado;
 
-
-    if (
-        streamMicrofone
-    ) {
-
+    if (streamMicrofone) {
         streamMicrofone
             .getAudioTracks()
-            .forEach(
-                function (track) {
-
-                    track.enabled =
-                        !mutado;
-
-                }
-            );
-
+            .forEach((track) => {
+                track.enabled = !mutado;
+            });
     }
 
+    const icone =
+        mutado
+            ? "🔇"
+            : "🎙️";
 
-    if (mutado) {
+    btnMute.textContent = icone;
+    profileMic.textContent = icone;
 
-        btnMute.textContent =
-            "🔇";
-
-        profileMic.textContent =
-            "🔇";
-
-        btnMute.classList.add(
-            "ativo"
-        );
-
-    } else {
-
-        btnMute.textContent =
-            "🎙️";
-
-        profileMic.textContent =
-            "🎙️";
-
-        btnMute.classList.remove(
-            "ativo"
-        );
-
-    }
-
+    btnMute.classList.toggle(
+        "ativo",
+        mutado
+    );
 }
-
-
-/* =====================================
-   SILENCIAR OS OUTROS
-===================================== */
 
 btnAudio.addEventListener(
     "click",
     alternarAudio
 );
 
-
 profileAudio.addEventListener(
     "click",
-    function () {
-
-        if (!conectado) return;
-
-        alternarAudio();
-
+    () => {
+        if (conectado) {
+            alternarAudio();
+        }
     }
 );
 
-
 function alternarAudio() {
-
     audioSilenciado =
         !audioSilenciado;
 
+    audiosRemotos.forEach((audio) => {
+        audio.muted =
+            audioSilenciado;
+    });
 
-    audiosRemotos.forEach(
-        function (audio) {
-
-            audio.muted =
-                audioSilenciado;
-
-        }
-    );
-
-
-    if (
+    const icone =
         audioSilenciado
-    ) {
+            ? "🔇"
+            : "🎧";
 
-        btnAudio.textContent =
-            "🔇";
+    btnAudio.textContent = icone;
+    profileAudio.textContent = icone;
 
-        profileAudio.textContent =
-            "🔇";
-
-        btnAudio.classList.add(
-            "ativo"
-        );
-
-    } else {
-
-        btnAudio.textContent =
-            "🎧";
-
-        profileAudio.textContent =
-            "🎧";
-
-        btnAudio.classList.remove(
-            "ativo"
-        );
-
-    }
-
+    btnAudio.classList.toggle(
+        "ativo",
+        audioSilenciado
+    );
 }
 
-
-/* =====================================
-   REMOVER PEER
-===================================== */
-
-function removerPeer(
-    remoteId
-) {
-
-    const pc =
-        peers.get(
-            remoteId
-        );
-
-
-    if (pc) {
-
-        pc.close();
-
-        peers.delete(
-            remoteId
-        );
-
-
-        const monitor =
-    monitoresFala.get(
-        remoteId
-    );
-
-if (monitor) {
-    monitor.parar();
-}
-
-    }
-
-
-    const audio =
-        audiosRemotos.get(
-            remoteId
-        );
-
-
-    if (audio) {
-
-        audio.remove();
-
-        audiosRemotos.delete(
-            remoteId
-        );
-
-    }
-
-
-    candidatesPendentes.delete(
-        remoteId
-    );
-
-}
-
-
-/* =====================================
-   SAIR DA SALA
-===================================== */
-
-btnSair.addEventListener(
-    "click",
-    sairDaSala
-);
-
-
-async function sairDaSala() {
-
-    conectado = false;
-
-    await pararServicoCall();
-
-
-    /*
-        FECHA AS CONEXÕES
-    */
-
-    peers.forEach(
-        function (pc) {
-
-            pc.close();
-
-        }
-    );
-
-
-    peers.clear();
-
-    monitoresFala.forEach(
-    function (monitor) {
-        monitor.parar();
-    }
-);
-
-monitoresFala.clear();
-
-
-    /*
-        REMOVE ÁUDIOS
-    */
-
-    audiosRemotos.forEach(
-        function (audio) {
-
-            audio.remove();
-
-        }
-    );
-
-
-    audiosRemotos.clear();
-
-
-    /*
-        DESLIGA MICROFONE
-    */
-
-    if (
-        streamMicrofone
-    ) {
-
-        streamMicrofone
-            .getTracks()
-            .forEach(
-                function (track) {
-
-                    track.stop();
-
-                }
-            );
-
-
-        streamMicrofone =
-            null;
-
-    }
-
-
-    /*
-        SAI DO SUPABASE
-    */
-
-    if (
-        canalSupabase
-    ) {
-
-        await canalSupabase.untrack();
-
-        await supabaseClient
-            .removeChannel(
-                canalSupabase
-            );
-
-
-        canalSupabase =
-            null;
-
-    }
-
-
-    usersGrid.innerHTML = `
-
-        <div class="empty-state">
-
-            <div class="empty-state-icon">
-                🎧
-            </div>
-
-            <h2>
-                Ninguém conectado
-            </h2>
-
-            <p>
-                Entre na sala para começar.
-            </p>
-
-        </div>
-
-    `;
-
-
-    usuariosCanal.innerHTML =
-        "";
-
-
-    statusSala.textContent =
-        "Você não está conectado.";
-
-        miniStatus.textContent = "Offline";
-
-
-    btnEntrar.style.display =
-        "block";
-
-
-    btnMute.disabled = true;
-
-    btnAudio.disabled = true;
-
-    btnSair.disabled = true;
-
-
-    mutado = false;
-
-    audioSilenciado = false;
-
-
-    btnMute.textContent =
-        "🎙️";
-
-    btnAudio.textContent =
-        "🎧";
-
-}
-
-
-/* =====================================
-   CANAIS
-===================================== */
-
-/* =====================================
+/* ==========================================
    CANAIS DE VOZ
-===================================== */
+========================================== */
 
-const canais =
-    document.querySelectorAll(
-        ".voice-channel"
-    );
-
-
-canais.forEach(function (canal) {
-
+canaisVoz.forEach((canal) => {
     canal.addEventListener(
         "click",
-        function () {
-
+        async () => {
             const canalClicado =
                 canal.dataset.canal;
-
-
-            /*
-                Se eu estiver conectado
-                e clicar no MESMO canal,
-                só volta para a tela da voz.
-            */
 
             if (
                 conectado &&
                 canalClicado === canalAtual
             ) {
-
                 mostrarVoz();
-
+                fecharMenuMobileSeNecessario();
                 return;
-
             }
-
-
-            /*
-                Se estiver conectado e tentar
-                trocar para outra sala.
-            */
 
             if (
                 conectado &&
                 canalClicado !== canalAtual
             ) {
-
                 alert(
                     "Saia da call antes de trocar de canal."
                 );
-
                 return;
-
             }
 
-
-            /*
-                Mostra a interface de voz.
-            */
-
-            mostrarVoz();
-
-
-            /*
-                Remove seleção dos outros canais.
-            */
+            canalAtual = canalClicado;
 
             document
                 .querySelectorAll(".channel")
-                .forEach(function (item) {
-
+                .forEach((item) => {
                     item.classList.remove(
                         "ativo"
                     );
-
                 });
 
+            canal.classList.add("ativo");
 
-            canal.classList.add(
-                "ativo"
+            atualizarNomesSala();
+            mostrarVoz();
+
+            await observarSala(
+                canalAtual
             );
 
-
-            canalAtual =
-                canalClicado;
-
-
-            nomeCanal.textContent =
-                canalAtual;
-
-
-            tituloSala.textContent =
-                canalAtual;
-
-
-            miniCanalNome.textContent =
-                canalAtual;
-
+            fecharMenuMobileSeNecessario();
         }
     );
-
 });
 
 /* ==========================================
    CHAT DE TEXTO
 ========================================== */
 
-const textChannels =
-    document.querySelectorAll(".text-channel");
-
-
-const textView =
-    document.getElementById("textView");
-
-
-const voiceHero =
-    document.getElementById("voiceHero");
-
-
-const voiceContent =
-    document.getElementById("voiceContent");
-
-
-const voiceCallbar =
-    document.getElementById("voiceCallbar");
-
-
-const chatCanalNome =
-    document.getElementById("chatCanalNome");
-
-
-const welcomeTitle =
-    document.getElementById("welcomeTitle");
-
-
-const messages =
-    document.getElementById("messages");
-
-
-const chatForm =
-    document.getElementById("chatForm");
-
-
-const chatInput =
-    document.getElementById("chatInput");
-
-
-let canalTextoAtual = null;
-
-let realtimeTexto = null;
-
-const mensagensExibidas =
-    new Set();
-
-
-/* ==========================================
-   CLICAR EM CANAL DE TEXTO
-========================================== */
-
-textChannels.forEach(function (canal) {
-
+canaisTexto.forEach((canal) => {
     canal.addEventListener(
         "click",
-        async function () {
-
+        async () => {
             const nome =
                 canal.dataset.canal;
 
-
-            canalTextoAtual =
-                nome;
-
+            canalTextoAtual = nome;
 
             document
                 .querySelectorAll(".channel")
-                .forEach(function (item) {
-
-                    item.classList.remove("ativo");
-
+                .forEach((item) => {
+                    item.classList.remove(
+                        "ativo"
+                    );
                 });
-
 
             canal.classList.add("ativo");
 
-
-            mostrarChat();
-
-
-            chatCanalNome.textContent =
-                nome;
-
-
+            chatCanalNome.textContent = nome;
             welcomeTitle.textContent =
                 `Bem-vindo ao #${nome}`;
-
 
             chatInput.placeholder =
                 `Mensagem em #${nome}`;
 
+            mostrarChat();
 
             await carregarMensagens(nome);
+            await conectarChatTempoReal(nome);
 
-
-            conectarChatTempoReal(nome);
-
+            fecharMenuMobileSeNecessario();
         }
     );
-
 });
 
-
-/* ==========================================
-   MOSTRAR CHAT
-========================================== */
-
 function mostrarChat() {
-
     voiceHero.classList.add("hidden");
-
     voiceContent.classList.add("hidden");
-
     voiceCallbar.classList.add("hidden");
 
-
     textView.classList.remove("hidden");
-
 }
-
-
-/* ==========================================
-   MOSTRAR VOZ
-========================================== */
 
 function mostrarVoz() {
-
     textView.classList.add("hidden");
 
-
     voiceHero.classList.remove("hidden");
-
     voiceContent.classList.remove("hidden");
-
     voiceCallbar.classList.remove("hidden");
-
 }
 
-
-/* ==========================================
-   CARREGAR HISTÓRICO
-========================================== */
-
 async function carregarMensagens(canal) {
+    messages.innerHTML = "";
 
-    messages.innerHTML = `
-        <div class="chat-welcome">
+    const welcome =
+        document.createElement("div");
 
-            <div class="welcome-icon">
-                #
-            </div>
+    welcome.className =
+        "chat-welcome";
 
-            <h2>
-                Bem-vindo ao #${canal}
-            </h2>
+    const icone =
+        document.createElement("div");
 
-            <p>
-                Este é o começo deste canal.
-            </p>
+    icone.className =
+        "welcome-icon";
 
-        </div>
-    `;
+    icone.textContent = "#";
 
+    const titulo =
+        document.createElement("h2");
+
+    titulo.textContent =
+        `Bem-vindo ao #${canal}`;
+
+    const texto =
+        document.createElement("p");
+
+    texto.textContent =
+        "Este é o começo deste canal.";
+
+    welcome.append(
+        icone,
+        titulo,
+        texto
+    );
+
+    messages.appendChild(welcome);
 
     mensagensExibidas.clear();
 
-
     const { data, error } =
         await supabaseClient
-
             .from("mensagens")
-
             .select(
                 "id, canal, autor, texto, criado_em"
             )
-
-            .eq(
-                "canal",
-                canal
-            )
-
+            .eq("canal", canal)
             .order(
                 "criado_em",
                 {
                     ascending: false
                 }
             )
-
             .limit(100);
 
-
     if (error) {
-
         console.error(
             "Erro ao carregar mensagens:",
             error
         );
-
         return;
-
     }
 
-
-    const lista =
-        [...data].reverse();
-
-
-    lista.forEach(function (mensagem) {
-
-        adicionarMensagem(
-            mensagem,
-            false
-        );
-
-    });
-
+    [...(data || [])]
+        .reverse()
+        .forEach((mensagem) => {
+            adicionarMensagem(
+                mensagem,
+                false
+            );
+        });
 
     rolarChat();
-
 }
-
-
-/* ==========================================
-   ENVIAR MENSAGEM
-========================================== */
 
 chatForm.addEventListener(
     "submit",
-    async function (event) {
-
+    async (event) => {
         event.preventDefault();
 
-
-        if (!canalTextoAtual) {
-
-            return;
-
-        }
-
+        if (!canalTextoAtual) return;
 
         const texto =
             chatInput.value.trim();
 
-
-        if (!texto) {
-
-            return;
-
-        }
-
+        if (!texto) return;
 
         chatInput.value = "";
 
-
-        const novaMensagem = {
-
-            canal:
-                canalTextoAtual,
-
-            autor:
-                meuNome,
-
-            texto:
-                texto
-
-        };
-
-
         const { data, error } =
             await supabaseClient
-
                 .from("mensagens")
-
-                .insert(
-                    novaMensagem
-                )
-
+                .insert({
+                    canal: canalTextoAtual,
+                    autor: meuNome,
+                    texto
+                })
                 .select()
-
                 .single();
 
-
         if (error) {
-
             console.error(
                 "Erro ao enviar:",
                 error
             );
 
-
             alert(
                 "Não foi possível enviar a mensagem."
             );
 
-
             return;
-
         }
-
 
         adicionarMensagem(data);
 
-
         if (realtimeTexto) {
-
             await realtimeTexto.send({
-
-                type:
-                    "broadcast",
-
-                event:
-                    "nova-mensagem",
-
-                payload:
-                    data
-
+                type: "broadcast",
+                event: "nova-mensagem",
+                payload: data
             });
-
         }
-
     }
 );
 
-
-/* ==========================================
-   CHAT EM TEMPO REAL
-========================================== */
-
-async function conectarChatTempoReal(
-    canal
-) {
-
+async function conectarChatTempoReal(canal) {
     if (realtimeTexto) {
-
         await supabaseClient
-            .removeChannel(
-                realtimeTexto
-            );
-
+            .removeChannel(realtimeTexto);
     }
-
 
     realtimeTexto =
         supabaseClient.channel(
             `chat-${canal}`
         );
 
-
     realtimeTexto.on(
-
         "broadcast",
-
         {
-            event:
-                "nova-mensagem"
+            event: "nova-mensagem"
         },
-
-        function (evento) {
-
+        (evento) => {
             const mensagem =
                 evento.payload;
-
 
             if (
                 mensagem.canal !==
                 canalTextoAtual
             ) {
-
                 return;
-
             }
 
-
-            adicionarMensagem(
-                mensagem
-            );
-
+            adicionarMensagem(mensagem);
         }
-
     );
 
-
     realtimeTexto.subscribe();
-
 }
-
-
-/* ==========================================
-   ADICIONAR MENSAGEM NA TELA
-========================================== */
 
 function adicionarMensagem(
     mensagem,
     rolar = true
 ) {
-
     if (
         mensagensExibidas.has(
             mensagem.id
         )
     ) {
-
         return;
-
     }
-
 
     mensagensExibidas.add(
         mensagem.id
     );
 
-
     const container =
-        document.createElement(
-            "div"
-        );
-
+        document.createElement("div");
 
     container.className =
         "message";
 
-
     const avatar =
-        document.createElement(
-            "div"
-        );
-
+        document.createElement("div");
 
     avatar.className =
         "message-avatar";
 
-
     avatar.textContent =
-        mensagem.autor
-            .charAt(0)
-            .toUpperCase();
-
+        primeiraLetra(mensagem.autor);
 
     const content =
-        document.createElement(
-            "div"
-        );
-
+        document.createElement("div");
 
     content.className =
         "message-content";
 
-
     const top =
-        document.createElement(
-            "div"
-        );
-
+        document.createElement("div");
 
     top.className =
         "message-top";
 
-
     const autor =
-        document.createElement(
-            "span"
-        );
-
+        document.createElement("span");
 
     autor.className =
         "message-author";
 
-
     autor.textContent =
         mensagem.autor;
 
-
     const hora =
-        document.createElement(
-            "span"
-        );
-
+        document.createElement("span");
 
     hora.className =
         "message-time";
-
 
     hora.textContent =
         formatarHora(
             mensagem.criado_em
         );
 
-
     const texto =
-        document.createElement(
-            "div"
-        );
-
+        document.createElement("div");
 
     texto.className =
         "message-text";
 
-
     texto.textContent =
         mensagem.texto;
 
-
-    top.appendChild(
-        autor
-    );
-
-
-    top.appendChild(
+    top.append(
+        autor,
         hora
     );
 
-
-    content.appendChild(
-        top
-    );
-
-
-    content.appendChild(
+    content.append(
+        top,
         texto
     );
 
-
-    container.appendChild(
-        avatar
-    );
-
-
-    container.appendChild(
+    container.append(
+        avatar,
         content
     );
 
-
-    messages.appendChild(
-        container
-    );
-
+    messages.appendChild(container);
 
     if (rolar) {
-
         rolarChat();
-
     }
-
 }
-
-
-/* ==========================================
-   HORA
-========================================== */
 
 function formatarHora(data) {
-
-    return new Date(
-        data
-    ).toLocaleTimeString(
-        "pt-BR",
-        {
-
-            hour:
-                "2-digit",
-
-            minute:
-                "2-digit"
-
-        }
-    );
-
+    return new Date(data)
+        .toLocaleTimeString(
+            "pt-BR",
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
 }
 
-
-/* ==========================================
-   ROLAR PARA ÚLTIMA MENSAGEM
-========================================== */
-
 function rolarChat() {
-
     messages.scrollTop =
         messages.scrollHeight;
-
 }
 
 /* ==========================================
    MENU MOBILE
 ========================================== */
 
-const mobileMenuBtn =
-    document.getElementById(
-        "mobileMenuBtn"
-    );
-
-const mobileOverlay =
-    document.getElementById(
-        "mobileOverlay"
-    );
-
-const sidebar =
-    document.querySelector(
-        ".sidebar"
-    );
-
-
 function abrirMenuMobile() {
-
-    sidebar.classList.add(
-        "aberta"
-    );
-
-    mobileOverlay.classList.add(
-        "ativo"
-    );
-
+    sidebar.classList.add("aberta");
+    mobileOverlay.classList.add("ativo");
 }
-
 
 function fecharMenuMobile() {
-
-    sidebar.classList.remove(
-        "aberta"
-    );
-
-    mobileOverlay.classList.remove(
-        "ativo"
-    );
-
+    sidebar.classList.remove("aberta");
+    mobileOverlay.classList.remove("ativo");
 }
 
+function fecharMenuMobileSeNecessario() {
+    if (window.innerWidth <= 768) {
+        fecharMenuMobile();
+    }
+}
 
 mobileMenuBtn.addEventListener(
     "click",
-    function () {
-
+    () => {
         if (
-            sidebar.classList.contains("aberta")
+            sidebar.classList.contains(
+                "aberta"
+            )
         ) {
-
             fecharMenuMobile();
-
         } else {
-
             abrirMenuMobile();
-
         }
-
     }
 );
-
 
 mobileOverlay.addEventListener(
     "click",
     fecharMenuMobile
 );
 
+/* ==========================================
+   INICIALIZAÇÃO
+========================================== */
 
-/*
-    Fecha automaticamente quando
-    escolher um canal no celular.
-*/
-
-document
-    .querySelectorAll(".channel")
-    .forEach(function (canal) {
-
-        canal.addEventListener(
-            "click",
-            function () {
-
-                if (
-                    window.innerWidth <= 768
-                ) {
-
-                    fecharMenuMobile();
-
-                }
-
-            }
-        );
-
-    });
+atualizarNomesSala();
+verificarLogin();
