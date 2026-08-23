@@ -19,7 +19,7 @@ const ehAndroidNativo =
     window.Capacitor.getPlatform() === "android";
 
 
-const NativeVoice =
+const NativeVoice = 
     ehAndroidNativo
         ? window.Capacitor.Plugins.NativeVoice
         : null;
