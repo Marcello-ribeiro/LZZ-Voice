@@ -40,6 +40,8 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+    
+    implementation 'io.github.webrtc-sdk:android:144.7559.09'
 }
 
 apply from: 'capacitor.build.gradle'

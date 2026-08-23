@@ -14,12 +14,17 @@ import android.os.PowerManager;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+
 public class CallService extends Service {
 
-    private static final String CHANNEL_ID = "lzz_voice_call";
-    private static final int NOTIFICATION_ID = 1001;
+    private static final String CHANNEL_ID =
+            "lzz_voice_call";
+
+    private static final int NOTIFICATION_ID =
+            1001;
 
     private PowerManager.WakeLock wakeLock;
+
 
     @Override
     public void onCreate() {
@@ -28,11 +33,13 @@ public class CallService extends Service {
 
         criarCanalNotificacao();
 
+
         Intent abrirApp =
                 new Intent(
                         this,
                         MainActivity.class
                 );
+
 
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(
@@ -43,33 +50,65 @@ public class CallService extends Service {
                                 PendingIntent.FLAG_IMMUTABLE
                 );
 
+
         Notification notification =
                 new NotificationCompat.Builder(
                         this,
                         CHANNEL_ID
                 )
-                        .setContentTitle("LZZ Voice")
-                        .setContentText("Chamada de voz ativa")
+
+                        .setContentTitle(
+                                "LZZ Voice"
+                        )
+
+                        .setContentText(
+                                "Chamada de voz ativa"
+                        )
+
                         .setSmallIcon(
                                 android.R.drawable.ic_btn_speak_now
                         )
-                        .setContentIntent(pendingIntent)
-                        .setOngoing(true)
+
+                        .setContentIntent(
+                                pendingIntent
+                        )
+
+                        .setOngoing(
+                                true
+                        )
+
+                        .setCategory(
+                                NotificationCompat.CATEGORY_CALL
+                        )
+
                         .setPriority(
                                 NotificationCompat.PRIORITY_LOW
                         )
+
                         .build();
 
+
+        /*
+         * MICROFONE + REPRODUÇÃO DE ÁUDIO
+         */
 
         if (
                 Build.VERSION.SDK_INT >=
                         Build.VERSION_CODES.Q
         ) {
 
+            int tiposServico =
+                    ServiceInfo
+                            .FOREGROUND_SERVICE_TYPE_MICROPHONE
+                            |
+                    ServiceInfo
+                            .FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK;
+
+
             startForeground(
                     NOTIFICATION_ID,
                     notification,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+                    tiposServico
             );
 
         } else {
@@ -78,9 +117,13 @@ public class CallService extends Service {
                     NOTIFICATION_ID,
                     notification
             );
-
         }
 
+
+        /*
+         * MANTÉM CPU ACORDADA
+         * MESMO COM TELA APAGADA
+         */
 
         PowerManager powerManager =
                 (PowerManager)
@@ -88,13 +131,19 @@ public class CallService extends Service {
                                 POWER_SERVICE
                         );
 
+
         wakeLock =
                 powerManager.newWakeLock(
-                        PowerManager.PARTIAL_WAKE_LOCK,
+
+                        PowerManager
+                                .PARTIAL_WAKE_LOCK,
+
                         "LZZVoice:CallWakeLock"
                 );
 
+
         wakeLock.acquire();
+
     }
 
 
@@ -114,15 +163,17 @@ public class CallService extends Service {
 
         if (
                 wakeLock != null &&
-                        wakeLock.isHeld()
+                wakeLock.isHeld()
         ) {
 
             wakeLock.release();
         }
 
+
         stopForeground(true);
 
         super.onDestroy();
+
     }
 
 
@@ -145,23 +196,33 @@ public class CallService extends Service {
 
             NotificationChannel channel =
                     new NotificationChannel(
+
                             CHANNEL_ID,
+
                             "Chamada de voz",
-                            NotificationManager.IMPORTANCE_LOW
+
+                            NotificationManager
+                                    .IMPORTANCE_LOW
                     );
+
 
             channel.setDescription(
                     "Mantém a chamada do LZZ Voice ativa"
             );
+
 
             NotificationManager manager =
                     getSystemService(
                             NotificationManager.class
                     );
 
+
             manager.createNotificationChannel(
                     channel
             );
+
         }
+
     }
+
 }

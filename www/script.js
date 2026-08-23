@@ -9,6 +9,33 @@ const supabaseClient =
     );
 
 
+    /* =====================================
+   ANDROID NATIVO
+===================================== */
+
+const ehAndroidNativo =
+    window.Capacitor &&
+    window.Capacitor.getPlatform &&
+    window.Capacitor.getPlatform() === "android";
+
+
+const NativeVoice =
+    ehAndroidNativo
+        ? window.Capacitor.Plugins.NativeVoice
+        : null;
+
+
+console.log(
+    "Android nativo:",
+    ehAndroidNativo
+);
+
+console.log(
+    "NativeVoice:",
+    NativeVoice
+);
+
+
 /* =====================================
    ELEMENTOS
 ===================================== */
