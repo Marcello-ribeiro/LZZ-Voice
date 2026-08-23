@@ -1,6 +1,6 @@
 {
   "name": "lzz-voice",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Aplicativo privado de voz e texto LZZ Voice",
   "main": "electron-main.js",
   "scripts": {
@@ -39,9 +39,14 @@
     "appId": "com.lzz.voice",
     "productName": "LZZ Voice",
     "asar": true,
-  "directories": {
-  "output": "dist-pc2"
-},
+    "compression": "maximum",
+    "electronLanguages": [
+      "pt-BR",
+      "en-US"
+    ],
+    "directories": {
+      "output": "dist-pc2"
+    },
     "files": [
       "www/**/*",
       "electron-main.js",
