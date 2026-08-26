@@ -3,7 +3,7 @@ const SUPABASE_KEY = "sb_publishable_w-vZeqvzEWr_itftzILJoQ_NbXWky8y";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = (id) => document.getElementById(id);
 
-const APP_VERSION = "1.0.1";
+const APP_VERSION = "1.0.2";
 const UPDATE_URL = "https://lzz-voice.vercel.app/version.json";
 const DOWNLOAD_URL = "https://lzz-voicedownload.vercel.app";
 const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };

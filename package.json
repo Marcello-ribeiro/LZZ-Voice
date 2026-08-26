@@ -1,6 +1,6 @@
 {
   "name": "lzz-voice",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Aplicativo privado de voz e texto LZZ Voice",
   "main": "electron-main.js",
   "scripts": {
