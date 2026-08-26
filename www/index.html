@@ -1,79 +1,35 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>LZZ Voice</title>
-
-    <link
-        rel="shortcut icon"
-        href="favicon.ico"
-        type="image/x-icon"
-    >
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!-- =====================================
-         LOGIN / CADASTRO
-    ====================================== -->
-
-    <section
-        class="auth-screen"
-        id="authScreen"
-    >
+    <!-- LOGIN / CADASTRO -->
+    <section class="auth-screen" id="authScreen">
         <div class="auth-card">
-
-            <div class="auth-logo">
-                L
-            </div>
+            <div class="auth-logo">L/</div>
 
             <h1>LZZ Voice</h1>
-
-            <p class="auth-subtitle">
-                Sua sala. Sua galera. Sua voz.
-            </p>
-
+            <p class="auth-subtitle">Sua sala. Sua galera. Sua voz.</p>
 
             <div class="auth-tabs">
-
-                <button
-                    type="button"
-                    id="tabLogin"
-                    class="auth-tab ativo"
-                >
+                <button type="button" id="tabLogin" class="auth-tab ativo">
                     Entrar
                 </button>
 
-                <button
-                    type="button"
-                    id="tabCadastro"
-                    class="auth-tab"
-                >
+                <button type="button" id="tabCadastro" class="auth-tab">
                     Criar conta
                 </button>
-
             </div>
 
-
-            <!-- LOGIN -->
-
-            <form
-                id="loginForm"
-                class="auth-form"
-            >
-
-                <label for="loginEmail">
-                    E-mail
-                </label>
-
+            <form id="loginForm" class="auth-form">
+                <label for="loginEmail">E-mail</label>
                 <input
                     type="email"
                     id="loginEmail"
@@ -81,11 +37,7 @@
                     required
                 >
 
-
-                <label for="loginSenha">
-                    Senha
-                </label>
-
+                <label for="loginSenha">Senha</label>
                 <input
                     type="password"
                     id="loginSenha"
@@ -93,34 +45,19 @@
                     required
                 >
 
-
-                <button
-                    type="submit"
-                    class="auth-main-btn"
-                >
+                <button type="submit" class="auth-main-btn">
                     Entrar
                 </button>
-
             </form>
 
-
-            <!-- CADASTRO -->
-
-            <form
-                id="cadastroForm"
-                class="auth-form hidden"
-            >
-
+            <form id="cadastroForm" class="auth-form hidden">
                 <div class="avatar-register">
-
                     <label
                         for="cadastroAvatar"
                         class="avatar-preview"
                         id="avatarPreview"
                     >
-                        <span id="avatarPreviewText">
-                            +
-                        </span>
+                        <span id="avatarPreviewText">+</span>
                     </label>
 
                     <input
@@ -130,17 +67,10 @@
                         hidden
                     >
 
-                    <small>
-                        Escolher foto
-                    </small>
-
+                    <small>Escolher foto</small>
                 </div>
 
-
-                <label for="cadastroUsername">
-                    Nome de usuário
-                </label>
-
+                <label for="cadastroUsername">Nome de usuário</label>
                 <input
                     type="text"
                     id="cadastroUsername"
@@ -149,11 +79,7 @@
                     required
                 >
 
-
-                <label for="cadastroEmail">
-                    E-mail
-                </label>
-
+                <label for="cadastroEmail">E-mail</label>
                 <input
                     type="email"
                     id="cadastroEmail"
@@ -161,11 +87,7 @@
                     required
                 >
 
-
-                <label for="cadastroSenha">
-                    Senha
-                </label>
-
+                <label for="cadastroSenha">Senha</label>
                 <input
                     type="password"
                     id="cadastroSenha"
@@ -174,11 +96,7 @@
                     required
                 >
 
-
-                <label for="cadastroConfirmarSenha">
-                    Confirmar senha
-                </label>
-
+                <label for="cadastroConfirmarSenha">Confirmar senha</label>
                 <input
                     type="password"
                     id="cadastroConfirmarSenha"
@@ -187,578 +105,475 @@
                     required
                 >
 
-
-                <button
-                    type="submit"
-                    class="auth-main-btn"
-                >
+                <button type="submit" class="auth-main-btn">
                     Criar conta
                 </button>
-
             </form>
 
-
-            <p
-                class="auth-message"
-                id="authMessage"
-            ></p>
-
+            <p class="auth-message" id="authMessage"></p>
         </div>
     </section>
 
 
-    <!-- =====================================
-         APP
-    ====================================== -->
-
-    <div
-        class="app hidden"
-        id="appPrincipal"
-    >
-
-        <!-- SIDEBAR -->
-
-        <aside class="sidebar">
-
-            <div class="brand">
-
-                <div class="brand-icon">
-                    L
-                </div>
-
-                <div class="brand-text">
-                    <h1>LZZ Voice</h1>
-                    <p>Private squad room</p>
-                </div>
-
-            </div>
+    <!-- APP -->
+    <div class="app hidden" id="appPrincipal">
 
 
-            <!-- CANAIS DE TEXTO -->
+        <!-- SERVIDORES -->
+        <aside class="server-rail" id="serverRail">
+            <button
+                type="button"
+                class="server-rail-home ativo"
+                id="btnServidorHome"
+                title="Início"
+            >
+                <img src="img/logo.png" alt="">
+            </button>
 
-            <div class="menu-block">
+            <div class="server-rail-divider"></div>
 
-                <span class="menu-label">
-                    Texto
-                </span>
+            <div
+                class="server-list"
+                id="serverList"
+            ></div>
 
-                <button
-                    type="button"
-                    class="channel text-channel"
-                    data-canal="geral"
-                >
-                    <span>#</span>
-                    geral
-                </button>
-
-            </div>
-
-
-            <!-- CANAIS DE VOZ -->
-
-            <div class="menu-block">
-
-                <span class="menu-label">
-                    Salas de voz
-                </span>
-
-
-                <button
-                    type="button"
-                    class="channel voice-channel ativo"
-                    data-canal="Geral"
-                >
-                    <span>🔊</span>
-                    Geral
-                </button>
-
-
-                <div
-                    id="usuariosCanal"
-                    class="usuarios-canal"
-                ></div>
-
-
-                <button
-                    type="button"
-                    class="channel voice-channel"
-                    data-canal="Football"
-                >
-                    <span>🎮</span>
-                    Football
-                </button>
-
-
-                <button
-                    type="button"
-                    class="channel voice-channel"
-                    data-canal="Afk"
-                >
-                    <span>🌙</span>
-                    Afk
-                </button>
-
-            </div>
-
-
-            <!-- PERFIL -->
-
-            <div class="sidebar-bottom">
-
-                <div class="profile-card">
-
-                    <div class="profile-left">
-
-                        <div
-                            class="profile-avatar"
-                            id="profileAvatar"
-                        >
-                            <span id="profileInitial">
-                                M
-                            </span>
-
-                            <span class="status-dot"></span>
-                        </div>
-
-
-                        <div class="profile-info">
-
-                            <strong id="profileUsername">
-                                Usuário
-                            </strong>
-
-                            <span>
-                                Online
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="profile-actions">
-
-                        <button
-                            type="button"
-                            id="profileMic"
-                            title="Microfone"
-                        >
-                            🎙️
-                        </button>
-
-                        <button
-                            type="button"
-                            id="profileAudio"
-                            title="Áudio"
-                        >
-                            🎧
-                        </button>
-
-                        <button
-                            type="button"
-                            id="btnConfig"
-                            title="Configurações"
-                        >
-                            ⚙️
-                        </button>
-
-                        <button
-                            type="button"
-                            id="btnLogout"
-                            title="Sair da conta"
-                        >
-                            ➥
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </aside>
-
-
-        <!-- =====================================
-             ÁREA PRINCIPAL
-        ====================================== -->
-
-        <main class="main">
+            <div class="server-rail-spacer"></div>
 
             <button
                 type="button"
-                class="mobile-menu-btn"
-                id="mobileMenuBtn"
+                class="server-rail-action"
+                id="btnAbrirCriarServidor"
+                title="Criar servidor"
             >
-                ☰
+                +
             </button>
 
-
-            <!-- =====================================
-                 CHAT DE TEXTO
-            ====================================== -->
-
-            <section
-                class="text-view hidden"
-                id="textView"
+            <button
+                type="button"
+                class="server-rail-action server-rail-join"
+                id="btnAbrirEntrarServidor"
+                title="Entrar com convite"
             >
+                ↗
+            </button>
+        </aside>
 
-                <header class="chat-header">
+        <!-- SIDEBAR / CANAIS DO SERVIDOR -->
+        <aside class="sidebar" id="channelSidebar">
+            <div class="sidebar-head">
+                <div>
+                    <span class="sidebar-kicker">SERVIDOR</span>
+                    <h2 id="sidebarServidorNome">LZZ Voice</h2>
+                </div>
 
-                    <div class="chat-title">
+                <button
+                    type="button"
+                    class="server-head-settings hidden"
+                    id="btnGerenciarServidor"
+                    title="Configurações do servidor"
+                >
+                    ⚙
+                </button>
+            </div>
 
-                        <div class="chat-icon">
-                            #
-                        </div>
+            <div class="menu-block">
+                <div class="menu-label-row">
+                    <span class="menu-label">Canais de texto</span>
+                    <button
+                        type="button"
+                        class="channel-add-btn hidden"
+                        id="btnCriarCanalTexto"
+                        title="Criar canal de texto"
+                    >+</button>
+                </div>
+                <div class="channel-list" id="textChannelList"></div>
+            </div>
 
-                        <div>
-                            <h2 id="chatCanalNome">
-                                geral
-                            </h2>
+            <div class="menu-block">
+                <div class="menu-label-row">
+                    <span class="menu-label">Canais de voz</span>
+                    <button
+                        type="button"
+                        class="channel-add-btn hidden"
+                        id="btnCriarCanalVoz"
+                        title="Criar canal de voz"
+                    >+</button>
+                </div>
+                <div class="channel-list" id="voiceChannelList"></div>
+            </div>
 
-                            <p>
-                                Conversa do grupo
-                            </p>
-                        </div>
+            <div class="sidebar-hint">
+                <span>●</span>
+                Pessoas na call aparecem abaixo do canal.
+            </div>
+        </aside>
 
+
+        <!-- CABEÇALHO SUPERIOR -->
+        <header class="orbit-topbar">
+            <div class="topbar-left">
+                <button
+                    type="button"
+                    class="mobile-menu-btn"
+                    id="mobileMenuBtn"
+                    title="Salas"
+                >
+                    ☰
+                </button>
+
+                <div class="brand">
+                    <div class="brand-icon">
+                        <span><img src="img/logo.png" alt=""></span>
                     </div>
 
-                </header>
+                    <div class="brand-text">
+                      
+                    </div>
+                </div>
+            </div>
 
+            <nav class="orbit-nav" aria-label="Navegação">
+                <button type="button" class="orbit-nav-item ativo" id="navAgora">
+                    Agora
+                </button>
+
+                <button type="button" class="orbit-nav-item" id="navConversas">
+                    Conversas
+                </button>
+
+                <button type="button" class="orbit-nav-item" id="navArquivos">
+                    Arquivos
+                </button>
+            </nav>
+
+            <span class="compat-hidden" id="workspaceKicker">LZZ Voice</span>
+            <span class="compat-hidden" id="workspaceTitle">Agora</span>
+            <button type="button" class="compat-hidden" id="btnConvidarServidor">Convidar</button>
+
+            <div class="top-profile">
+                <span class="top-online-dot"></span>
 
                 <div
-                    class="messages"
-                    id="messages"
+                    class="profile-avatar"
+                    id="profileAvatar"
                 >
-
-                    <div class="chat-welcome">
-
-                        <div class="welcome-icon">
-                            #
-                        </div>
-
-                        <h2 id="welcomeTitle">
-                            Bem-vindo ao #geral
-                        </h2>
-
-                        <p>
-                            Este é o começo deste canal.
-                        </p>
-
-                    </div>
-
+                    <span id="profileInitial">M</span>
+                    <span class="status-dot"></span>
                 </div>
 
+                <strong id="profileUsername">Usuário</strong>
 
-                <form
-                    class="message-box"
-                    id="chatForm"
-                >
+                <span class="profile-chevron"></span>
 
-                    <input
-                        type="text"
-                        id="chatInput"
-                        maxlength="2000"
-                        autocomplete="off"
-                        placeholder="Mensagem em #geral"
+                <div class="profile-actions">
+                    <button
+                        type="button"
+                        id="profileMic"
+                        title="Microfone"
                     >
-
-                    <button type="submit">
-                        ➤
+                        🎙️
                     </button>
 
+                    <button
+                        type="button"
+                        id="profileAudio"
+                        title="Áudio"
+                    >
+                        🎧
+                    </button>
+
+                    <button
+                        type="button"
+                        id="btnConfig"
+                        title="Configurações"
+                    >
+                        ⚙
+                    </button>
+
+                    <button
+                        type="button"
+                        id="btnLogout"
+                        title="Sair da conta"
+                    >
+                        ↗
+                    </button>
+                </div>
+            </div>
+        </header>
+
+
+        <!-- ÁREA CENTRAL -->
+        <main class="orbit-main">
+
+            <!-- INÍCIO -->
+            <section class="view home-view hidden" id="homeView">
+                <div class="home-hero">
+                    <span class="room-server-name">LZZ VOICE</span>
+                    <h1>Seus servidores</h1>
+                    <p>Crie um servidor privado ou entre usando um convite.</p>
+                    <div class="home-actions">
+                        <button type="button" class="join-btn" id="homeCriarServidor">Criar servidor</button>
+                        <button type="button" class="invite-btn" id="homeEntrarServidor">Entrar com convite</button>
+                    </div>
+                </div>
+                <div class="home-server-grid" id="homeServerGrid"></div>
+            </section>
+
+            <!-- VOZ: interface Orbit original mantida -->
+            <section class="voice-stage view" id="voiceView">
+
+                <section class="room-head" id="voiceHero">
+                    <div class="room-title-wrap">
+                        <span class="room-server-name" id="servidorAtualNome">
+                            Nenhum servidor
+                        </span>
+
+                        <h2 id="tituloSala">Geral</h2>
+
+                        <div class="room-meta">
+                            <span class="room-meta-item">
+                                <span class="meta-icon"></span>
+                                <span id="voiceMemberCount">0 na sala</span>
+                            </span>
+
+                            <span class="room-meta-divider"></span>
+
+                            <span class="room-spatial">
+                                <span class="mini-wave">
+                                    <i></i><i></i><i></i><i></i><i></i>
+                                </span>
+                                Som espacial ligado
+                            </span>
+                        </div>
+
+                        <p id="status">Você não está conectado.</p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="invite-btn"
+                        id="btnInviteFromVoice"
+                        title="Convidar para o servidor"
+                    >
+                        <span>+</span>
+                        Convidar
+                    </button>
+                </section>
+
+                <section class="voice-orbit" id="voiceContent">
+                    <span id="nomeCanal" class="compat-hidden">Geral</span>
+                    <span id="miniCanalNome" class="compat-hidden">Geral</span>
+                    <span id="miniStatus" class="compat-hidden">Offline</span>
+
+                    <div class="orbit-rings" aria-hidden="true">
+                        <span class="ring ring-1"></span>
+                        <span class="ring ring-2"></span>
+                        <span class="ring ring-3"></span>
+                        <span class="ring ring-4"></span>
+                    </div>
+
+                    <div class="orbit-center" aria-hidden="true">
+                        <div class="orbit-center-glow"></div>
+                        <div class="orbit-wave">
+                            <i></i><i></i><i></i><i></i><i></i>
+                            <i></i><i></i><i></i><i></i>
+                        </div>
+                    </div>
+
+                    <div class="users-grid" id="usersGrid">
+                        <div class="empty-state">
+                            <div class="empty-state-orbit"><span></span></div>
+                            <h3>Ninguém conectado</h3>
+                            <p>Entre na sala para começar a conversa.</p>
+                        </div>
+                    </div>
+
+                    <div class="screen-share-area hidden" id="screenShareArea"></div>
+                </section>
+
+                <footer class="callbar" id="voiceCallbar">
+                    <div class="call-control">
+                        <button type="button" id="btnMute" class="circle-btn" title="Microfone" disabled>🎙</button>
+                        <span>Microfone</span>
+                    </div>
+
+                    <div class="call-control">
+                        <button type="button" id="btnAudio" class="circle-btn" title="Áudio" disabled>🎧</button>
+                        <span>Áudio</span>
+                    </div>
+
+                    <button type="button" id="btnEntrar" class="join-btn">
+                        Entrar na sala
+                    </button>
+
+                    <div class="call-control">
+                        <button type="button" id="btnCompartilharTela" class="circle-btn screen-btn" title="Compartilhar tela" disabled>▣</button>
+                        <span>Tela</span>
+                    </div>
+
+                    <div class="call-control">
+                        <button type="button" id="btnSair" class="circle-btn leave-btn" title="Sair da sala" disabled>↗</button>
+                        <span>Sair</span>
+                    </div>
+                </footer>
+            </section>
+
+            <!-- CHAT DE CANAL: ocupa o centro; sem painel da direita -->
+            <section class="view chat-main-view hidden" id="chatView">
+                <header class="full-chat-header">
+                    <div>
+                        <span class="room-server-name" id="chatServerName">Servidor</span>
+                        <h2># <span id="chatCanalNome">geral</span></h2>
+                    </div>
+                    <button type="button" class="server-head-settings hidden" id="btnEditarCanalAtual" title="Editar canal">⚙</button>
+                </header>
+
+                <div class="messages full-messages" id="messages">
+                    <div class="chat-welcome">
+                        <div class="welcome-icon">#</div>
+                        <h2 id="welcomeTitle">Bem-vindo ao #geral</h2>
+                        <p>Este é o começo deste canal.</p>
+                    </div>
+                </div>
+
+                <form class="message-box full-message-box" id="chatForm">
+                    <span class="attach-icon">⌕</span>
+                    <input type="text" id="chatInput" maxlength="4000" autocomplete="off" placeholder="Mensagem">
+                    <button type="submit" title="Enviar">➤</button>
                 </form>
 
+                <section id="textView" class="compat-hidden"></section>
             </section>
 
-
-            <!-- =====================================
-                 CABEÇALHO DA SALA
-            ====================================== -->
-
-            <section
-                class="hero"
-                id="voiceHero"
-            >
-
-                <div class="hero-left">
-
-                    <div class="room-badge">
-                        AO VIVO
-                    </div>
-
-                    <h2 id="tituloSala">
-                        Geral
-                    </h2>
-
-                    <p id="status">
-                        Você não está conectado.
-                    </p>
-
-
-                    <div class="hero-tags">
-
-                        <span class="tag">
-                            Baixa latência
-                        </span>
-
-                        <span class="tag">
-                            Sala privada
-                        </span>
-
-                        <span class="tag">
-                            Até 5 pessoas
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="hero-right">
-
-                    <div class="sound-visual">
-
-                        <div class="bar b1"></div>
-                        <div class="bar b2"></div>
-                        <div class="bar b3"></div>
-                        <div class="bar b4"></div>
-                        <div class="bar b5"></div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- =====================================
-                 SALA DE VOZ
-            ====================================== -->
-
-            <section
-                class="content-grid"
-                id="voiceContent"
-            >
-
-                <!-- PARTICIPANTES -->
-
-                <div class="panel participants-panel">
-
-                    <div class="panel-header">
-
+            <!-- CONVERSAS PRIVADAS -->
+            <section class="view dm-view hidden" id="dmView">
+                <aside class="dm-list-pane">
+                    <div class="pane-head">
                         <div>
-
-                            <span class="panel-mini">
-                                Sala atual
-                            </span>
-
-                            <h3>
-                                <span class="panel-icon">
-                                    🔊
-                                </span>
-
-                                <span id="nomeCanal">
-                                    Geral
-                                </span>
-                            </h3>
-
+                            <span class="room-server-name">PRIVADO</span>
+                            <h2>Conversas</h2>
                         </div>
+                        <button type="button" class="server-head-settings" id="btnNovaConversa" title="Nova conversa">+</button>
+                    </div>
+                    <div class="dm-list" id="dmList"></div>
+                </aside>
 
-
-                        <span class="panel-status">
-                            Voice Room
-                        </span>
-
+                <section class="dm-chat-pane">
+                    <div class="empty-pane" id="dmEmptyState">
+                        <div class="empty-icon">@</div>
+                        <h2>Suas conversas</h2>
+                        <p>Escolha alguém ou inicie uma conversa.</p>
                     </div>
 
-
-                    <div
-                        class="users-grid"
-                        id="usersGrid"
-                    >
-
-                        <div class="empty-state">
-
-                            <div class="empty-state-icon">
-                                🎧
+                    <div class="dm-active hidden" id="dmActive">
+                        <header class="dm-chat-head">
+                            <div class="mini-avatar" id="dmTargetAvatar">U</div>
+                            <div>
+                                <strong id="dmTargetName">Usuário</strong>
+                                <span>Mensagem direta</span>
                             </div>
-
-                            <h3>
-                                Ninguém conectado
-                            </h3>
-
-                            <p>
-                                Entre na sala para começar a conversa.
-                            </p>
-
-                        </div>
-
+                        </header>
+                        <div class="messages" id="dmMessages"></div>
+                        <form class="message-box dm-message-box" id="dmForm">
+                            <input id="dmInput" maxlength="4000" autocomplete="off" placeholder="Mensagem privada">
+                            <button type="submit">➤</button>
+                        </form>
                     </div>
-
-                </div>
-
-
-                <!-- RESUMO DA SALA -->
-
-                <div class="panel side-panel">
-
-                    <div class="panel-header">
-
-                        <div>
-
-                            <span class="panel-mini">
-                                Resumo
-                            </span>
-
-                            <h3>
-                                Controles
-                            </h3>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="mini-card">
-
-                        <span>
-                            Canal
-                        </span>
-
-                        <strong id="miniCanalNome">
-                            Geral
-                        </strong>
-
-                    </div>
-
-
-                    <div class="mini-card">
-
-                        <span>
-                            Modo
-                        </span>
-
-                        <strong>
-                            Voz em tempo real
-                        </strong>
-
-                    </div>
-
-
-                    <div class="mini-card">
-
-                        <span>
-                            Status
-                        </span>
-
-                        <strong id="miniStatus">
-                            Offline
-                        </strong>
-
-                    </div>
-
-
-                    <div class="tips-box">
-
-                        <h4>
-                            Dica
-                        </h4>
-
-                        <p>
-                            Primeiro entre na sala, depois teste o microfone
-                            e chame outro amigo para verificar o áudio.
-                        </p>
-
-                    </div>
-
-                </div>
-
+                </section>
             </section>
 
+            <!-- ARQUIVOS -->
+            <section class="view files-view hidden" id="filesView">
+                <header class="files-head">
+                    <div>
+                        <span class="room-server-name" id="filesServerName">Servidor</span>
+                        <h2>Arquivos</h2>
+                        <p>Arquivos compartilhados dentro deste servidor.</p>
+                    </div>
 
-            <!-- =====================================
-                 CONTROLES DA CALL
-            ====================================== -->
+                    <label class="join-btn file-upload-btn" for="serverFileInput">
+                        Enviar arquivo
+                    </label>
+                    <input type="file" id="serverFileInput" hidden>
+                </header>
 
-            <footer
-                class="callbar"
-                id="voiceCallbar"
-            >
+                <div class="file-toolbar">
+                    <input id="fileSearch" placeholder="Pesquisar arquivos">
+                    <span id="fileUploadStatus"></span>
+                </div>
 
-                <button
-                    type="button"
-                    id="btnMute"
-                    class="circle-btn"
-                    title="Microfone"
-                    disabled
-                >
-                    🎙️
-                </button>
-
-
-                <button
-                    type="button"
-                    id="btnAudio"
-                    class="circle-btn"
-                    title="Áudio"
-                    disabled
-                >
-                    🎧
-                </button>
-
-
-                <button
-                    type="button"
-                    id="btnEntrar"
-                    class="join-btn"
-                >
-                    Entrar na sala
-                </button>
-
-
-                <button
-                    type="button"
-                    id="btnSair"
-                    class="circle-btn leave-btn"
-                    title="Sair da sala"
-                    disabled
-                >
-                    📞
-                </button>
-
-            </footer>
+                <div class="file-list" id="fileList"></div>
+            </section>
 
         </main>
 
+
+        <!-- PARTICIPANTES / PRESENÇA -->
+        <div
+            class="participant-drawer hidden"
+            id="participantDrawer"
+        >
+            <div class="participant-drawer-header">
+                <div>
+                    <span class="participant-drawer-kicker">CALL ATUAL</span>
+                    <h3>Participantes</h3>
+                </div>
+
+                <button
+                    type="button"
+                    class="participant-drawer-close"
+                    id="btnCloseParticipants"
+                    title="Fechar"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <div
+                class="participant-drawer-list"
+                id="participantDrawerList"
+            ></div>
+
+            <p class="participant-drawer-hint">
+                Dono e cargos com permissão de moderar call podem mutar ou expulsar usuários.
+            </p>
+        </div>
+
+        <footer class="orbit-footer">
+            <div class="orbit-footer-label">
+                <span>Orbitando</span>
+                <i></i>
+            </div>
+
+            <div
+                id="usuariosCanal"
+                class="usuarios-canal"
+            ></div>
+
+            <button
+                type="button"
+                class="orbit-footer-chevron"
+                id="btnToggleParticipants"
+                title="Participantes"
+                aria-expanded="false"
+            >
+               ⇧
+            </button>
+        </footer>
     </div>
 
 
-    <!-- =====================================
-         CONFIGURAÇÕES
-    ====================================== -->
-
+    <!-- CONFIGURAÇÕES -->
     <div
         class="settings-overlay hidden"
         id="settingsModal"
     >
-
         <div class="settings-card">
-
             <div class="settings-header">
-
                 <div>
-
-                    <span class="settings-mini">
-                        LZZ Voice
-                    </span>
-
-                    <h2>
-                        Configurações
-                    </h2>
-
+                    <span class="settings-mini">LZZ Voice</span>
+                    <h2>Configurações</h2>
                 </div>
-
 
                 <button
                     type="button"
@@ -768,37 +583,20 @@
                 >
                     ✕
                 </button>
-
             </div>
 
-
-            <!-- PERFIL -->
-
             <section class="settings-section">
-
-                <h3>
-                    Perfil
-                </h3>
-
+                <h3>Perfil</h3>
 
                 <div class="settings-profile">
-
                     <label
                         for="configAvatarInput"
                         class="settings-avatar"
                         id="configAvatarPreview"
                     >
-
-                        <span id="configAvatarLetra">
-                            M
-                        </span>
-
-                        <div class="avatar-edit">
-                            ✎
-                        </div>
-
+                        <span id="configAvatarLetra">M</span>
+                        <div class="avatar-edit">✎</div>
                     </label>
-
 
                     <input
                         type="file"
@@ -807,9 +605,7 @@
                         hidden
                     >
 
-
                     <div class="settings-profile-fields">
-
                         <label for="configUsername">
                             Nome de usuário
                         </label>
@@ -819,11 +615,8 @@
                             id="configUsername"
                             maxlength="20"
                         >
-
                     </div>
-
                 </div>
-
 
                 <button
                     type="button"
@@ -832,130 +625,429 @@
                 >
                     Salvar perfil
                 </button>
-
             </section>
 
-
-            <!-- ÁUDIO -->
-
             <section class="settings-section">
-
-                <h3>
-                    Áudio
-                </h3>
-
+                <h3>Áudio</h3>
 
                 <div class="audio-setting">
-
                     <label for="selectMicrofone">
                         🎙️ Microfone
                     </label>
 
                     <select id="selectMicrofone">
-
                         <option value="default">
                             Padrão do sistema
                         </option>
-
                     </select>
-
                 </div>
 
-
                 <div class="audio-setting">
-
                     <label for="selectSaida">
                         🎧 Saída de áudio
                     </label>
 
                     <select id="selectSaida">
-
                         <option value="default">
                             Padrão do sistema
                         </option>
-
                     </select>
-
                 </div>
-
             </section>
-
 
             <p
                 class="settings-status"
                 id="settingsStatus"
             ></p>
-
         </div>
-
     </div>
 
 
-    <!-- MENU MOBILE -->
 
+
+
+
+    <!-- CRIAR / EDITAR CANAL -->
+    <div class="channel-modal-overlay hidden" id="channelModal">
+        <div class="channel-modal-card">
+            <div class="channel-modal-header">
+                <div>
+                    <span class="channel-modal-kicker">LZZ VOICE</span>
+                    <h2 id="channelModalTitle">Criar canal</h2>
+                </div>
+                <button type="button" class="channel-modal-close" id="btnFecharCanalModal">✕</button>
+            </div>
+
+            <form id="criarCanalForm">
+                <input type="hidden" id="novoCanalTipo" value="texto">
+                <input type="hidden" id="editarCanalId" value="">
+
+                <label for="novoCanalNome">Nome do canal</label>
+                <div class="channel-name-input">
+                    <span>#</span>
+                    <input type="text" id="novoCanalNome" maxlength="40" autocomplete="off" required>
+                </div>
+
+                <label class="toggle-row">
+                    <input type="checkbox" id="novoCanalPrivado">
+                    <span>Canal privado</span>
+                </label>
+
+                <div class="role-access hidden" id="channelRoleAccess">
+                    <span class="small-label">Cargos que podem acessar</span>
+                    <div class="check-grid" id="channelRoleChecks"></div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="danger-btn hidden" id="btnApagarCanal">Apagar canal</button>
+                    <button type="submit" class="channel-primary-btn" id="btnSalvarCanal">Salvar</button>
+                </div>
+
+                <p class="channel-modal-status" id="channelModalStatus"></p>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- CONFIGURAÇÕES DO SERVIDOR -->
+    <div class="server-modal-overlay hidden" id="serverSettingsModal">
+        <div class="server-settings-shell">
+            <aside class="settings-nav">
+                <div class="settings-server-name" id="settingsServerName">Servidor</div>
+                <button type="button" class="settings-tab ativo" data-settings-tab="geral">Geral</button>
+                <button type="button" class="settings-tab" data-settings-tab="membros">Membros</button>
+                <button type="button" class="settings-tab" data-settings-tab="cargos">Cargos</button>
+                <button type="button" class="settings-tab" data-settings-tab="convites">Convites</button>
+                <div class="settings-nav-spacer"></div>
+                <button type="button" class="settings-tab danger-text" data-settings-tab="danger">Excluir servidor</button>
+            </aside>
+
+            <section class="settings-content">
+                <button type="button" class="settings-close server-settings-close" id="btnFecharServerSettings">✕</button>
+
+                <div class="settings-page" data-settings-page="geral">
+                    <span class="settings-mini">SERVIDOR</span>
+                    <h2>Visão geral</h2>
+
+                    <div class="settings-form-grid">
+                        <div class="field">
+                            <label for="editServerName">Nome</label>
+                            <input id="editServerName" maxlength="40">
+                        </div>
+                        <div class="field">
+                            <label for="editServerDescription">Descrição</label>
+                            <textarea id="editServerDescription" maxlength="300"></textarea>
+                        </div>
+                    </div>
+
+                    <button type="button" class="settings-save" id="btnSalvarServidor">Salvar alterações</button>
+                    <p class="settings-status" id="serverGeneralStatus"></p>
+                </div>
+
+                <div class="settings-page hidden" data-settings-page="membros">
+                    <div class="settings-title-row">
+                        <div>
+                            <span class="settings-mini">SERVIDOR</span>
+                            <h2>Membros</h2>
+                        </div>
+                        <input id="memberSearch" placeholder="Pesquisar membro">
+                    </div>
+                    <div class="member-list" id="memberList"></div>
+                </div>
+
+                <div class="settings-page hidden" data-settings-page="cargos">
+                    <div class="settings-title-row">
+                        <div>
+                            <span class="settings-mini">PERMISSÕES</span>
+                            <h2>Cargos</h2>
+                        </div>
+                        <button type="button" class="settings-save compact-btn" id="btnNovoCargo">Novo cargo</button>
+                    </div>
+
+                    <div class="roles-layout">
+                        <div class="role-list" id="roleList"></div>
+
+                        <form class="role-editor" id="roleForm">
+                            <input type="hidden" id="roleEditId">
+
+                            <div class="field">
+                                <label for="roleName">Nome</label>
+                                <input id="roleName" maxlength="40">
+                            </div>
+
+                            <div class="field">
+                                <label for="roleColor">Cor</label>
+                                <input id="roleColor" type="color" value="#20b8ff">
+                            </div>
+
+                            <div class="permission-grid" id="rolePermissionGrid">
+                                <label><input type="checkbox" data-permission="manage_server"> Gerenciar servidor</label>
+                                <label><input type="checkbox" data-permission="manage_channels"> Gerenciar canais</label>
+                                <label><input type="checkbox" data-permission="manage_roles"> Gerenciar cargos</label>
+                                <label><input type="checkbox" data-permission="manage_members"> Gerenciar membros</label>
+                                <label><input type="checkbox" data-permission="create_invite"> Criar convites</label>
+                                <label><input type="checkbox" data-permission="manage_messages"> Moderar mensagens</label>
+                                <label><input type="checkbox" data-permission="manage_voice"> Moderar calls</label>
+                                <label><input type="checkbox" data-permission="view_private_channels"> Ver canais privados</label>
+                                <label><input type="checkbox" data-permission="connect_private_voice"> Entrar em calls privadas</label>
+                            </div>
+
+                            <div class="modal-actions">
+                                <button type="button" class="danger-btn hidden" id="btnDeleteRole">Excluir cargo</button>
+                                <button type="submit" class="settings-save">Salvar cargo</button>
+                            </div>
+
+                            <p class="settings-status" id="roleStatus"></p>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="settings-page hidden" data-settings-page="convites">
+                    <div class="settings-title-row">
+                        <div>
+                            <span class="settings-mini">ACESSO</span>
+                            <h2>Convites</h2>
+                        </div>
+                        <button type="button" class="settings-save compact-btn" id="btnCriarConviteSettings">Novo convite</button>
+                    </div>
+                    <div class="invite-list" id="inviteList"></div>
+                </div>
+
+                <div class="settings-page hidden" data-settings-page="danger">
+                    <span class="settings-mini danger-text">ZONA DE PERIGO</span>
+                    <h2>Excluir servidor</h2>
+                    <p class="danger-copy">Isso apaga canais, mensagens, cargos e membros deste servidor.</p>
+                    <button type="button" class="danger-btn" id="btnExcluirServidor">Excluir servidor permanentemente</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+
+    <!-- GERENCIAR CARGOS DE UM MEMBRO -->
+    <div class="server-modal-overlay hidden" id="memberRoleModal">
+        <div class="server-modal-card">
+            <div class="server-modal-header">
+                <div>
+                    <span class="server-modal-kicker">MEMBRO</span>
+                    <h2 id="memberRoleTitle">Cargos</h2>
+                </div>
+                <button type="button" class="server-modal-close" id="btnCloseMemberRole">✕</button>
+            </div>
+
+            <div class="check-grid vertical" id="memberRoleChecks"></div>
+
+            <div class="modal-actions">
+                <button type="button" class="danger-btn" id="btnRemoveMember">Remover membro</button>
+                <button type="button" class="server-primary-btn" id="btnSaveMemberRoles">Salvar cargos</button>
+            </div>
+
+            <p class="server-modal-status" id="memberRoleStatus"></p>
+        </div>
+    </div>
+
+
+    <!-- NOVA CONVERSA -->
+    <div class="server-modal-overlay hidden" id="newDmModal">
+        <div class="server-modal-card">
+            <div class="server-modal-header">
+                <div>
+                    <span class="server-modal-kicker">CONVERSAS</span>
+                    <h2>Nova conversa</h2>
+                </div>
+                <button type="button" class="server-modal-close" id="btnCloseNewDm">✕</button>
+            </div>
+            <div class="dm-member-list" id="dmMemberList"></div>
+        </div>
+    </div>
+
+
+    <!-- CRIAR / ENTRAR EM SERVIDOR -->
     <div
-        class="mobile-overlay"
-        id="mobileOverlay"
-    ></div>
+        class="server-modal-overlay hidden"
+        id="serverModal"
+    >
+        <div class="server-modal-card">
 
-<!-- =====================================
-     ATUALIZAÇÃO OBRIGATÓRIA
-====================================== -->
+            <div class="server-modal-header">
+                <div>
+                    <span class="server-modal-kicker">
+                        LZZ VOICE
+                    </span>
 
-<div class="update-overlay hidden" id="updateModal">
+                    <h2 id="serverModalTitle">
+                        Servidores
+                    </h2>
+                </div>
 
-    <div class="update-card">
-
-        <div class="update-icon">
-            ↑
-        </div>
-
-        <span class="update-label">
-            ATUALIZAÇÃO NECESSÁRIA
-        </span>
-
-        <h2>
-            Nova versão disponível
-        </h2>
-
-        <p>
-            Você precisa atualizar o LZZ Voice
-            para continuar usando o aplicativo.
-        </p>
-
-        <div class="update-version">
-
-            <div>
-                <span>Sua versão</span>
-                <strong id="versaoAtualTexto">-</strong>
+                <button
+                    type="button"
+                    class="server-modal-close"
+                    id="btnFecharServidorModal"
+                    title="Fechar"
+                >
+                    ✕
+                </button>
             </div>
 
-            <div>
-                <span>Nova versão</span>
-                <strong id="versaoNovaTexto">-</strong>
+
+            <div class="server-modal-tabs">
+                <button
+                    type="button"
+                    class="server-modal-tab ativo"
+                    id="tabCriarServidor"
+                >
+                    Criar servidor
+                </button>
+
+                <button
+                    type="button"
+                    class="server-modal-tab"
+                    id="tabEntrarServidor"
+                >
+                    Entrar com convite
+                </button>
             </div>
 
+
+            <!-- CRIAR SERVIDOR -->
+            <form
+                class="server-form"
+                id="criarServidorForm"
+            >
+                <div class="server-create-icon">
+                    <span>L/</span>
+                </div>
+
+                <div class="server-form-copy">
+                    <h3>Crie seu espaço</h3>
+
+                    <p>
+                        Você será o dono e poderá convidar
+                        outras pessoas depois.
+                    </p>
+                </div>
+
+                <label for="novoServidorNome">
+                    Nome do servidor
+                </label>
+
+                <input
+                    type="text"
+                    id="novoServidorNome"
+                    maxlength="40"
+                    placeholder="Ex: LZZ Squad"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    class="server-primary-btn"
+                    id="btnCriarServidor"
+                >
+                    Criar servidor
+                </button>
+            </form>
+
+
+            <!-- ENTRAR COM CONVITE -->
+            <form
+                class="server-form hidden"
+                id="entrarServidorForm"
+            >
+                <div class="server-create-icon server-invite-icon">
+                    <span>↗</span>
+                </div>
+
+                <div class="server-form-copy">
+                    <h3>Entrar em um servidor</h3>
+
+                    <p>
+                        Cole o código ou o link de convite
+                        enviado pelo dono do servidor.
+                    </p>
+                </div>
+
+                <label for="conviteCodigo">
+                    Convite
+                </label>
+
+                <input
+                    type="text"
+                    id="conviteCodigo"
+                    maxlength="200"
+                    placeholder="Código ou link de convite"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    class="server-primary-btn"
+                    id="btnEntrarServidor"
+                >
+                    Entrar no servidor
+                </button>
+            </form>
+
+
+            <p
+                class="server-modal-status"
+                id="serverModalStatus"
+            ></p>
+
         </div>
-
-        <button
-            type="button"
-            id="btnAtualizarApp"
-        >
-            Baixar atualização
-        </button>
-
-        <small>
-            A atualização é obrigatória.
-        </small>
-
     </div>
 
-</div>
-    <!-- SCRIPTS -->
 
+    <!-- MENU / OVERLAY -->
+    <div class="mobile-overlay hidden" id="mobileOverlay"></div>
+
+
+    <!-- ATUALIZAÇÃO OBRIGATÓRIA -->
+    <div class="update-overlay hidden" id="updateModal">
+        <div class="update-card">
+            <div class="update-icon">↑</div>
+
+            <span class="update-label">
+                ATUALIZAÇÃO NECESSÁRIA
+            </span>
+
+            <h2>Nova versão disponível</h2>
+
+            <p>
+                Você precisa atualizar o LZZ Voice
+                para continuar usando o aplicativo.
+            </p>
+
+            <div class="update-version">
+                <div>
+                    <span>Sua versão</span>
+                    <strong id="versaoAtualTexto">-</strong>
+                </div>
+
+                <div>
+                    <span>Nova versão</span>
+                    <strong id="versaoNovaTexto">-</strong>
+                </div>
+            </div>
+
+            <button
+                type="button"
+                id="btnAtualizarApp"
+            >
+                Baixar atualização
+            </button>
+
+            <small>
+                A atualização é obrigatória.
+            </small>
+        </div>
+    </div>
+
+
+    <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
 
 </body>
-
 </html>
