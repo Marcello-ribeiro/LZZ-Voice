@@ -380,13 +380,19 @@
                         </div>
                     </div>
 
-                    <div class="users-grid" id="usersGrid">
-                        <div class="empty-state">
-                            <div class="empty-state-orbit"><span></span></div>
-                            <h3>Ninguém conectado</h3>
-                            <p>Entre na sala para começar a conversa.</p>
-                        </div>
-                    </div>
+                 <div class="users-grid" id="usersGrid">
+    <div class="empty-state">
+        <div class="empty-state-orbit">
+            <span></span>
+        </div>
+
+        <h3>Ninguém conectado</h3>
+
+        <p>
+            Entre na sala para começar a conversa.
+        </p>
+    </div>
+</div>
 
                     <div class="screen-share-area hidden" id="screenShareArea"></div>
                 </section>
@@ -1001,6 +1007,84 @@
 
     <!-- MENU / OVERLAY -->
     <div class="mobile-overlay hidden" id="mobileOverlay"></div>
+
+
+
+    <!-- COMPARTILHAR TELA -->
+    <div class="screen-config-overlay hidden" id="screenShareModal">
+        <div class="screen-config-card">
+            <div class="screen-config-header">
+                <div>
+                    <span>TRANSMISSÃO</span>
+                    <h2>Compartilhar tela</h2>
+                </div>
+
+                <button
+                    type="button"
+                    id="btnFecharScreenShare"
+                    title="Fechar"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <div class="screen-config-row">
+                <label>
+                    Qualidade
+                    <select id="screenQuality">
+                        <option value="720">720p</option>
+                        <option value="1080" selected>1080p</option>
+                        <option value="1440">1440p</option>
+                        <option value="2160">4K</option>
+                    </select>
+                </label>
+
+                <label>
+                    FPS
+                    <select id="screenFps">
+                        <option value="15">15 FPS</option>
+                        <option value="30" selected>30 FPS</option>
+                        <option value="60">60 FPS</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="screen-source-head">
+                <div>
+                    <strong>Fonte</strong>
+                    <p id="screenSourceNote">
+                        Escolha qual tela ou janela deseja transmitir.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    id="btnRefreshScreenSources"
+                    title="Atualizar"
+                >
+                    ↻
+                </button>
+            </div>
+
+            <div
+                class="screen-source-grid"
+                id="screenSourceGrid"
+            ></div>
+
+            <button
+                type="button"
+                class="screen-share-start"
+                id="btnStartScreenShare"
+            >
+                Compartilhar
+            </button>
+
+            <p
+                class="screen-share-status"
+                id="screenShareStatus"
+            ></p>
+        </div>
+    </div>
 
 
     <!-- ATUALIZAÇÃO OBRIGATÓRIA -->

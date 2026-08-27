@@ -39,17 +39,13 @@
     "appId": "com.lzz.voice",
     "productName": "LZZ Voice",
     "asar": true,
-    "compression": "maximum",
-    "electronLanguages": [
-      "pt-BR",
-      "en-US"
-    ],
     "directories": {
       "output": "dist-pc2"
     },
     "files": [
       "www/**/*",
       "electron-main.js",
+      "preload.js",
       "package.json",
       "build/**/*"
     ],

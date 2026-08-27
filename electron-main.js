@@ -1,36 +1,191 @@
 const {
     app,
     BrowserWindow,
+    desktopCapturer,
+    ipcMain,
     session
 } = require("electron");
 
 const path = require("path");
 
-
-/*
-    Permite áudio remoto sem exigir
-    outro clique para começar a tocar.
-*/
 app.commandLine.appendSwitch(
     "autoplay-policy",
     "no-user-gesture-required"
 );
 
-
-/*
-    Ajuda o Windows a associar
-    corretamente o ícone ao aplicativo.
-*/
 app.setAppUserModelId(
     "com.lzz.voice"
 );
 
+let selectedDisplaySourceId = null;
+
+async function listarFontesDeTela() {
+    const sources =
+        await desktopCapturer.getSources({
+            types: [
+                "screen",
+                "window"
+            ],
+
+            thumbnailSize: {
+                width: 320,
+                height: 180
+            },
+
+            fetchWindowIcons: true
+        });
+
+    return sources.map(
+        source => ({
+            id: source.id,
+            name: source.name,
+
+            thumbnail:
+                source.thumbnail &&
+                !source.thumbnail.isEmpty()
+                    ? source.thumbnail
+                        .toDataURL()
+                    : null,
+
+            appIcon:
+                source.appIcon &&
+                !source.appIcon.isEmpty()
+                    ? source.appIcon
+                        .toDataURL()
+                    : null
+        })
+    );
+}
+
+ipcMain.handle(
+    "lzz-screen:list-sources",
+    async () =>
+        listarFontesDeTela()
+);
+
+ipcMain.handle(
+    "lzz-screen:select-source",
+    async (
+        _event,
+        sourceId
+    ) => {
+        selectedDisplaySourceId =
+            typeof sourceId ===
+                "string"
+                ? sourceId
+                : null;
+
+        return Boolean(
+            selectedDisplaySourceId
+        );
+    }
+);
+
+function configurarPermissoes() {
+    session.defaultSession
+        .setPermissionRequestHandler(
+            (
+                _webContents,
+                permission,
+                callback
+            ) => {
+                if (
+                    permission ===
+                        "media" ||
+                    permission ===
+                        "display-capture"
+                ) {
+                    callback(true);
+                    return;
+                }
+
+                callback(false);
+            }
+        );
+
+    session.defaultSession
+        .setPermissionCheckHandler(
+            (
+                _webContents,
+                permission
+            ) => {
+                return (
+                    permission ===
+                        "media" ||
+                    permission ===
+                        "display-capture"
+                );
+            }
+        );
+
+    session.defaultSession
+        .setDisplayMediaRequestHandler(
+            async (
+                _request,
+                callback
+            ) => {
+                try {
+                    const sources =
+                        await desktopCapturer
+                            .getSources({
+                                types: [
+                                    "screen",
+                                    "window"
+                                ]
+                            });
+
+                    let source =
+                        sources.find(
+                            item =>
+                                item.id ===
+                                selectedDisplaySourceId
+                        );
+
+                    if (!source) {
+                        source =
+                            sources.find(
+                                item =>
+                                    item.id
+                                        .startsWith(
+                                            "screen:"
+                                        )
+                            );
+                    }
+
+                    if (!source) {
+                        source =
+                            sources[0];
+                    }
+
+                    selectedDisplaySourceId =
+                        null;
+
+                    if (!source) {
+                        callback({});
+                        return;
+                    }
+
+                    callback({
+                        video: source
+                    });
+                } catch (error) {
+                    console.error(
+                        "Erro no compartilhamento de tela:",
+                        error
+                    );
+
+                    selectedDisplaySourceId =
+                        null;
+
+                    callback({});
+                }
+            }
+        );
+}
 
 function criarJanela() {
-
     const janela =
         new BrowserWindow({
-
             width: 1280,
             height: 760,
 
@@ -40,21 +195,21 @@ function criarJanela() {
             backgroundColor:
                 "#07111f",
 
-            autoHideMenuBar:
-                true,
+            autoHideMenuBar: true,
 
-
-            /*
-                ÍCONE DO LZZ VOICE
-            */
-            icon: path.join(
-                __dirname,
-                "build",
-                "favicon.ico"
-            ),
-
+            icon:
+                path.join(
+                    __dirname,
+                    "build",
+                    "favicon.ico"
+                ),
 
             webPreferences: {
+                preload:
+                    path.join(
+                        __dirname,
+                        "preload.js"
+                    ),
 
                 backgroundThrottling:
                     false,
@@ -64,11 +219,8 @@ function criarJanela() {
 
                 contextIsolation:
                     true
-
             }
-
         });
-
 
     janela.loadFile(
         path.join(
@@ -78,82 +230,37 @@ function criarJanela() {
         )
     );
 
-
     janela.setMenuBarVisibility(
         false
     );
-
 }
 
-
-/*
-    PERMISSÃO DO MICROFONE
-*/
-
 app.whenReady().then(() => {
-
-    session
-        .defaultSession
-        .setPermissionRequestHandler(
-            (
-                webContents,
-                permission,
-                callback
-            ) => {
-
-                if (
-                    permission ===
-                    "media"
-                ) {
-
-                    callback(true);
-
-                    return;
-
-                }
-
-
-                callback(false);
-
-            }
-        );
-
-
+    configurarPermissoes();
     criarJanela();
-
 
     app.on(
         "activate",
-        function () {
-
+        () => {
             if (
                 BrowserWindow
                     .getAllWindows()
                     .length === 0
             ) {
-
                 criarJanela();
-
             }
-
         }
     );
-
 });
-
 
 app.on(
     "window-all-closed",
-    function () {
-
+    () => {
         if (
             process.platform !==
-            "darwin"
+                "darwin"
         ) {
-
             app.quit();
-
         }
-
     }
 );

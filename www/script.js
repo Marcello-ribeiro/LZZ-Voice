@@ -29,6 +29,11 @@ const dom = {
   servidorAtualNome: $("servidorAtualNome"), tituloSala: $("tituloSala"), status: $("status"), voiceMemberCount: $("voiceMemberCount"),
   usersGrid: $("usersGrid"), screenShareArea: $("screenShareArea"), btnEntrar: $("btnEntrar"), btnMute: $("btnMute"),
   btnAudio: $("btnAudio"), btnCompartilharTela: $("btnCompartilharTela"), btnSair: $("btnSair"), btnInviteFromVoice: $("btnInviteFromVoice"),
+  screenShareModal: $("screenShareModal"), btnFecharScreenShare: $("btnFecharScreenShare"),
+  screenSourceGrid: $("screenSourceGrid"), screenSourceNote: $("screenSourceNote"),
+  screenQuality: $("screenQuality"), screenFps: $("screenFps"),
+  btnRefreshScreenSources: $("btnRefreshScreenSources"), btnStartScreenShare: $("btnStartScreenShare"),
+  screenShareStatus: $("screenShareStatus"),
   nomeCanal: $("nomeCanal"), miniCanalNome: $("miniCanalNome"), miniStatus: $("miniStatus"), usuariosCanal: $("usuariosCanal"),
   participantDrawer: $("participantDrawer"), participantDrawerList: $("participantDrawerList"),
   btnToggleParticipants: $("btnToggleParticipants"), btnCloseParticipants: $("btnCloseParticipants"),
@@ -69,6 +74,11 @@ const state = {
   currentVoice: null, currentText: null, currentMode: "home", lastAgoraMode: "voice",
   connected: false, muted: false, deafened: false,
   micStream: null, screenStream: null, signaling: null,
+  selectedScreenSourceId: null,
+  screenShareConfig: {
+    quality: localStorage.getItem("lzz_screen_quality") || "1080",
+    fps: Number(localStorage.getItem("lzz_screen_fps") || "30")
+  },
   peers: new Map(), remoteAudios: new Map(), pendingIce: new Map(), speakingMonitors: new Map(), remoteVideos: new Map(),
   presenceChannels: new Map(), presenceStates: new Map(),
   chatRealtime: null, dmRealtime: null, displayedMessages: new Set(),
@@ -953,7 +963,7 @@ async function leaveCall(){
   await stopScreenShare();for(const pc of state.peers.values())pc.close();state.peers.clear();state.pendingIce.clear();for(const m of state.speakingMonitors.values())m.stop();state.speakingMonitors.clear();for(const a of state.remoteAudios.values()){a.srcObject=null;a.remove()}state.remoteAudios.clear();for(const v of state.remoteVideos.values())v.remove();state.remoteVideos.clear();state.micStream?.getTracks().forEach(t=>t.stop());state.micStream=null;if(state.signaling){await supabaseClient.removeChannel(state.signaling);state.signaling=null}await stopCallService();dom.btnEntrar.classList.remove("hidden");dom.btnMute.disabled=true;dom.btnAudio.disabled=true;dom.btnCompartilharTela.disabled=true;dom.btnSair.disabled=true;dom.btnMute.classList.remove("ativo");dom.btnAudio.classList.remove("ativo");dom.status.textContent="Você não está conectado.";state.muted=false;state.deafened=false;
 }
 function createPeer(remoteId){
-  if(state.peers.has(remoteId))return state.peers.get(remoteId);const pc=new RTCPeerConnection(rtcConfig);state.micStream?.getTracks().forEach(t=>pc.addTrack(t,state.micStream));const vt=pc.addTransceiver("video",{direction:"sendrecv"});const screenTrack=state.screenStream?.getVideoTracks?.()[0];if(screenTrack)vt.sender.replaceTrack(screenTrack).catch(console.warn);
+  if(state.peers.has(remoteId))return state.peers.get(remoteId);const pc=new RTCPeerConnection(rtcConfig);state.micStream?.getTracks().forEach(t=>pc.addTrack(t,state.micStream));const vt=pc.addTransceiver("video",{direction:"sendrecv"});const screenTrack=state.screenStream?.getVideoTracks?.()[0];if(screenTrack){vt.sender.replaceTrack(screenTrack).then(()=>configureScreenSender(vt.sender,state.screenShareConfig.fps)).catch(console.warn);}
   pc.onicecandidate=e=>{if(e.candidate)sendSignal({tipo:"candidate",destino:remoteId,candidate:e.candidate})};
   pc.ontrack=e=>{const stream=e.streams[0]||new MediaStream([e.track]);if(e.track.kind==="audio")attachRemoteAudio(remoteId,stream);else attachRemoteVideo(remoteId,stream)};
   pc.onconnectionstatechange=()=>{if(["failed","closed","disconnected"].includes(pc.connectionState))removePeer(remoteId)};state.peers.set(remoteId,pc);return pc;
@@ -968,13 +978,640 @@ function removePeer(id){const pc=state.peers.get(id);if(pc){pc.close();state.pee
 function attachRemoteAudio(id,stream){let a=state.remoteAudios.get(id);if(!a){a=document.createElement("audio");a.autoplay=true;a.playsInline=true;document.body.appendChild(a);state.remoteAudios.set(id,a)}a.muted=state.deafened;a.srcObject=stream;applyOutput(a);a.play().catch(()=>{});monitorSpeaking(stream,id)}
 function attachRemoteVideo(id,stream){let tile=state.remoteVideos.get(id);if(!tile){tile=document.createElement("div");tile.className="screen-tile";const v=document.createElement("video");v.autoplay=true;v.playsInline=true;const label=document.createElement("span");label.textContent=presenceUsers(state.currentVoice?.id).find(x=>x.id===id)?.name||"Tela compartilhada";tile.append(v,label);dom.screenShareArea.appendChild(tile);state.remoteVideos.set(id,tile)}tile.querySelector("video").srcObject=stream;dom.screenShareArea.classList.remove("hidden")}
 function monitorSpeaking(stream,id){if(state.speakingMonitors.has(id)||!stream?.getAudioTracks().length)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ctx=new AC(),an=ctx.createAnalyser(),src=ctx.createMediaStreamSource(stream);src.connect(an);an.fftSize=256;const buf=new Uint8Array(an.fftSize);let raf,last=0;const run=()=>{an.getByteTimeDomainData(buf);let sum=0;for(const x of buf){const v=(x-128)/128;sum+=v*v}if(Math.sqrt(sum/buf.length)>.025)last=Date.now();document.querySelector(`[data-user-id="${id}"]`)?.classList.toggle("falando",Date.now()-last<220);raf=requestAnimationFrame(run)};run();state.speakingMonitors.set(id,{stop(){cancelAnimationFrame(raf);src.disconnect();ctx.close().catch(()=>{});state.speakingMonitors.delete(id)}})}
+function screenQualityConfig(value){
+  const map={
+    "720":{width:1280,height:720,label:"720p"},
+    "1080":{width:1920,height:1080,label:"1080p"},
+    "1440":{width:2560,height:1440,label:"1440p"},
+    "2160":{width:3840,height:2160,label:"4K"}
+  };
+  return map[String(value)]||map["1080"];
+}
+
+function isElectronDesktop(){
+  return Boolean(
+    window.lzzDesktop?.getScreenSources
+  );
+}
+
+function screenVideoSender(pc){
+  const transceiver=
+    pc.getTransceivers?.().find(
+      item =>
+        item.receiver?.track?.kind === "video"
+    );
+
+  return (
+    transceiver?.sender ||
+    pc.getSenders?.().find(
+      sender =>
+        sender.track?.kind === "video"
+    ) ||
+    null
+  );
+}
+
+function setScreenShareStatus(text,ok=false){
+  if(!dom.screenShareStatus)return;
+
+  dom.screenShareStatus.textContent=
+    text || "";
+
+  dom.screenShareStatus.classList.toggle(
+    "sucesso",
+    Boolean(ok)
+  );
+}
+
+function closeScreenShareModal(){
+  dom.screenShareModal?.classList.add(
+    "hidden"
+  );
+
+  setScreenShareStatus("");
+}
+
+async function loadElectronScreenSources(){
+  if(!dom.screenSourceGrid)return;
+
+  dom.screenSourceGrid.innerHTML="";
+  state.selectedScreenSourceId=null;
+
+  if(!isElectronDesktop()){
+    dom.screenSourceGrid.classList.add(
+      "browser-mode"
+    );
+
+    dom.screenSourceGrid.textContent=
+      "O navegador abrirá o seletor de tela/janela quando você clicar em Compartilhar.";
+
+    dom.screenSourceNote.textContent=
+      "Escolha qualidade e FPS primeiro.";
+
+    return;
+  }
+
+  dom.screenSourceGrid.classList.remove(
+    "browser-mode"
+  );
+
+  dom.screenSourceNote.textContent=
+    "Escolha qual tela ou janela deseja transmitir.";
+
+  setScreenShareStatus(
+    "Carregando telas e janelas..."
+  );
+
+  try{
+    const sources=
+      await window.lzzDesktop
+        .getScreenSources();
+
+    if(!sources?.length){
+      setScreenShareStatus(
+        "Nenhuma tela ou janela encontrada."
+      );
+
+      return;
+    }
+
+    sources.forEach(
+      (source,index)=>{
+        const btn=
+          document.createElement(
+            "button"
+          );
+
+        btn.type="button";
+        btn.className=
+          "screen-source-card";
+
+        btn.dataset.sourceId=
+          source.id;
+
+        const img=
+          document.createElement(
+            "img"
+          );
+
+        img.src=
+          source.thumbnail || "";
+
+        img.alt="";
+
+        const name=
+          document.createElement(
+            "span"
+          );
+
+        name.textContent=
+          source.name ||
+          `Fonte ${index+1}`;
+
+        btn.append(
+          img,
+          name
+        );
+
+        btn.onclick=()=>{
+          state.selectedScreenSourceId=
+            source.id;
+
+          dom.screenSourceGrid
+            .querySelectorAll(
+              ".screen-source-card"
+            )
+            .forEach(
+              item =>
+                item.classList.toggle(
+                  "ativo",
+                  item===btn
+                )
+            );
+        };
+
+        dom.screenSourceGrid
+          .appendChild(btn);
+
+        if(index===0){
+          btn.click();
+        }
+      }
+    );
+
+    setScreenShareStatus("");
+  }catch(error){
+    console.error(
+      "Fontes de tela:",
+      error
+    );
+
+    setScreenShareStatus(
+      "Não foi possível carregar as telas e janelas."
+    );
+  }
+}
+
+async function openScreenShareModal(){
+  if(!state.connected)return;
+
+  if(
+    window.Capacitor
+      ?.getPlatform?.() === "android"
+  ){
+    alert(
+      "No Android, o compartilhamento de tela ainda precisa do módulo nativo MediaProjection."
+    );
+
+    return;
+  }
+
+  if(
+    !navigator.mediaDevices
+      ?.getDisplayMedia
+  ){
+    alert(
+      "Compartilhamento de tela não é suportado neste dispositivo."
+    );
+
+    return;
+  }
+
+  dom.screenQuality.value=
+    state.screenShareConfig
+      .quality || "1080";
+
+  dom.screenFps.value=
+    String(
+      state.screenShareConfig
+        .fps || 30
+    );
+
+  dom.screenShareModal
+    ?.classList.remove(
+      "hidden"
+    );
+
+  await loadElectronScreenSources();
+}
+
+async function applyScreenTrackConfig(
+  track,
+  quality,
+  fps
+){
+  const cfg=
+    screenQualityConfig(
+      quality
+    );
+
+  track.contentHint="detail";
+
+  try{
+    await track.applyConstraints({
+      width:{
+        ideal:cfg.width,
+        max:cfg.width
+      },
+      height:{
+        ideal:cfg.height,
+        max:cfg.height
+      },
+      frameRate:{
+        ideal:Number(fps),
+        max:Number(fps)
+      }
+    });
+  }catch(error){
+    console.warn(
+      "Limites de captura:",
+      error
+    );
+  }
+
+  return cfg;
+}
+
+async function configureScreenSender(
+  sender,
+  fps
+){
+  if(!sender)return;
+
+  try{
+    const params=
+      sender.getParameters();
+
+    params.encodings=
+      params.encodings?.length
+        ? params.encodings
+        : [{}];
+
+    params.encodings[0]
+      .maxFramerate=
+        Number(fps);
+
+    params.degradationPreference=
+      "maintain-resolution";
+
+    await sender.setParameters(
+      params
+    );
+  }catch(error){
+    console.warn(
+      "Limite do encoder:",
+      error
+    );
+  }
+}
+
 async function startScreenShare(){
   if(!state.connected)return;
-  if(window.Capacitor?.getPlatform?.()==="android"){alert("Compartilhamento de tela no Android exige o módulo nativo MediaProjection. PC e web já funcionam.");return}
-  if(!navigator.mediaDevices?.getDisplayMedia){alert("Compartilhamento de tela não é suportado neste dispositivo.");return}
-  try{const s=await navigator.mediaDevices.getDisplayMedia({video:true,audio:false});state.screenStream=s;const track=s.getVideoTracks()[0];for(const pc of state.peers.values()){const sender=pc.getSenders().find(x=>x.track?.kind==="video")||pc.getSenders().find(x=>x.track===null&&x.transport);if(sender)await sender.replaceTrack(track)}const tile=document.createElement("div");tile.className="screen-tile";tile.id="localScreenTile";const v=document.createElement("video");v.autoplay=true;v.muted=true;v.playsInline=true;v.srcObject=s;tile.append(v,Object.assign(document.createElement("span"),{textContent:"Sua tela"}));dom.screenShareArea.appendChild(tile);dom.screenShareArea.classList.remove("hidden");dom.btnCompartilharTela.classList.add("ativo");track.onended=()=>stopScreenShare()}catch(e){console.warn(e)}}
-async function stopScreenShare(){if(!state.screenStream)return;state.screenStream.getTracks().forEach(t=>t.stop());for(const pc of state.peers.values()){const sender=pc.getSenders().find(x=>x.track?.kind==="video");if(sender)try{await sender.replaceTrack(null)}catch{}}state.screenStream=null;$("localScreenTile")?.remove();dom.btnCompartilharTela.classList.remove("ativo");if(!state.remoteVideos.size)dom.screenShareArea.classList.add("hidden")}
-dom.btnEntrar.onclick=joinCall;dom.btnSair.onclick=leaveCall;dom.btnMute.onclick=()=>{if(state.serverMuted){alert("Seu microfone foi mutado por um moderador.");return}state.muted=!state.muted;state.micStream?.getAudioTracks().forEach(t=>t.enabled=!state.muted);dom.btnMute.classList.toggle("ativo",state.muted);dom.profileMic.textContent=state.muted?"🔇":"🎙"};dom.profileMic.onclick=()=>{if(state.connected)dom.btnMute.click()};dom.btnAudio.onclick=()=>{state.deafened=!state.deafened;for(const a of state.remoteAudios.values())a.muted=state.deafened;dom.btnAudio.classList.toggle("ativo",state.deafened);dom.profileAudio.textContent=state.deafened?"🔇":"🎧"};dom.profileAudio.onclick=()=>{if(state.connected)dom.btnAudio.click()};dom.btnCompartilharTela.onclick=()=>state.screenStream?stopScreenShare():startScreenShare();
+
+  const quality=
+    dom.screenQuality?.value ||
+    state.screenShareConfig
+      .quality ||
+    "1080";
+
+  const fps=
+    Number(
+      dom.screenFps?.value ||
+      state.screenShareConfig
+        .fps ||
+      30
+    );
+
+  state.screenShareConfig={
+    quality,
+    fps
+  };
+
+  localStorage.setItem(
+    "lzz_screen_quality",
+    quality
+  );
+
+  localStorage.setItem(
+    "lzz_screen_fps",
+    String(fps)
+  );
+
+  try{
+    dom.btnStartScreenShare.disabled=
+      true;
+
+    setScreenShareStatus(
+      "Iniciando compartilhamento..."
+    );
+
+    if(isElectronDesktop()){
+      if(
+        !state.selectedScreenSourceId
+      ){
+        setScreenShareStatus(
+          "Escolha uma tela ou janela."
+        );
+
+        return;
+      }
+
+      await window.lzzDesktop
+        .selectScreenSource(
+          state.selectedScreenSourceId
+        );
+    }
+
+    const stream=
+      await navigator.mediaDevices
+        .getDisplayMedia({
+          video:true,
+          audio:false
+        });
+
+    const track=
+      stream.getVideoTracks()[0];
+
+    if(!track){
+      throw new Error(
+        "A captura não retornou vídeo."
+      );
+    }
+
+    const q=
+      await applyScreenTrackConfig(
+        track,
+        quality,
+        fps
+      );
+
+    state.screenStream=
+      stream;
+
+    for(
+      const pc of
+        state.peers.values()
+    ){
+      const sender=
+        screenVideoSender(pc);
+
+      if(sender){
+        await sender.replaceTrack(
+          track
+        );
+
+        await configureScreenSender(
+          sender,
+          fps
+        );
+      }
+    }
+
+    let tile=
+      $("localScreenTile");
+
+    if(!tile){
+      tile=
+        document.createElement(
+          "div"
+        );
+
+      tile.className=
+        "screen-tile";
+
+      tile.id=
+        "localScreenTile";
+
+      const video=
+        document.createElement(
+          "video"
+        );
+
+      video.autoplay=true;
+      video.muted=true;
+      video.playsInline=true;
+
+      const label=
+        document.createElement(
+          "span"
+        );
+
+      tile.append(
+        video,
+        label
+      );
+
+      dom.screenShareArea
+        .appendChild(tile);
+    }
+
+    tile.querySelector(
+      "video"
+    ).srcObject=
+      stream;
+
+    tile.querySelector(
+      "span"
+    ).textContent=
+      `Sua tela • ${q.label} • ${fps} FPS`;
+
+    dom.screenShareArea
+      .classList.remove(
+        "hidden"
+      );
+
+    dom.btnCompartilharTela
+      .classList.add(
+        "ativo"
+      );
+
+    track.onended=()=>{
+      stopScreenShare();
+    };
+
+    closeScreenShareModal();
+  }catch(error){
+    if(
+      error?.name !==
+        "NotAllowedError" &&
+      error?.name !==
+        "AbortError"
+    ){
+      console.error(
+        "Erro ao compartilhar tela:",
+        error
+      );
+
+      setScreenShareStatus(
+        error?.message ||
+        "Não foi possível compartilhar a tela."
+      );
+    }
+  }finally{
+    if(dom.btnStartScreenShare){
+      dom.btnStartScreenShare.disabled=
+        false;
+    }
+  }
+}
+
+async function stopScreenShare(){
+  if(!state.screenStream)return;
+
+  state.screenStream
+    .getTracks()
+    .forEach(
+      track =>
+        track.stop()
+    );
+
+  for(
+    const pc of
+      state.peers.values()
+  ){
+    const sender=
+      screenVideoSender(pc);
+
+    if(sender){
+      try{
+        await sender.replaceTrack(
+          null
+        );
+      }catch(error){
+        console.warn(error);
+      }
+    }
+  }
+
+  state.screenStream=null;
+
+  $("localScreenTile")
+    ?.remove();
+
+  dom.btnCompartilharTela
+    .classList.remove(
+      "ativo"
+    );
+
+  if(!state.remoteVideos.size){
+    dom.screenShareArea
+      .classList.add(
+        "hidden"
+      );
+  }
+}
+
+dom.btnFecharScreenShare
+  ?.addEventListener(
+    "click",
+    closeScreenShareModal
+  );
+
+dom.screenShareModal
+  ?.addEventListener(
+    "click",
+    event=>{
+      if(
+        event.target ===
+          dom.screenShareModal
+      ){
+        closeScreenShareModal();
+      }
+    }
+  );
+
+dom.btnRefreshScreenSources
+  ?.addEventListener(
+    "click",
+    loadElectronScreenSources
+  );
+
+dom.btnStartScreenShare
+  ?.addEventListener(
+    "click",
+    startScreenShare
+  );
+
+dom.btnEntrar.onclick=
+  joinCall;
+
+dom.btnSair.onclick=
+  leaveCall;
+
+dom.btnMute.onclick=()=>{
+  if(state.serverMuted){
+    alert(
+      "Seu microfone foi mutado por um moderador."
+    );
+
+    return;
+  }
+
+  state.muted=
+    !state.muted;
+
+  state.micStream
+    ?.getAudioTracks()
+    .forEach(
+      track =>
+        track.enabled=
+          !state.muted
+    );
+
+  dom.btnMute
+    .classList.toggle(
+      "ativo",
+      state.muted
+    );
+
+  dom.profileMic.textContent=
+    state.muted
+      ? "🔇"
+      : "🎙";
+};
+
+dom.profileMic.onclick=()=>{
+  if(state.connected){
+    dom.btnMute.click();
+  }
+};
+
+dom.btnAudio.onclick=()=>{
+  state.deafened=
+    !state.deafened;
+
+  for(
+    const audio of
+      state.remoteAudios.values()
+  ){
+    audio.muted=
+      state.deafened;
+  }
+
+  dom.btnAudio
+    .classList.toggle(
+      "ativo",
+      state.deafened
+    );
+
+  dom.profileAudio.textContent=
+    state.deafened
+      ? "🔇"
+      : "🎧";
+};
+
+dom.profileAudio.onclick=()=>{
+  if(state.connected){
+    dom.btnAudio.click();
+  }
+};
+
+dom.btnCompartilharTela.onclick=()=>{
+  state.screenStream
+    ? stopScreenShare()
+    : openScreenShareModal();
+};
+
 
 /* =========================================================
    SERVER SETTINGS / MEMBERS / ROLES / INVITES
