@@ -960,23 +960,516 @@ async function joinCall(){
 async function leaveCall(){
   if(!state.connected&&!state.micStream&&!state.signaling)return;state.connected=false;
   if(state.currentVoice){try{await state.presenceChannels.get(state.currentVoice.id)?.untrack()}catch{}}
-  await stopScreenShare();for(const pc of state.peers.values())pc.close();state.peers.clear();state.pendingIce.clear();for(const m of state.speakingMonitors.values())m.stop();state.speakingMonitors.clear();for(const a of state.remoteAudios.values()){a.srcObject=null;a.remove()}state.remoteAudios.clear();for(const v of state.remoteVideos.values())v.remove();state.remoteVideos.clear();state.micStream?.getTracks().forEach(t=>t.stop());state.micStream=null;if(state.signaling){await supabaseClient.removeChannel(state.signaling);state.signaling=null}await stopCallService();dom.btnEntrar.classList.remove("hidden");dom.btnMute.disabled=true;dom.btnAudio.disabled=true;dom.btnCompartilharTela.disabled=true;dom.btnSair.disabled=true;dom.btnMute.classList.remove("ativo");dom.btnAudio.classList.remove("ativo");dom.status.textContent="Você não está conectado.";state.muted=false;state.deafened=false;
+  await stopScreenShare();for(const pc of state.peers.values())pc.close();state.peers.clear();state.pendingIce.clear();for(const m of state.speakingMonitors.values())m.stop();state.speakingMonitors.clear();for(const a of state.remoteAudios.values()){a.srcObject=null;a.remove()}state.remoteAudios.clear();for(const v of state.remoteVideos.values())v.remove();state.remoteVideos.clear();refreshScreenShareAreaVisibility();state.micStream?.getTracks().forEach(t=>t.stop());state.micStream=null;if(state.signaling){await supabaseClient.removeChannel(state.signaling);state.signaling=null}await stopCallService();dom.btnEntrar.classList.remove("hidden");dom.btnMute.disabled=true;dom.btnAudio.disabled=true;dom.btnCompartilharTela.disabled=true;dom.btnSair.disabled=true;dom.btnMute.classList.remove("ativo");dom.btnAudio.classList.remove("ativo");dom.status.textContent="Você não está conectado.";state.muted=false;state.deafened=false;
 }
 function createPeer(remoteId){
   if(state.peers.has(remoteId))return state.peers.get(remoteId);const pc=new RTCPeerConnection(rtcConfig);state.micStream?.getTracks().forEach(t=>pc.addTrack(t,state.micStream));const vt=pc.addTransceiver("video",{direction:"sendrecv"});const screenTrack=state.screenStream?.getVideoTracks?.()[0];if(screenTrack){vt.sender.replaceTrack(screenTrack).then(()=>configureScreenSender(vt.sender,state.screenShareConfig.fps)).catch(console.warn);}
   pc.onicecandidate=e=>{if(e.candidate)sendSignal({tipo:"candidate",destino:remoteId,candidate:e.candidate})};
-  pc.ontrack=e=>{const stream=e.streams[0]||new MediaStream([e.track]);if(e.track.kind==="audio")attachRemoteAudio(remoteId,stream);else attachRemoteVideo(remoteId,stream)};
+pc.ontrack = e => {
+    const stream =
+        e.streams[0] ||
+        new MediaStream([e.track]);
+
+    if (e.track.kind === "audio") {
+        attachRemoteAudio(
+            remoteId,
+            stream
+        );
+
+        return;
+    }
+
+    // Vídeo do compartilhamento de tela.
+    // Não cria o painel enquanto não estiver
+    // chegando imagem de verdade.
+    const mostrarTela = () => {
+        if (
+            e.track.readyState !== "live" ||
+            e.track.muted
+        ) {
+            return;
+        }
+
+        attachRemoteVideo(
+            remoteId,
+            stream
+        );
+    };
+
+    const esconderTela = () => {
+        removeRemoteScreen(remoteId);
+    };
+
+    // Se já estiver transmitindo.
+    if (!e.track.muted) {
+        mostrarTela();
+    }
+
+    // Quando começar a chegar vídeo.
+    e.track.addEventListener(
+        "unmute",
+        mostrarTela
+    );
+
+    // Quando parar o compartilhamento.
+    e.track.addEventListener(
+        "mute",
+        () => {
+            setTimeout(() => {
+                if (e.track.muted) {
+                    esconderTela();
+                }
+            }, 300);
+        }
+    );
+
+    e.track.addEventListener(
+        "ended",
+        esconderTela
+    );
+};
   pc.onconnectionstatechange=()=>{if(["failed","closed","disconnected"].includes(pc.connectionState))removePeer(remoteId)};state.peers.set(remoteId,pc);return pc;
 }
 async function connectExistingPeers(){const users=presenceUsers(state.currentVoice.id).filter(u=>u.id!==state.user.id);for(const u of users){if(!state.peers.has(u.id)&&state.user.id<u.id)await makeOffer(u.id)}}
 function syncPeersWithPresence(){if(!state.currentVoice)return;const active=new Set(presenceUsers(state.currentVoice.id).map(u=>u.id));for(const id of state.peers.keys())if(!active.has(id))removePeer(id)}
 async function makeOffer(id){const pc=createPeer(id);const offer=await pc.createOffer();await pc.setLocalDescription(offer);await sendSignal({tipo:"offer",destino:id,sdp:pc.localDescription})}
+
+async function renegotiatePeer(remoteId) {
+    const pc = state.peers.get(remoteId);
+
+    if (!pc) return;
+
+    if (pc.signalingState !== "stable") {
+        console.warn(
+            "Peer ainda não está estável:",
+            remoteId,
+            pc.signalingState
+        );
+        return;
+    }
+
+    try {
+        const offer = await pc.createOffer();
+
+        await pc.setLocalDescription(offer);
+
+        await sendSignal({
+            tipo: "offer",
+            destino: remoteId,
+            sdp: pc.localDescription
+        });
+    } catch (e) {
+        console.error(
+            "Erro ao renegociar vídeo:",
+            e
+        );
+    }
+}
+
 async function sendSignal(data){await state.signaling?.send({type:"broadcast",event:"webrtc",payload:{...data,origem:state.user.id}})}
-async function receiveSignal(d){if(!d||d.origem===state.user.id||(d.destino&&d.destino!==state.user.id))return;const id=d.origem;let pc=state.peers.get(id);if(d.tipo==="offer"){pc=pc||createPeer(id);await pc.setRemoteDescription(d.sdp);await flushIce(id,pc);const ans=await pc.createAnswer();await pc.setLocalDescription(ans);await sendSignal({tipo:"answer",destino:id,sdp:pc.localDescription})}else if(d.tipo==="answer"&&pc){await pc.setRemoteDescription(d.sdp);await flushIce(id,pc)}else if(d.tipo==="candidate"&&d.candidate){if(!pc||!pc.remoteDescription){const a=state.pendingIce.get(id)||[];a.push(d.candidate);state.pendingIce.set(id,a)}else try{await pc.addIceCandidate(d.candidate)}catch(e){console.warn(e)}}}
+async function receiveSignal(d){
+  if(
+    !d ||
+    d.origem===state.user.id ||
+    (d.destino && d.destino!==state.user.id)
+  ){
+    return;
+  }
+
+  const id=d.origem;
+
+  if(d.tipo==="screen-state"){
+    if(d.ativo===false){
+      removeRemoteScreen(id);
+    }
+    return;
+  }
+
+  let pc=state.peers.get(id);
+
+  if(d.tipo==="offer"){
+    pc=pc||createPeer(id);
+
+    try{
+      await pc.setRemoteDescription(d.sdp);
+      await flushIce(id,pc);
+
+      const ans=await pc.createAnswer();
+      await pc.setLocalDescription(ans);
+
+      await sendSignal({
+        tipo:"answer",
+        destino:id,
+        sdp:pc.localDescription
+      });
+    }catch(e){
+      console.error("Erro ao responder offer:",e);
+    }
+
+    return;
+  }
+
+  if(d.tipo==="answer" && pc){
+    try{
+      await pc.setRemoteDescription(d.sdp);
+      await flushIce(id,pc);
+    }catch(e){
+      console.error("Erro ao aplicar answer:",e);
+    }
+
+    return;
+  }
+
+  if(d.tipo==="candidate" && d.candidate){
+    if(!pc || !pc.remoteDescription){
+      const a=state.pendingIce.get(id)||[];
+      a.push(d.candidate);
+      state.pendingIce.set(id,a);
+    }else{
+      try{
+        await pc.addIceCandidate(d.candidate);
+      }catch(e){
+        console.warn(e);
+      }
+    }
+  }
+}
 async function flushIce(id,pc){for(const c of state.pendingIce.get(id)||[])try{await pc.addIceCandidate(c)}catch{}state.pendingIce.delete(id)}
-function removePeer(id){const pc=state.peers.get(id);if(pc){pc.close();state.peers.delete(id)}const a=state.remoteAudios.get(id);if(a){a.remove();state.remoteAudios.delete(id)}const v=state.remoteVideos.get(id);if(v){v.remove();state.remoteVideos.delete(id)}state.speakingMonitors.get(id)?.stop()}
+function removePeer(id){
+  const pc=state.peers.get(id);
+
+  if(pc){
+    pc.close();
+    state.peers.delete(id);
+  }
+
+  const a=state.remoteAudios.get(id);
+
+  if(a){
+    a.srcObject=null;
+    a.remove();
+    state.remoteAudios.delete(id);
+  }
+
+  removeRemoteScreen(id);
+
+  state.speakingMonitors
+    .get(id)
+    ?.stop();
+}
 function attachRemoteAudio(id,stream){let a=state.remoteAudios.get(id);if(!a){a=document.createElement("audio");a.autoplay=true;a.playsInline=true;document.body.appendChild(a);state.remoteAudios.set(id,a)}a.muted=state.deafened;a.srcObject=stream;applyOutput(a);a.play().catch(()=>{});monitorSpeaking(stream,id)}
-function attachRemoteVideo(id,stream){let tile=state.remoteVideos.get(id);if(!tile){tile=document.createElement("div");tile.className="screen-tile";const v=document.createElement("video");v.autoplay=true;v.playsInline=true;const label=document.createElement("span");label.textContent=presenceUsers(state.currentVoice?.id).find(x=>x.id===id)?.name||"Tela compartilhada";tile.append(v,label);dom.screenShareArea.appendChild(tile);state.remoteVideos.set(id,tile)}tile.querySelector("video").srcObject=stream;dom.screenShareArea.classList.remove("hidden")}
+
+function ensureScreenFullscreenStyle(){
+  if(document.getElementById("lzzNativeFullscreenStyle"))return;
+
+  const style=document.createElement("style");
+  style.id="lzzNativeFullscreenStyle";
+  style.textContent=`
+    .screen-tile.lzz-native-fullscreen {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 2147483646 !important;
+
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: none !important;
+      max-height: none !important;
+
+      margin: 0 !important;
+      padding: 0 !important;
+
+      background: #000 !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      overflow: hidden !important;
+    }
+
+    .screen-tile.lzz-native-fullscreen video {
+      width: 100% !important;
+      height: 100% !important;
+
+      max-width: none !important;
+      max-height: none !important;
+
+      object-fit: contain !important;
+
+      background: #000 !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+    }
+
+    .screen-tile.lzz-native-fullscreen .screen-fullscreen-btn {
+      position: fixed !important;
+      top: 18px !important;
+      right: 18px !important;
+      z-index: 2147483647 !important;
+
+      opacity: 1 !important;
+    }
+
+    .screen-tile.lzz-native-fullscreen .screen-tile-label,
+    .screen-tile.lzz-native-fullscreen > span:not(.screen-fullscreen-btn) {
+      position: fixed !important;
+      left: 18px !important;
+      bottom: 18px !important;
+      z-index: 2147483647 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+}
+
+function getNativeFullscreenTile(){
+  return document.querySelector(
+    ".screen-tile.lzz-native-fullscreen"
+  );
+}
+
+async function exitNativeScreenFullscreen(){
+  const tile=getNativeFullscreenTile();
+
+  if(tile){
+    tile.classList.remove(
+      "lzz-native-fullscreen"
+    );
+  }
+
+  if(window.lzzDesktop?.setFullscreen){
+    try{
+      await window.lzzDesktop
+        .setFullscreen(false);
+    }catch(error){
+      console.warn(
+        "Erro ao sair da tela cheia:",
+        error
+      );
+    }
+  }
+}
+
+async function toggleScreenFullscreen(tile) {
+  if (!tile) return;
+
+  ensureScreenFullscreenStyle();
+
+  /*
+    No Electron usamos o fullscreen nativo da janela.
+    O Fullscreen API do HTML pode falhar/ficar inconsistente
+    em builds Electron; este caminho é mais confiável.
+  */
+  if(window.lzzDesktop?.setFullscreen){
+    const entrando=
+      !tile.classList.contains(
+        "lzz-native-fullscreen"
+      );
+
+    document
+      .querySelectorAll(
+        ".screen-tile.lzz-native-fullscreen"
+      )
+      .forEach(item=>{
+        if(item!==tile){
+          item.classList.remove(
+            "lzz-native-fullscreen"
+          );
+        }
+      });
+
+    tile.classList.toggle(
+      "lzz-native-fullscreen",
+      entrando
+    );
+
+    try{
+      await window.lzzDesktop
+        .setFullscreen(entrando);
+    }catch(error){
+      console.warn(
+        "Fullscreen Electron:",
+        error
+      );
+
+      tile.classList.remove(
+        "lzz-native-fullscreen"
+      );
+    }
+
+    return;
+  }
+
+  /*
+    Web normal continua usando a Fullscreen API.
+  */
+  try{
+    if (!document.fullscreenElement) {
+      await tile.requestFullscreen?.();
+    } else {
+      await document.exitFullscreen?.();
+    }
+  }catch(error){
+    console.warn(
+      "Fullscreen Web:",
+      error
+    );
+  }
+}
+
+document.addEventListener(
+  "keydown",
+  event=>{
+    if(
+      event.key==="Escape" &&
+      getNativeFullscreenTile()
+    ){
+      exitNativeScreenFullscreen();
+    }
+  }
+);
+
+window.lzzDesktop
+  ?.onFullscreenChange
+  ?.((ativo)=>{
+    if(!ativo){
+      getNativeFullscreenTile()
+        ?.classList.remove(
+          "lzz-native-fullscreen"
+        );
+    }
+  });
+
+function addFullscreenButton(tile) {
+    if (!tile || tile.querySelector(".screen-fullscreen-btn")) {
+        return;
+    }
+
+    const btn = document.createElement("button");
+
+    btn.type = "button";
+    btn.className = "screen-fullscreen-btn";
+    btn.textContent = "⛶";
+    btn.title = "Tela cheia";
+
+    btn.onclick = (e) => {
+        e.stopPropagation();
+        toggleScreenFullscreen(tile);
+    };
+
+    tile.addEventListener("dblclick", () => {
+        toggleScreenFullscreen(tile);
+    });
+
+    tile.appendChild(btn);
+}
+
+
+function refreshScreenShareAreaVisibility(){
+  if(!dom.screenShareArea)return;
+
+  const temLocal=
+    Boolean(
+      state.screenStream &&
+      state.screenStream
+        .getVideoTracks()
+        .some(track=>track.readyState==="live")
+    );
+
+  const temRemotaVisivel=
+    [...state.remoteVideos.values()]
+      .some(tile=>
+        tile &&
+        tile.isConnected &&
+        !tile.classList.contains("hidden")
+      );
+
+  dom.screenShareArea
+    .classList.toggle(
+      "hidden",
+      !temLocal && !temRemotaVisivel
+    );
+}
+
+function removeRemoteScreen(id){
+  const tile=
+    state.remoteVideos.get(id);
+
+  if(tile){
+    if(tile.classList.contains("lzz-native-fullscreen")){
+      exitNativeScreenFullscreen();
+    }
+
+    const video=
+      tile.querySelector("video");
+
+    if(video){
+      try{
+        video.pause?.();
+      }catch{}
+
+      video.srcObject=null;
+    }
+
+    tile.remove();
+    state.remoteVideos.delete(id);
+  }
+
+  refreshScreenShareAreaVisibility();
+}
+
+function attachRemoteVideo(id,stream){
+  let tile=state.remoteVideos.get(id);
+
+  if(!tile){
+    tile=document.createElement("div");
+    tile.className="screen-tile hidden";
+
+    const v=document.createElement("video");
+    v.autoplay=true;
+    v.playsInline=true;
+    v.muted=true;
+
+    const label=document.createElement("span");
+    label.className="screen-tile-label";
+    label.textContent=
+      presenceUsers(state.currentVoice?.id)
+        .find(x=>x.id===id)?.name ||
+      "Tela compartilhada";
+
+    tile.append(v,label);
+    addFullscreenButton(tile);
+
+    dom.screenShareArea.appendChild(tile);
+    state.remoteVideos.set(id,tile);
+  }
+
+  const video=tile.querySelector("video");
+
+  if(video.srcObject!==stream){
+    video.srcObject=stream;
+  }
+
+  const mostrar=()=>{
+    if(video.videoWidth>0 && video.videoHeight>0){
+      tile.classList.remove("hidden");
+      refreshScreenShareAreaVisibility();
+    }
+  };
+
+  video.onloadedmetadata=()=>{
+    video.play().catch(()=>{});
+    mostrar();
+  };
+
+  video.onloadeddata=mostrar;
+  video.onplaying=mostrar;
+  video.onresize=mostrar;
+
+  video.play().catch(()=>{});
+}
 function monitorSpeaking(stream,id){if(state.speakingMonitors.has(id)||!stream?.getAudioTracks().length)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ctx=new AC(),an=ctx.createAnalyser(),src=ctx.createMediaStreamSource(stream);src.connect(an);an.fftSize=256;const buf=new Uint8Array(an.fftSize);let raf,last=0;const run=()=>{an.getByteTimeDomainData(buf);let sum=0;for(const x of buf){const v=(x-128)/128;sum+=v*v}if(Math.sqrt(sum/buf.length)>.025)last=Date.now();document.querySelector(`[data-user-id="${id}"]`)?.classList.toggle("falando",Date.now()-last<220);raf=requestAnimationFrame(run)};run();state.speakingMonitors.set(id,{stop(){cancelAnimationFrame(raf);src.disconnect();ctx.close().catch(()=>{});state.speakingMonitors.delete(id)}})}
 function screenQualityConfig(value){
   const map={
@@ -1349,8 +1842,8 @@ async function startScreenShare(){
       stream;
 
     for(
-      const pc of
-        state.peers.values()
+      const [remoteId,pc] of
+        state.peers.entries()
     ){
       const sender=
         screenVideoSender(pc);
@@ -1363,6 +1856,14 @@ async function startScreenShare(){
         await configureScreenSender(
           sender,
           fps
+        );
+
+        /*
+          Força Web <-> Electron a atualizar
+          a negociação da faixa de vídeo.
+        */
+        await renegotiatePeer(
+          remoteId
         );
       }
     }
@@ -1401,6 +1902,8 @@ async function startScreenShare(){
         label
       );
 
+      addFullscreenButton(tile);
+
       dom.screenShareArea
         .appendChild(tile);
     }
@@ -1424,6 +1927,11 @@ async function startScreenShare(){
       .classList.add(
         "ativo"
       );
+
+    await sendSignal({
+      tipo:"screen-state",
+      ativo:true
+    });
 
     track.onended=()=>{
       stopScreenShare();
@@ -1456,14 +1964,20 @@ async function startScreenShare(){
 }
 
 async function stopScreenShare(){
-  if(!state.screenStream)return;
+  const oldStream=state.screenStream;
 
-  state.screenStream
-    .getTracks()
-    .forEach(
-      track =>
-        track.stop()
-    );
+  state.screenStream=null;
+
+  if(oldStream){
+    oldStream
+      .getTracks()
+      .forEach(track=>{
+        try{
+          track.onended=null;
+          track.stop();
+        }catch{}
+      });
+  }
 
   for(
     const pc of
@@ -1474,31 +1988,55 @@ async function stopScreenShare(){
 
     if(sender){
       try{
-        await sender.replaceTrack(
-          null
-        );
+        await sender.replaceTrack(null);
       }catch(error){
         console.warn(error);
       }
     }
   }
 
-  state.screenStream=null;
+  if(state.signaling){
+    try{
+      await sendSignal({
+        tipo:"screen-state",
+        ativo:false
+      });
+    }catch(error){
+      console.warn(
+        "Falha ao avisar fim da tela:",
+        error
+      );
+    }
+  }
 
-  $("localScreenTile")
-    ?.remove();
+  const localTile=
+    $("localScreenTile");
+
+  if(localTile){
+    if(localTile.classList.contains("lzz-native-fullscreen")){
+      await exitNativeScreenFullscreen();
+    }
+
+    const localVideo=
+      localTile.querySelector("video");
+
+    if(localVideo){
+      try{
+        localVideo.pause?.();
+      }catch{}
+
+      localVideo.srcObject=null;
+    }
+
+    localTile.remove();
+  }
 
   dom.btnCompartilharTela
     .classList.remove(
       "ativo"
     );
 
-  if(!state.remoteVideos.size){
-    dom.screenShareArea
-      .classList.add(
-        "hidden"
-      );
-  }
+  refreshScreenShareAreaVisibility();
 }
 
 dom.btnFecharScreenShare
